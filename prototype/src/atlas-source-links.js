@@ -1,4 +1,4 @@
-import catalog from '../../model-audit/upstream-catalog.local.json' with {type:'json'};
+import catalog from 'open-anatomy-3d/catalog.json' with {type:'json'};
 import inventory from '../../model-audit/hra-phase6-candidates.json' with {type:'json'};
 
 // Navigation hints only: a core source record may be related to a separately

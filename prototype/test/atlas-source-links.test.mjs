@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import catalog from '../../model-audit/upstream-catalog.local.json' with {type:'json'};
+import catalog from 'open-anatomy-3d/catalog.json' with {type:'json'};
 import inventory from '../../model-audit/hra-phase6-candidates.json' with {type:'json'};
 import {relatedHraSource,hraReferenceHref,parseHraReferenceQuery,parseAtlasReferenceQuery,atlasReturnHref} from '../src/atlas-source-links.js';
 

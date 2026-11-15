@@ -10,6 +10,12 @@ on:
       - 'prototype/test/hra-*'
       - 'prototype/src/hra-*'
       - 'prototype/hra-candidate.*'
+      - 'prototype/src/atlas-source-links.js'
+      - 'prototype/src/main.js'
+      - 'prototype/src/viewer.js'
+      - 'prototype/index.html'
+      - 'prototype/styles.css'
+      - 'prototype/test/atlas-phase7-browser.mjs'
       - 'prototype/vite.config.js'
   workflow_dispatch:
 
