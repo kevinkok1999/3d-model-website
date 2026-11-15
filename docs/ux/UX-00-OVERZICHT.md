@@ -83,3 +83,7 @@ Een scherm is klaar voor implementatie als route, componenten, inhoud, viewport,
 - Definitieve merknaam, logo, commerciële voorwaarden en eigen broncodelicentie.
 
 De documentatie is de bouwtekening; ze is geen bewijs van een werkend product.
+
+## 8. Uniforme kwaliteit over alle structuren
+
+De producteigenaar verlangt geen permanente kwaliteitsverschillen: de schouder is slechts de eerste technische spike. De [3D-modelkwaliteitsovereenkomst](../model/QUALITY-CONTRACT.md) verplicht per structurele doelentiteit gelijkwaardige bediening, bronkwaliteit, correcte verdieping, taal, toegankelijkheid en performance. Ontbrekende of onvoltooide onderdelen worden afgemaakt met eigenaarschap en bewijs; geen stilzwijgende scopevermindering. Een correct gemotiveerde inhoudelijke beperking (bijv. niet-bewegende structuur) mag als passende gecontroleerde uitleg voorkomen, nooit als lege kaart of fictieve anatomie.

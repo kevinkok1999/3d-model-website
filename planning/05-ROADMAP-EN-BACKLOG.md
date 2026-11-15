@@ -100,3 +100,18 @@ De volgorde is afhankelijkheidsgestuurd, niet kalendergestuurd. Elke volgende fa
 3. Voeg content/modes toe zonder renderer te herschrijven.
 4. Test toegankelijkheid en prestaties bij elke belangrijke wijziging.
 5. Pas na POC: zware anatomiefeatures en andere disciplines.
+
+## Verplichte aanvullende poort — uniforme anatomische compleetheid (G-COMPLETE)
+
+Deze poort volgt de oorspronkelijke G0–G3 technische ontwikkeling en vervangt geen bestaande tests. G0–G2 mogen als ontwikkelpreview worden uitgevoerd, maar zijn geen complete publieke atlas. Voor de volledige productvrijgave: alle afgesproken doelstructuren, lichaamsvarianten, regio's en systemen zijn afgewerkt; geen enkele open gap of ongereviewde claim. Raadpleeg [kwaliteitscontract](../docs/model/QUALITY-CONTRACT.md).
+
+| ID | Owner | Werkpakket | Acceptatiebewijs |
+|---|---|---|---|
+| GC-01 | anatomy + product | gereviewde doelcatalogus (concept, zijde, variant, regio, systeem, diepte) | expliciete doelnoemer; geen aantallen als surrogaat voor kwaliteit |
+| GC-02 | asset + license | kandidaat-to-target dekkingsmatrix, bron- en lacunetickets | iedere ontbrekende of samengevoegde structuur een eigenaar en gecontroleerde bronroute |
+| GC-03 | tech art + 3D | per domein alle vereiste modeldetails, identiteiten, LOD en tools afmaken | gevalideerde mapping, correcte meshes/hotspots en integratietests |
+| GC-04 | anatomy + content | vijf modi × twee talen, relaties en passende verdieping per structuur | gereviewde bronnen, contentversies en onderbouwde ervaringen |
+| GC-05 | QA + accessibility | volledige machinecontrole per ID en stratified tests op echte apparaten | 100% doelledger, geen open blocker; geen kwaliteitsregressie in zwakkere regio's |
+| GC-06 | architect + onafhankelijke reviewers | cross-domain releasebesluit | bewijslinks voor alle relevante assen, licentie-, inhouds- en QA-signoff |
+
+De [kandidaatledger](../model-audit/coverage-ledger.draft.json) begint op 0/285 afgetekend. Dit is een eerste werkvoorraad, geen definitieve anatomische target. Alle beoogde aanvullende concepten worden na bronreview toegevoegd aan de doelledger, niet uit de scope verwijderd. Toekomstige G4-modules krijgen een eigen gelijkwaardige G-COMPLETE-poort.

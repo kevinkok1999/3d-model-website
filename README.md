@@ -39,3 +39,11 @@ Verifieer elke bron, licentie, dependencyversie en compatibiliteitsclaim opnieuw
 ## Uitgebreide UX- en interfaceblauwdruk
 
 Bekijk [het geïntegreerde UX-overzicht](docs/ux/UX-00-OVERZICHT.md), inclusief schermbouwtekeningen voor desktop en mobiel, informatiearchitectuur, 3D-bediening, verdiepingen en gebruikerstests. Ontwerpvoorstellen zijn nog niet geïmplementeerd of empirisch gevalideerd.
+
+## 3D-model engineering en uniforme kwaliteitsnorm
+
+- [Geïntegreerde 3D-modelblauwdruk](docs/model/MASTER.md) — bronmodellen, renderengine, technische art, anatomie/biomechanica en performance.
+- [Uniform kwaliteitscontract](docs/model/QUALITY-CONTRACT.md) — iedere ontbrekende of onvoltooide structuur wordt een afmaaktaak. De schouder is alleen een technische spike.
+- [Model-audit en dekkingsledger](model-audit/README.md) — reproduceerbare cataloguscontrole, 285 kandidaatrijen en 19 reviewpunten per rij, tests. Geen anatomische GLB of werkende viewer geverifieerd.
+
+- [Afmaakbacklog van de eerste kandidaat](docs/model/GAP-BACKLOG.md) — gegroepeerde/ontbrekende structuren krijgen bron-, detail- en reviewtaken.
