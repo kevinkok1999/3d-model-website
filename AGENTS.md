@@ -13,3 +13,6 @@ Lees eerst README.md, docs/01-MASTERPLAN.md, docs/02-SPECIALISTENTEAM.md, docs/0
 - Houd public/ vrij van interne ontwikkelbestanden; alleen release-assets horen daar.
 - Voeg geen licentie toe voor eigen code zonder expliciete keuze van de projecteigenaar. Externe assets houden hun eigen licenties.
 - Eerste mijlpaal: één anatomisch model, één selecteerbare schouderstructuur, betrouwbare NL/EN-inhoud en meetbare prestaties. Pas daarna uitbreiden.
+## UX-implementatie
+- Lees docs/ux/UX-00-OVERZICHT.md en de betreffende UX-01 t/m UX-05 vóór wijzigingen aan route, viewer, layout, inhoud of gebruikerstests.
+- Gebruik bestaande releasegates als leidend; bij conflicten eerst ADR en review. Schematische wireframes zijn ontwerp, geen medisch gevalideerde assets.

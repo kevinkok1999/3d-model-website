@@ -35,3 +35,7 @@
 ## Aanname versus verificatie
 
 Verifieer elke bron, licentie, dependencyversie en compatibiliteitsclaim opnieuw tijdens implementatie. Externe open-source repositories zijn geen garantie van medische kwaliteit of productiegeschiktheid.
+
+## Uitgebreide UX- en interfaceblauwdruk
+
+Bekijk [het geïntegreerde UX-overzicht](docs/ux/UX-00-OVERZICHT.md), inclusief schermbouwtekeningen voor desktop en mobiel, informatiearchitectuur, 3D-bediening, verdiepingen en gebruikerstests. Ontwerpvoorstellen zijn nog niet geïmplementeerd of empirisch gevalideerd.
