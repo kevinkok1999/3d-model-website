@@ -16,3 +16,6 @@ De huidige repository bevat uitsluitend technische voorbereiding en een dependen
 - Licentie eigen code: keuze eigenaar.
 - Bron en rechten van anatomische modellen: per asset vastleggen.
 - Privacy en opslag: lokaal tenzij later expliciet goedgekeurd.
+
+## UX-voorbereiding
+Lees vóór de technische spike [de UX-blauwdruk](docs/ux/UX-00-OVERZICHT.md). Volg de vijf specialistische werkproducten en de bestaande releasepoorten. De visuele wireframes zijn schematische ontwerpreferenties, geen anatomische modellen.
