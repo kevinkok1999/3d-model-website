@@ -1,6 +1,6 @@
 name: HRA reference source intake
 
-# Source-only technical audit, no deployment or geometry artifact.
+# Source-only technical and local browser audit, no deployment or model artifact.
 on:
   push:
     branches: [spike/anatomy-engine-v1]
@@ -8,6 +8,9 @@ on:
       - '.github/workflows/hra-reference-intake.yml'
       - 'model-audit/hra-*'
       - 'prototype/test/hra-*'
+      - 'prototype/src/hra-*'
+      - 'prototype/hra-candidate.*'
+      - 'prototype/vite.config.js'
   workflow_dispatch:
 
 permissions:
@@ -16,12 +19,13 @@ permissions:
 jobs:
   intake:
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+          cache: npm
       - name: Verify and acquire the four exact pinned reference models and crosswalks
         shell: bash
         run: |
@@ -59,6 +63,33 @@ jobs:
         run: |
           set -euo pipefail
           node model-audit/hra-reference-audit.mjs "$RUNNER_TEMP/hra-intake/assets" model-audit/hra-intake-candidates.json "$RUNNER_TEMP/hra-intake/reports/audit.json"
+
+      - name: Stage exact audited original files only for the local candidate
+        run: node model-audit/hra-stage-candidate.mjs "$RUNNER_TEMP/hra-intake/assets" model-audit/hra-intake-candidates.json "$RUNNER_TEMP/hra-intake/reports/audit.json" prototype/public/hra-candidate
+
+      - name: Build local-only anatomical reference viewer
+        run: npm ci && npm run build
+
+      - name: Install the locked Chromium browser
+        run: npx --no-install playwright install --with-deps chromium
+
+      - name: Verify actual four HRA references in Chromium
+        shell: bash
+        env:
+          SMOKE_SCREENSHOT_DIR: ${{ runner.temp }}/hra-intake/reports/browser-screenshots
+        run: |
+          set -euo pipefail
+          npm run preview -- --port 4173 --strictPort > "$RUNNER_TEMP/hra-intake/reports/preview.log" 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:4173/hra-candidate.html >/dev/null; then ready=1; break; fi
+            if ! kill -0 "$preview_pid" 2>/dev/null; then break; fi
+            sleep 1
+          done
+          test "$ready" = 1
+          node prototype/test/hra-browser-smoke.mjs http://127.0.0.1:4173 | tee "$RUNNER_TEMP/hra-intake/reports/browser.log"
 
       - name: Preserve technical evidence only
         if: always()

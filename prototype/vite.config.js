@@ -9,6 +9,7 @@ export default defineConfig({
       input: {
         atlas: page('./index.html'),
         bodyparts3dCandidate: page('./bodyparts3d-candidate.html'),
+        hraCandidate: page('./hra-candidate.html'),
       },
     },
   },

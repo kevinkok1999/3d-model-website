@@ -8,3 +8,4 @@ dist/
 playwright-report/
 test-results/
 prototype/public/bodyparts3d-candidate/
+prototype/public/hra-candidate/
