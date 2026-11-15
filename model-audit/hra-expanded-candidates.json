@@ -1,0 +1,596 @@
+{
+  "schemaVersion": 1,
+  "status": "CANDIDATE_INVENTORY_NOT_DOWNLOADED",
+  "wave": "expanded",
+  "source": {
+    "provider": "Human Reference Atlas (HRA), HuBMAP",
+    "repository": "https://github.com/hubmapconsortium/hra-kg",
+    "commit": "27d6d493cd53761abb10f087767ec4cc74acb051",
+    "refOrganTreeGitSha1": "fb3b43f21796dc63b93e2bbb88274b300314d3b6",
+    "libraryUrl": "https://humanatlas.io/3d-reference-library",
+    "vccfUrl": "https://humanatlas.io/vccf",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "verifiedAt": "2026-11-15",
+    "notes": "Explicit expanded technical intake candidate: four initial source pins and nine next-wave source pins plus independent older male lung v1.3. This does not alter either earlier manifest, fix male lung v1.4, or waive strict auditing. v1.4 remains blocked; hyoid remains unresolved. All rows preserve original pinned source metadata. Source preflight is not anatomical, medical, spatial registration, license signoff, or complete-body approval."
+  },
+  "sources": [
+    {
+      "id": "blood-vasculature-female",
+      "variant": "female",
+      "version": "v1.3",
+      "system": "vessels",
+      "title": "3D Reference Organ for Blood Vasculature, Female",
+      "doi": "https://doi.org/10.48539/HBM322.KKFC.394",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Dataset, National Library of Medicine, adapted by Kristen Browne and Heidi Schlehlein; asset metadata dates 2024-06-15. Registration with other datasets requires review.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/blood-vasculature-female/v1.3/raw/metadata.yaml",
+        "bytes": 2121,
+        "gitBlobSha1": "cbe3b8f8f7f342473705c4d9431ee6a7d20b8813"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/blood-vasculature-female/v1.3/raw/3d-vh-f-blood-vasculature.glb",
+        "bytes": 17875996,
+        "gitBlobSha1": "29e13d79641eabed2c1e3590d140fec005350964",
+        "filename": "3d-vh-f-blood-vasculature.glb",
+        "localPath": "blood-vasculature-female/3d-vh-f-blood-vasculature.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/blood-vasculature-female/v1.3/raw/crosswalk.csv",
+        "bytes": 7855,
+        "gitBlobSha1": "3e1646c141bd8234dea243dc0c44e0d035900c59",
+        "filename": "crosswalk.csv",
+        "localPath": "blood-vasculature-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 125,
+        "expectedUniqueOntologyIds": 100
+      }
+    },
+    {
+      "id": "blood-vasculature-male",
+      "variant": "male",
+      "version": "v1.3",
+      "system": "vessels",
+      "title": "3D Reference Organ for Blood Vasculature, Male",
+      "doi": "https://doi.org/10.48539/HBM473.XTPP.725",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Dataset, National Library of Medicine, adapted by Kristen Browne and Heidi Schlehlein; asset metadata dates 2024-06-15. Source description unexpectedly says blood-vasculature-female, but title, file, object ID, and citation identify male. Resolve discrepancy with asset and reviewer before trusting anatomical variant.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/blood-vasculature-male/v1.3/raw/metadata.yaml",
+        "bytes": 2121,
+        "gitBlobSha1": "91ca1282f753666f7fc740bc0b4e35f43d68cf1e"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/blood-vasculature-male/v1.3/raw/3d-vh-m-blood-vasculature.glb",
+        "bytes": 18050040,
+        "gitBlobSha1": "a884ad03bd510ab8a29ead2ddcfe1612e1ee99f1",
+        "filename": "3d-vh-m-blood-vasculature.glb",
+        "localPath": "blood-vasculature-male/3d-vh-m-blood-vasculature.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/blood-vasculature-male/v1.3/raw/crosswalk.csv",
+        "bytes": 7756,
+        "gitBlobSha1": "b620458005bd6c67f50c2e2dca6f721e3bc06586",
+        "filename": "crosswalk.csv",
+        "localPath": "blood-vasculature-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 123,
+        "expectedUniqueOntologyIds": 99
+      }
+    },
+    {
+      "id": "brain-female",
+      "variant": "female",
+      "version": "v1.4",
+      "system": "nerves",
+      "title": "3D Reference Organ for Brain, Female",
+      "doi": "https://doi.org/10.48539/HBM674.NTLM.353",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Allen brain reference atlas (Ding et al. 2016), adapted by Kristen Browne and Heidi Schlehlein. Source states mirrored structures and rescaling to fit both Visible Human bodies; not an independent female brain scan. License changed at v1.3 to CC BY 4.0, v1.4 metadata dates 2024-06-15. Does not cover peripheral nerves.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/brain-female/v1.4/raw/metadata.yaml",
+        "bytes": 2865,
+        "gitBlobSha1": "1d8beb30a35a53521a89878edd49f58907b781bc"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/brain-female/v1.4/raw/3d-allen-f-brain.glb",
+        "bytes": 11983380,
+        "gitBlobSha1": "f854b1a4566e3025a1519bc38b78878da882b726",
+        "filename": "3d-allen-f-brain.glb",
+        "localPath": "brain-female/3d-allen-f-brain.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/brain-female/v1.4/raw/crosswalk.csv",
+        "bytes": 7274,
+        "gitBlobSha1": "6f16fb198bbf598d0a36ae4f755961bc8a3aea31",
+        "filename": "crosswalk.csv",
+        "localPath": "brain-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 108,
+        "expectedUniqueOntologyIds": 58
+      }
+    },
+    {
+      "id": "brain-male",
+      "variant": "male",
+      "version": "v1.4",
+      "system": "nerves",
+      "title": "3D Reference Organ for Brain, Male",
+      "doi": "https://doi.org/10.48539/HBM538.NKCT.649",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Allen brain reference atlas (Ding et al. 2016), adapted by Kristen Browne and Heidi Schlehlein. Source states mirrored structures and rescaling to fit both Visible Human bodies; not an independent male brain scan. License changed at v1.3 to CC BY 4.0, v1.4 metadata dates 2024-06-15. Does not cover peripheral nerves.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/brain-male/v1.4/raw/metadata.yaml",
+        "bytes": 2746,
+        "gitBlobSha1": "be71488d821c2e8af60ca5abc41b467359c9f87b"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/brain-male/v1.4/raw/3d-allen-m-brain.glb",
+        "bytes": 11982812,
+        "gitBlobSha1": "a5de26ce952e471d96ddcdf189b930de9f2e12a6",
+        "filename": "3d-allen-m-brain.glb",
+        "localPath": "brain-male/3d-allen-m-brain.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/brain-male/v1.4/raw/crosswalk.csv",
+        "bytes": 7274,
+        "gitBlobSha1": "9489946556ab9872ad896ef98eb27b78fe44899c",
+        "filename": "crosswalk.csv",
+        "localPath": "brain-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 108,
+        "expectedUniqueOntologyIds": 58
+      }
+    },
+    {
+      "id": "heart-female",
+      "variant": "female",
+      "version": "v1.3",
+      "system": "organs",
+      "title": "3D Reference Organ for Heart, Female",
+      "doi": "https://doi.org/10.48539/HBM449.SHRV.225",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Dataset, National Library of Medicine; adapted by Kristen Browne and Heidi Schlehlein. A reference heart, not circulation simulation; reconcile overlapping vessels with vasculature assets.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/heart-female/v1.3/raw/metadata.yaml",
+        "bytes": 1965,
+        "gitBlobSha1": "fc9e8d572a57f9dc544ac85fb459d2e60c78e22e"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/heart-female/v1.3/raw/3d-vh-f-heart.glb",
+        "bytes": 1745560,
+        "gitBlobSha1": "750adbdaf5e43ece6bbbeaa8a283ebb0b7b20f5c",
+        "filename": "3d-vh-f-heart.glb",
+        "localPath": "heart-female/3d-vh-f-heart.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/heart-female/v1.3/raw/crosswalk.csv",
+        "bytes": 1170,
+        "gitBlobSha1": "8b3492cec6a3b4a4433b60dae84ccbfc17085231",
+        "filename": "crosswalk.csv",
+        "localPath": "heart-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 17,
+        "expectedUniqueOntologyIds": 17
+      }
+    },
+    {
+      "id": "heart-male",
+      "variant": "male",
+      "version": "v1.3",
+      "system": "organs",
+      "title": "3D Reference Organ for Heart, Male",
+      "doi": "https://doi.org/10.48539/HBM564.WKNG.249",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Male, National Library of Medicine; adapted by Kristen Browne. A reference heart, not circulation simulation; reconcile overlapping vessels with vasculature assets.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/heart-male/v1.3/raw/metadata.yaml",
+        "bytes": 1998,
+        "gitBlobSha1": "f0e80e15b3cd909af93b88dc2c9eb16ef956087d"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/heart-male/v1.3/raw/3d-vh-m-heart.glb",
+        "bytes": 4071772,
+        "gitBlobSha1": "6faffa67aaa6588d9d1058021d5b335d781bba1c",
+        "filename": "3d-vh-m-heart.glb",
+        "localPath": "heart-male/3d-vh-m-heart.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/heart-male/v1.3/raw/crosswalk.csv",
+        "bytes": 1216,
+        "gitBlobSha1": "b26446dc3690c0c4635f7f14068a4efe1f9fbbec",
+        "filename": "crosswalk.csv",
+        "localPath": "heart-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 17,
+        "expectedUniqueOntologyIds": 17
+      }
+    },
+    {
+      "id": "liver-female",
+      "variant": "female",
+      "version": "v1.2",
+      "system": "organs",
+      "title": "3D Reference Organ for Liver, Female",
+      "doi": "https://doi.org/10.48539/HBM599.GZLD.639",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Dataset, National Library of Medicine; adapted by Kristen Browne and Heidi Schlehlein. Confirm lobar/vessel alignment with the separately sourced vasculature and GI models.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/liver-female/v1.2/raw/metadata.yaml",
+        "bytes": 2151,
+        "gitBlobSha1": "c4b7d016b625f9156e394d575eae6a1aa30c5323"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/liver-female/v1.2/raw/3d-vh-f-liver.glb",
+        "bytes": 1738552,
+        "gitBlobSha1": "8b44a99e5c7d73048085fc1c27895dff35305ce5",
+        "filename": "3d-vh-f-liver.glb",
+        "localPath": "liver-female/3d-vh-f-liver.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/liver-female/v1.2/raw/crosswalk.csv",
+        "bytes": 1521,
+        "gitBlobSha1": "c234ca6e13703b283cec3e6e9bb8d6c486cee004",
+        "filename": "crosswalk.csv",
+        "localPath": "liver-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 23,
+        "expectedUniqueOntologyIds": 23
+      }
+    },
+    {
+      "id": "liver-male",
+      "variant": "male",
+      "version": "v1.2",
+      "system": "organs",
+      "title": "3D Reference Organ for Liver, Male",
+      "doi": "https://doi.org/10.48539/HBM896.WMSL.867",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Male, National Library of Medicine; adapted by Kristen Browne and Heidi Schlehlein. Confirm lobar/vessel alignment with the separately sourced vasculature and GI models.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/liver-male/v1.2/raw/metadata.yaml",
+        "bytes": 2314,
+        "gitBlobSha1": "accb0520dfdf66f1cc6333a850af8b375809c7ec"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/liver-male/v1.2/raw/3d-vh-m-liver.glb",
+        "bytes": 1136412,
+        "gitBlobSha1": "9808fbac25ffb21372a49d13b3d9a01a8339e902",
+        "filename": "3d-vh-m-liver.glb",
+        "localPath": "liver-male/3d-vh-m-liver.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/liver-male/v1.2/raw/crosswalk.csv",
+        "bytes": 1511,
+        "gitBlobSha1": "76a96abbb52419081a10604901478354358c56a0",
+        "filename": "crosswalk.csv",
+        "localPath": "liver-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 23,
+        "expectedUniqueOntologyIds": 23
+      }
+    },
+    {
+      "id": "lung-female",
+      "variant": "female",
+      "version": "v1.4",
+      "system": "organs",
+      "title": "3D Reference Organ for Lung, Female",
+      "doi": "https://doi.org/10.48539/HBM994.HXJP.575",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Dataset, National Library of Medicine; adapted by Kristen Browne and Heidi Schlehlein. Source states that in v1.3 larynx, trachea and main bronchi were removed, preserving lobes and intrapulmonary bronchi; those upper airway assets remain separate gaps.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/lung-female/v1.4/raw/metadata.yaml",
+        "bytes": 2124,
+        "gitBlobSha1": "fa44414d5fe35cbd3ca4b91e25c9966c7f5b4a56"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/lung-female/v1.4/raw/3d-vh-f-lung.glb",
+        "bytes": 23255188,
+        "gitBlobSha1": "6fcfff36d2d11b8c3884de40ad9515e830444d11",
+        "filename": "3d-vh-f-lung.glb",
+        "localPath": "lung-female/3d-vh-f-lung.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/lung-female/v1.4/raw/crosswalk.csv",
+        "bytes": 5341,
+        "gitBlobSha1": "c6ccde655f8601fa5d47bbb0c25fed253e092e7f",
+        "filename": "crosswalk.csv",
+        "localPath": "lung-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 70,
+        "expectedUniqueOntologyIds": 62
+      }
+    },
+    {
+      "id": "lung-male",
+      "variant": "male",
+      "version": "v1.3",
+      "system": "organs",
+      "title": "3D Reference Organ for Lung, Male",
+      "doi": "https://doi.org/10.48539/HBM737.FFBT.876",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Male, National Library of Medicine; adapted by Kristen Browne and Heidi Schlehlein; metadata date 2023-06-15. Source states that v1.3 removed the larynx, trachea and main bronchi, retaining lobes and intrapulmonary bronchi. The v1.3 source crosswalk has 71 records and no hyoid; v1.4 added VH_M_hyoid as its sole CSV row addition and failed the separate strict geometry audit. A v1.3 pass would only establish the stated older-source scope, not resolve the v1.4 defect or the hyoid gap. No silent substitution allowed.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/lung-male/v1.3/raw/metadata.yaml",
+        "bytes": 1671,
+        "gitBlobSha1": "70d85c0922f4c70e28df2b58b50ed363f3cb47bd"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/lung-male/v1.3/raw/3d-vh-m-lung.glb",
+        "bytes": 10941068,
+        "gitBlobSha1": "dbbfdaf4cc51ea7d75cb0887b8fa003b8da9c00a",
+        "filename": "3d-vh-m-lung.glb",
+        "localPath": "lung-male/3d-vh-m-lung.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/lung-male/v1.3/raw/crosswalk.csv",
+        "bytes": 5378,
+        "gitBlobSha1": "0cb382d5ebcec9b4ae2760bfcca8b0fb1386d9d6",
+        "filename": "crosswalk.csv",
+        "localPath": "lung-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 71,
+        "expectedUniqueOntologyIds": 59
+      }
+    },
+    {
+      "id": "small-intestine-female",
+      "variant": "female",
+      "version": "v1.2",
+      "system": "organs",
+      "title": "3D Reference Organ for Small Intestine, Female",
+      "doi": "https://doi.org/10.48539/HBM784.FBXB.245",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Dataset, National Library of Medicine; adapted by Kristen Browne and Heidi Schlehlein. Source includes position/measurement guides along a centerline, not all anatomy; source node spelling VH_F_jejenum must be preserved verbatim. Source-specific segment lengths are not population norms.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/small-intestine-female/v1.2/raw/metadata.yaml",
+        "bytes": 2379,
+        "gitBlobSha1": "7045b79e7476e32c8f7300cd25ba75829870275b"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/small-intestine-female/v1.2/raw/3d-vh-f-small-intestine.glb",
+        "bytes": 856536,
+        "gitBlobSha1": "c3e367680e9e64dfee4e12f257c70dab22f354c7",
+        "filename": "3d-vh-f-small-intestine.glb",
+        "localPath": "small-intestine-female/3d-vh-f-small-intestine.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/small-intestine-female/v1.2/raw/crosswalk.csv",
+        "bytes": 635,
+        "gitBlobSha1": "6e589360039da601ee2be1b0c4d65e28bcdc7511",
+        "filename": "crosswalk.csv",
+        "localPath": "small-intestine-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 11,
+        "expectedUniqueOntologyIds": 11
+      }
+    },
+    {
+      "id": "small-intestine-male",
+      "variant": "male",
+      "version": "v1.2",
+      "system": "organs",
+      "title": "3D Reference Organ for Small Intestine, Male",
+      "doi": "https://doi.org/10.48539/HBM789.XTDK.794",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Male, National Library of Medicine; adapted by Kristen Browne and Heidi Schlehlein. Source includes position/measurement guides along a centerline, not all anatomy; source node spelling VH_M_duodenum_horizonal must be preserved verbatim. Source-specific segment lengths are not population norms.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/small-intestine-male/v1.2/raw/metadata.yaml",
+        "bytes": 2529,
+        "gitBlobSha1": "6099fa14ce4ab1e30c460bece79924f06e084fd7"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/small-intestine-male/v1.2/raw/3d-vh-m-small-intestine.glb",
+        "bytes": 618728,
+        "gitBlobSha1": "936f5a4ace62807357867e1f1f7c34b0a8b8bfd6",
+        "filename": "3d-vh-m-small-intestine.glb",
+        "localPath": "small-intestine-male/3d-vh-m-small-intestine.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/small-intestine-male/v1.2/raw/crosswalk.csv",
+        "bytes": 694,
+        "gitBlobSha1": "95f4ef0c3927b1012fa119c9de0182e7acf093bb",
+        "filename": "crosswalk.csv",
+        "localPath": "small-intestine-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 12,
+        "expectedUniqueOntologyIds": 12
+      }
+    },
+    {
+      "id": "spinal-cord-female",
+      "variant": "female",
+      "version": "v1.1",
+      "system": "nerves",
+      "title": "3D Reference Organ for Spinal Cord, Female",
+      "doi": "https://doi.org/10.48539/HBM242.QQQB.777",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Dataset, National Library of Medicine; adapted by Kristen Browne and Heidi Schlehlein. Source specifies this subject had six lumbar vertebrae; this is reference-specific, not general anatomy. Crosswalk does not list the fifth sacral segment found in the male crosswalk. Preserve explicit gap and do not fabricate a match.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spinal-cord-female/v1.1/raw/metadata.yaml",
+        "bytes": 2170,
+        "gitBlobSha1": "95d63c44f55c93d24d29205d68490c69f062cec0"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spinal-cord-female/v1.1/raw/3d-vh-f-spinal-cord.glb",
+        "bytes": 7657228,
+        "gitBlobSha1": "8f5f22edc05279a5e85679a037f40f775166c1fa",
+        "filename": "3d-vh-f-spinal-cord.glb",
+        "localPath": "spinal-cord-female/3d-vh-f-spinal-cord.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spinal-cord-female/v1.1/raw/crosswalk.csv",
+        "bytes": 2701,
+        "gitBlobSha1": "5e17e4a5460c1019f57671442bafea2c69fbd029",
+        "filename": "crosswalk.csv",
+        "localPath": "spinal-cord-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 30,
+        "expectedUniqueOntologyIds": 30
+      }
+    },
+    {
+      "id": "spinal-cord-male",
+      "variant": "male",
+      "version": "v1.1",
+      "system": "nerves",
+      "title": "3D Reference Organ for Spinal Cord, Male",
+      "doi": "https://doi.org/10.48539/HBM575.VDJW.494",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Visible Human Male, National Library of Medicine; adapted by Kristen Browne and Heidi Schlehlein. Source uses Frostell et al. 2016 during model preparation; spinal cord does not constitute peripheral nerve coverage.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spinal-cord-male/v1.1/raw/metadata.yaml",
+        "bytes": 2496,
+        "gitBlobSha1": "c192bde9c4e7b45b987561866adfaaeb090db377"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spinal-cord-male/v1.1/raw/3d-vh-m-spinal-cord.glb",
+        "bytes": 490652,
+        "gitBlobSha1": "c1d901c120f1b43ed04974e3a2a7cb2106e11e22",
+        "filename": "3d-vh-m-spinal-cord.glb",
+        "localPath": "spinal-cord-male/3d-vh-m-spinal-cord.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spinal-cord-male/v1.1/raw/crosswalk.csv",
+        "bytes": 2789,
+        "gitBlobSha1": "e14ed3c5c43dd07f909810c11fc6828d9b6904f3",
+        "filename": "crosswalk.csv",
+        "localPath": "spinal-cord-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 31,
+        "expectedUniqueOntologyIds": 31
+      }
+    }
+  ],
+  "excludedSources": [
+    {
+      "id": "lung-male",
+      "version": "v1.4",
+      "status": "BLOCKED_SOURCE_MAPPING",
+      "reason": "Missing exact VH_M_hyoid node in pinned source GLB; no correction, alias, row removal or fallback."
+    }
+  ],
+  "openGaps": [
+    {
+      "system": "vessels",
+      "reviewState": "BLOCKED_ANATOMICAL_REVIEW",
+      "reason": "Source variant provenance, male description typo, source mapping, unit/pose alignment and branch continuity require evidence."
+    },
+    {
+      "system": "nerves",
+      "reviewState": "BLOCKED_SOURCE_MAPPING",
+      "reason": "Brain geometry alone does not cover peripheral nerves; separate assets, source rights and anatomical mapping remain required."
+    },
+    {
+      "system": "all",
+      "reviewState": "NOT_DOWNLOADED",
+      "reason": "No GLB bytes, real geometry decode, measured bounds, anatomy review or clinical validation obtained. All four candidates require actual intake and identical release-quality review."
+    },
+    {
+      "system": "organs",
+      "reviewState": "BLOCKED_SOURCE_MAPPING",
+      "reason": "Urinary detail needs four separately pinned kidney reference objects (left/right x male/female) next; other GI organs, upper airway, lymphatic, endocrine, reproductive and other organ-system structures remain open. Source releases are independent and may overlap."
+    },
+    {
+      "system": "organs",
+      "reviewState": "BLOCKED_ANATOMICAL_REVIEW",
+      "reason": "Heart and liver overlap vasculature; lung excludes separate larynx, trachea and main bronchi; small intestine may contain unmapped measurement guides. Do not confuse root/group nodes, markers or overlapping reference objects with standalone anatomy."
+    },
+    {
+      "system": "nerves",
+      "reviewState": "BLOCKED_SOURCE_MAPPING",
+      "reason": "Spinal cord is central nervous system, not peripheral nerve coverage. Female crosswalk has a missing fifth sacral segment relative to male; record a gap, review source-specific variant, do not infer missing geometry."
+    },
+    {
+      "system": "all",
+      "reviewState": "NOT_DOWNLOADED",
+      "reason": "No binary model bytes obtained, no checked local geometry, render, measured bounds, cross-organ registration or clinical review. All sources await identical quality gate."
+    },
+    {
+      "system": "organs",
+      "reviewState": "BLOCKED_SOURCE_MAPPING",
+      "reason": "Lung-male v1.4 exact VH_M_hyoid / UBERON:0001685 mapping unresolved. Do not change v1.4 pin or remove a row. v1.3 is an independent older-source candidate in its own audit directory only."
+    },
+    {
+      "system": "skeleton",
+      "reviewState": "BLOCKED_SOURCE_MAPPING",
+      "reason": "Separate hyoid anatomy source and mapping remain necessary; neither the v1.3 male lung nor the checked male larynx v1.0/v1.1 crosswalk lists the hyoid. No fabricated mesh or inferred alias."
+    },
+    {
+      "system": "organs",
+      "reviewState": "NOT_DOWNLOADED",
+      "reason": "Source-level candidate only; actual GLB bytes, strict parsing, node mapping, geometry, variant, fit and anatomical review remain unverified."
+    }
+  ]
+}

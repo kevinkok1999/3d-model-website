@@ -1,0 +1,707 @@
+{
+  "schemaVersion": 1,
+  "status": "CANDIDATE_INVENTORY_NOT_DOWNLOADED",
+  "wave": "wave2",
+  "source": {
+    "provider": "BodyParts3D, The Database Center for Life Science (DBCLS)",
+    "release": "4.0",
+    "catalogType": "IS-A",
+    "catalogUrl": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_parts_list_e.txt",
+    "catalogColumns": [
+      "concept id",
+      "representation id",
+      "en"
+    ],
+    "elementMappingUrl": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_element_parts.txt",
+    "elementMappingColumns": [
+      "concept id",
+      "name",
+      "element file id"
+    ],
+    "modelArchiveUrl": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_BP3D_4.0_obj_99.zip",
+    "sourceLicenseUrl": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html",
+    "declaredLicense": "CC-BY-4.0",
+    "referenceVariant": "adult_male",
+    "verifiedAt": "2026-11-15",
+    "notes": "English exact labels, FMA concept IDs and BP representation IDs independently transcribed from official IS-A English catalog lines; element file IDs and same labels read from official IS-A ELEMENT mapping targeted excerpts, complete adjacent FMA boundaries visible in single or overlapping excerpts. Full-text file acquisition and byte hashes not performed; independently verify exact complete mappings and file geometry before stage. This is an additional candidate inventory, not reviewed anatomy or coverage. Region and system categories proposed for navigation only."
+  },
+  "candidates": [
+    {
+      "fma": "FMA33581",
+      "representation": "BP5638",
+      "sourceLabel": "ascending part of right trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1520"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1315
+    },
+    {
+      "fma": "FMA33583",
+      "representation": "BP8225",
+      "sourceLabel": "ascending part of left trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1520M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1316
+    },
+    {
+      "fma": "FMA33584",
+      "representation": "BP5610",
+      "sourceLabel": "transverse part of right trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1554"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1317
+    },
+    {
+      "fma": "FMA33585",
+      "representation": "BP8252",
+      "sourceLabel": "transverse part of left trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1554M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1318
+    },
+    {
+      "fma": "FMA33586",
+      "representation": "BP5636",
+      "sourceLabel": "descending part of right trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1521"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1319
+    },
+    {
+      "fma": "FMA33587",
+      "representation": "BP8267",
+      "sourceLabel": "descending part of left trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1521M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1320
+    },
+    {
+      "fma": "FMA13403",
+      "representation": "BP4766",
+      "sourceLabel": "right serratus posterior superior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1542"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 449
+    },
+    {
+      "fma": "FMA13404",
+      "representation": "BP8298",
+      "sourceLabel": "left serratus posterior superior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1542M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 450
+    },
+    {
+      "fma": "FMA13405",
+      "representation": "BP4768",
+      "sourceLabel": "right serratus posterior inferior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1541"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 451
+    },
+    {
+      "fma": "FMA13406",
+      "representation": "BP9048",
+      "sourceLabel": "left serratus posterior inferior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1541M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 452
+    },
+    {
+      "fma": "FMA13381",
+      "representation": "BP4780",
+      "sourceLabel": "right rhomboid major",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1536"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 427
+    },
+    {
+      "fma": "FMA13382",
+      "representation": "BP9245",
+      "sourceLabel": "left rhomboid major",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1536M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 428
+    },
+    {
+      "fma": "FMA13398",
+      "representation": "BP4782",
+      "sourceLabel": "right serratus anterior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ1459"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 444
+    },
+    {
+      "fma": "FMA13399",
+      "representation": "BP8760",
+      "sourceLabel": "left serratus anterior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ1459M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 445
+    },
+    {
+      "fma": "FMA34690",
+      "representation": "BP5582",
+      "sourceLabel": "clavicular part of right pectoralis major",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ1447"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1333
+    },
+    {
+      "fma": "FMA34691",
+      "representation": "BP9095",
+      "sourceLabel": "clavicular part of left pectoralis major",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ1447M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1334
+    },
+    {
+      "fma": "FMA34680",
+      "representation": "BP7573",
+      "sourceLabel": "clavicular part of right deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1468"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1325
+    },
+    {
+      "fma": "FMA34681",
+      "representation": "BP8259",
+      "sourceLabel": "clavicular part of left deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1468M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1326
+    },
+    {
+      "fma": "FMA34682",
+      "representation": "BP7571",
+      "sourceLabel": "acromial part of right deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1467"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1327
+    },
+    {
+      "fma": "FMA34683",
+      "representation": "BP9075",
+      "sourceLabel": "acromial part of left deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1467M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1328
+    },
+    {
+      "fma": "FMA34684",
+      "representation": "BP5607",
+      "sourceLabel": "spinal part of right deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1513"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1329
+    },
+    {
+      "fma": "FMA34685",
+      "representation": "BP8151",
+      "sourceLabel": "spinal part of left deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1513M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1330
+    },
+    {
+      "fma": "FMA13414",
+      "representation": "BP4795",
+      "sourceLabel": "right subscapularis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1504"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 460
+    },
+    {
+      "fma": "FMA13415",
+      "representation": "BP8214",
+      "sourceLabel": "left subscapularis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1504M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 461
+    },
+    {
+      "fma": "FMA13408",
+      "representation": "BP4909",
+      "sourceLabel": "right sternocleidomastoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "neck",
+      "elementFileIds": [
+        "FJ1595"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 454
+    },
+    {
+      "fma": "FMA13409",
+      "representation": "BP4910",
+      "sourceLabel": "left sternocleidomastoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "neck",
+      "elementFileIds": [
+        "FJ1573"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 455
+    },
+    {
+      "fma": "FMA22328",
+      "representation": "BP5065",
+      "sourceLabel": "right gluteus maximus",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1418"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 784
+    },
+    {
+      "fma": "FMA22329",
+      "representation": "BP8401",
+      "sourceLabel": "left gluteus maximus",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1418M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 785
+    },
+    {
+      "fma": "FMA22354",
+      "representation": "BP4994",
+      "sourceLabel": "right sartorius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1434"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 801
+    },
+    {
+      "fma": "FMA22355",
+      "representation": "BP8876",
+      "sourceLabel": "left sartorius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1434M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 802
+    },
+    {
+      "fma": "FMA22358",
+      "representation": "BP4991",
+      "sourceLabel": "right semitendinosus",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1436"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 804
+    },
+    {
+      "fma": "FMA22359",
+      "representation": "BP9066",
+      "sourceLabel": "left semitendinosus",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1436M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 805
+    },
+    {
+      "fma": "FMA38930",
+      "representation": "BP5602",
+      "sourceLabel": "right vastus lateralis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1442"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1508
+    },
+    {
+      "fma": "FMA38931",
+      "representation": "BP8754",
+      "sourceLabel": "left vastus lateralis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1442M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1509
+    },
+    {
+      "fma": "FMA38932",
+      "representation": "BP5600",
+      "sourceLabel": "right vastus medialis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1443"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1510
+    },
+    {
+      "fma": "FMA38933",
+      "representation": "BP9128",
+      "sourceLabel": "left vastus medialis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1443M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1511
+    },
+    {
+      "fma": "FMA38934",
+      "representation": "BP5604",
+      "sourceLabel": "right vastus intermedius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1441"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1512
+    },
+    {
+      "fma": "FMA38935",
+      "representation": "BP9207",
+      "sourceLabel": "left vastus intermedius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1441M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1513
+    },
+    {
+      "fma": "FMA37386",
+      "representation": "BP4855",
+      "sourceLabel": "right abductor pollicis brevis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "hand",
+      "elementFileIds": [
+        "FJ1483"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1360
+    },
+    {
+      "fma": "FMA37387",
+      "representation": "BP8706",
+      "sourceLabel": "left abductor pollicis brevis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "hand",
+      "elementFileIds": [
+        "FJ1483M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1361
+    },
+    {
+      "fma": "FMA37390",
+      "representation": "BP4853",
+      "sourceLabel": "right opponens pollicis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "hand",
+      "elementFileIds": [
+        "FJ1501"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1364
+    },
+    {
+      "fma": "FMA37391",
+      "representation": "BP8596",
+      "sourceLabel": "left opponens pollicis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "hand",
+      "elementFileIds": [
+        "FJ1501M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1365
+    },
+    {
+      "fma": "FMA13395",
+      "representation": "BP9101",
+      "sourceLabel": "right scapula",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ3384"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 441
+    },
+    {
+      "fma": "FMA13396",
+      "representation": "BP9121",
+      "sourceLabel": "left scapula",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ3279"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 442
+    },
+    {
+      "fma": "FMA52749",
+      "representation": "BP8836",
+      "sourceLabel": "hyoid bone",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "neck",
+      "elementFileIds": [
+        "FJ2772",
+        "FJ3201"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 2056
+    },
+    {
+      "fma": "FMA7857",
+      "representation": "BP8341",
+      "sourceLabel": "right first rib",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ3334"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 186
+    },
+    {
+      "fma": "FMA7987",
+      "representation": "BP8800",
+      "sourceLabel": "left first rib",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ3228"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 194
+    },
+    {
+      "fma": "FMA52748",
+      "representation": "BP8107",
+      "sourceLabel": "mandible",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "head",
+      "elementFileIds": [
+        "FJ3289"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 2055
+    },
+    {
+      "fma": "FMA52676",
+      "representation": "BP5733",
+      "sourceLabel": "right anterior ethmoidal nerve",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "nerves",
+      "proposedRegion": "head",
+      "elementFileIds": [
+        "FJ1333"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 2035
+    },
+    {
+      "fma": "FMA52677",
+      "representation": "BP5734",
+      "sourceLabel": "left anterior ethmoidal nerve",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "nerves",
+      "proposedRegion": "head",
+      "elementFileIds": [
+        "FJ1283"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 2036
+    }
+  ],
+  "openSourceGaps": [
+    {
+      "proposedSystem": "nerves",
+      "required": "sciatic, femoral, median, radial, ulnar and vagus nerves",
+      "reviewState": "BLOCKED_SOURCE_MAPPING",
+      "notes": "Targeted catalog search for sciatic nerve found no match. Original intake could not verify these major peripheral PN structures; the exact two new anterior ethmoidal nerve mappings do not close this gap."
+    },
+    {
+      "proposedSystem": "muscles",
+      "required": "complete individual muscle heads, attachments, tendons and calibrated movement",
+      "reviewState": "BLOCKED_COMPLETE_COVERAGE",
+      "notes": "Exact region-specific candidate labels and mapped source ELEMENT files only, not complete musculoskeletal or movement representation."
+    },
+    {
+      "proposedSystem": "skeleton",
+      "required": "complete individual bones, articulations and both reference variants",
+      "reviewState": "BLOCKED_COMPLETE_COVERAGE",
+      "notes": "Selected six additional bone concepts only. Hyoid maps to two ELEMENT files; their geometry and identity require separate review."
+    },
+    {
+      "proposedSystem": "all",
+      "required": "matching independently reviewed female source geometry",
+      "reviewState": "BLOCKED_VARIANT_SOURCE",
+      "notes": "This inventory is male reference source only."
+    }
+  ]
+}

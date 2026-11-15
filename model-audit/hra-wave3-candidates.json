@@ -1,0 +1,528 @@
+{
+  "schemaVersion": 1,
+  "status": "CANDIDATE_INVENTORY_NOT_DOWNLOADED",
+  "source": {
+    "provider": "Human Reference Atlas (HRA), HuBMAP",
+    "repository": "https://github.com/hubmapconsortium/hra-kg",
+    "commit": "27d6d493cd53761abb10f087767ec4cc74acb051",
+    "refOrganTreeGitSha1": "fb3b43f21796dc63b93e2bbb88274b300314d3b6",
+    "libraryUrl": "https://humanatlas.io/3d-reference-library",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "verifiedAt": "2026-11-15",
+    "notes": "Latest version folders under the exact verified ref-organ Git tree. GLB asset SHA1 and bytes are official Git blob metadata, not measured local files. All metadata.yaml and crosswalk.csv contents read at pinned commit; CSV counts are text inventory only. All twelve models require actual byte intake, technical audit, anatomy review, license signoff and registration before publication or merge. No source claims anatomical completeness or clinical validity. Separate future wave only."
+  },
+  "sources": [
+    {
+      "id": "pelvis-female",
+      "variant": "female",
+      "laterality": "not-applicable-to-source-id",
+      "version": "v1.3",
+      "system": "skeleton",
+      "domain": "skeletal",
+      "priority": "P1",
+      "title": "3D Reference Organ for Pelvis, Female",
+      "doi": "https://doi.org/10.48539/HBM853.VCFM.778",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata: Visible Human Dataset (NLM); crosswalk labels include bony pelvis, fused sacrum, coccyx, pubis, ilium, ischium and compact/trabecular bone tissue. No pelvic muscle atlas or microscopic morphology claim.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pelvis-female/v1.3/raw/metadata.yaml",
+        "bytes": 1988,
+        "gitBlobSha1": "351e6cd9cf94e5ef210b81c63e5f0ddf55b99b25"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pelvis-female/v1.3/raw/3d-vh-f-pelvis.glb",
+        "bytes": 1593612,
+        "gitBlobSha1": "bd9ea40e4431db595b4dd9b1b37c06613210bbec",
+        "filename": "3d-vh-f-pelvis.glb",
+        "localPath": "pelvis-female/3d-vh-f-pelvis.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pelvis-female/v1.3/raw/crosswalk.csv",
+        "bytes": 1379,
+        "gitBlobSha1": "8308330ab5bdfb069e18412b80173a3ca9ea91df",
+        "filename": "crosswalk.csv",
+        "localPath": "pelvis-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 24,
+        "expectedUniqueOntologyIds": 8
+      }
+    },
+    {
+      "id": "pelvis-male",
+      "variant": "male",
+      "laterality": "not-applicable-to-source-id",
+      "version": "v1.3",
+      "system": "skeleton",
+      "domain": "skeletal",
+      "priority": "P1",
+      "title": "3D Reference Organ for Pelvis, Male",
+      "doi": "https://doi.org/10.48539/HBM384.SBWX.873",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata: Visible Human Male (NLM); crosswalk labels include the same eight ontology IDs. No pelvic muscle atlas or microscopic morphology claim.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pelvis-male/v1.3/raw/metadata.yaml",
+        "bytes": 2129,
+        "gitBlobSha1": "43da72a12634ab117a725c27ad8e4d62c4b80139"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pelvis-male/v1.3/raw/3d-vh-m-pelvis.glb",
+        "bytes": 1348340,
+        "gitBlobSha1": "3e9b96dbc44dca32aef770c904a360296bd668a5",
+        "filename": "3d-vh-m-pelvis.glb",
+        "localPath": "pelvis-male/3d-vh-m-pelvis.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pelvis-male/v1.3/raw/crosswalk.csv",
+        "bytes": 1379,
+        "gitBlobSha1": "ef0cf4abe8d7eed55bfacadfed3eae5d18fb7060",
+        "filename": "crosswalk.csv",
+        "localPath": "pelvis-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 24,
+        "expectedUniqueOntologyIds": 8
+      }
+    },
+    {
+      "id": "kidney-female-left",
+      "variant": "female",
+      "laterality": "left",
+      "version": "v1.3",
+      "system": "organs",
+      "domain": "urinary",
+      "priority": "HOLD",
+      "title": "3D Reference Organ for Kidney, Female, Left",
+      "doi": "https://doi.org/10.48539/HBM449.JPXL.964",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata: Visible Human Dataset (NLM); v1.3 metadata says renal calyces and papillae were moved to ureter; CSV still lists renal papillae. Resolve metadata/geometry discrepancy before review. Left-only; not bilateral coverage.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/kidney-female-left/v1.3/raw/metadata.yaml",
+        "bytes": 2256,
+        "gitBlobSha1": "de16af784286d51fecc8b933ed0e0d619e4fd74c"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/kidney-female-left/v1.3/raw/3d-vh-f-kidney-l.glb",
+        "bytes": 1356736,
+        "gitBlobSha1": "1bd1bdad58181a1fff05896ab1cc7b5ecdc4af2a",
+        "filename": "3d-vh-f-kidney-l.glb",
+        "localPath": "kidney-female-left/3d-vh-f-kidney-l.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/kidney-female-left/v1.3/raw/crosswalk.csv",
+        "bytes": 1673,
+        "gitBlobSha1": "14647fb9756643add0786bb19b5738ea55d54fa4",
+        "filename": "crosswalk.csv",
+        "localPath": "kidney-female-left/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 31,
+        "expectedUniqueOntologyIds": 9
+      }
+    },
+    {
+      "id": "kidney-male-left",
+      "variant": "male",
+      "laterality": "left",
+      "version": "v1.3",
+      "system": "organs",
+      "domain": "urinary",
+      "priority": "HOLD",
+      "title": "3D Reference Organ for Kidney, Male, Left",
+      "doi": "https://doi.org/10.48539/HBM759.JKKF.434",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata: Visible Human Male (NLM); v1.3 metadata says renal calyces and papillae were moved to ureter; CSV still lists renal papillae. Resolve metadata/geometry discrepancy before review. Left-only; not bilateral coverage.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/kidney-male-left/v1.3/raw/metadata.yaml",
+        "bytes": 2397,
+        "gitBlobSha1": "cacf7f7a9f4900d3f4214b74cb6e10c9f4129c5c"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/kidney-male-left/v1.3/raw/3d-vh-m-kidney-l.glb",
+        "bytes": 1536980,
+        "gitBlobSha1": "5aa1adabe676b4a219d4121a776de40b3bd5fc2f",
+        "filename": "3d-vh-m-kidney-l.glb",
+        "localPath": "kidney-male-left/3d-vh-m-kidney-l.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/kidney-male-left/v1.3/raw/crosswalk.csv",
+        "bytes": 1461,
+        "gitBlobSha1": "24dd01c0d8a76b435ce9b800e75464411c169ac0",
+        "filename": "crosswalk.csv",
+        "localPath": "kidney-male-left/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 27,
+        "expectedUniqueOntologyIds": 9
+      }
+    },
+    {
+      "id": "large-intestine-female",
+      "variant": "female",
+      "laterality": "not-applicable-to-source-id",
+      "version": "v1.3",
+      "system": "organs",
+      "domain": "digestive",
+      "priority": "P2",
+      "title": "3D Reference Organ for Large Intestine, Female",
+      "doi": "https://doi.org/10.48539/HBM682.RSXX.965",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata explicitly describes approximate construction from the Visible Human Female pathway, fitted around adjacent organs, without direct imaging. Do not present as specimen scan or equal geometric fidelity to male.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/large-intestine-female/v1.3/raw/metadata.yaml",
+        "bytes": 1752,
+        "gitBlobSha1": "a182a87590a80707f7466c87c90f703a74b792ad"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/large-intestine-female/v1.3/raw/3d-sbu-f-large-intestine.glb",
+        "bytes": 387376,
+        "gitBlobSha1": "f12afa921a630e969e7fb1f330128c750ba7b44d",
+        "filename": "3d-sbu-f-large-intestine.glb",
+        "localPath": "large-intestine-female/3d-sbu-f-large-intestine.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/large-intestine-female/v1.3/raw/crosswalk.csv",
+        "bytes": 605,
+        "gitBlobSha1": "b298608fdc928375fc5f91e399ceb7b784f0e065",
+        "filename": "crosswalk.csv",
+        "localPath": "large-intestine-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 11,
+        "expectedUniqueOntologyIds": 11
+      }
+    },
+    {
+      "id": "large-intestine-male",
+      "variant": "male",
+      "laterality": "not-applicable-to-source-id",
+      "version": "v1.3",
+      "system": "organs",
+      "domain": "digestive",
+      "priority": "P1",
+      "title": "3D Reference Organ for Large Intestine, Male",
+      "doi": "https://doi.org/10.48539/HBM487.ZKSN.693",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata: primarily colonoscopy-derived data credited to Arie Kaufman (Stony Brook University), generally aligned to Visible Human Male. Does not cover complete digestive tract.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/large-intestine-male/v1.3/raw/metadata.yaml",
+        "bytes": 2286,
+        "gitBlobSha1": "5f070e2464bfcea80d58e33ee5f261f023544586"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/large-intestine-male/v1.3/raw/3d-sbu-m-large-intestine.glb",
+        "bytes": 687076,
+        "gitBlobSha1": "32961c11a2b6aee00ef4ed68721a039b5c98cf8c",
+        "filename": "3d-sbu-m-large-intestine.glb",
+        "localPath": "large-intestine-male/3d-sbu-m-large-intestine.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/large-intestine-male/v1.3/raw/crosswalk.csv",
+        "bytes": 605,
+        "gitBlobSha1": "221d58132de0ae637c939c468223d4e4eb31f25d",
+        "filename": "crosswalk.csv",
+        "localPath": "large-intestine-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 11,
+        "expectedUniqueOntologyIds": 11
+      }
+    },
+    {
+      "id": "pancreas-female",
+      "variant": "female",
+      "laterality": "not-applicable-to-source-id",
+      "version": "v1.3",
+      "system": "organs",
+      "domain": "digestive-endocrine",
+      "priority": "P1",
+      "title": "3D Reference Organ for Pancreas, Female",
+      "doi": "https://doi.org/10.48539/HBM866.PNNZ.328",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata: Visible Human Dataset; v1.3 adjusted neck/body/tail proportions. Macroscopic organ regions only; no islet, endocrine cell or functional physiology representation inferred.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pancreas-female/v1.3/raw/metadata.yaml",
+        "bytes": 2163,
+        "gitBlobSha1": "372f21d4456d88ad157c8fbc1c760a33eb649424"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pancreas-female/v1.3/raw/3d-vh-f-pancreas.glb",
+        "bytes": 714832,
+        "gitBlobSha1": "d2615f52f74297af1b5d3ded36f3c0f27d547a51",
+        "filename": "3d-vh-f-pancreas.glb",
+        "localPath": "pancreas-female/3d-vh-f-pancreas.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pancreas-female/v1.3/raw/crosswalk.csv",
+        "bytes": 347,
+        "gitBlobSha1": "defdc61d48a1a37ad8338d7446c184d201318285",
+        "filename": "crosswalk.csv",
+        "localPath": "pancreas-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 6,
+        "expectedUniqueOntologyIds": 6
+      }
+    },
+    {
+      "id": "pancreas-male",
+      "variant": "male",
+      "laterality": "not-applicable-to-source-id",
+      "version": "v1.3",
+      "system": "organs",
+      "domain": "digestive-endocrine",
+      "priority": "P1",
+      "title": "3D Reference Organ for Pancreas, Male",
+      "doi": "https://doi.org/10.48539/HBM396.QWWJ.639",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata: Visible Human Male; v1.3 adjusted neck/body/tail proportions. Macroscopic organ regions only; no islet, endocrine cell or functional physiology representation inferred.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pancreas-male/v1.3/raw/metadata.yaml",
+        "bytes": 2304,
+        "gitBlobSha1": "9a9e72002637ddeff203e8e96e60111cba7c9d57"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pancreas-male/v1.3/raw/3d-vh-m-pancreas.glb",
+        "bytes": 2110316,
+        "gitBlobSha1": "992376403a68cb18df4683196703a468db43b55c",
+        "filename": "3d-vh-m-pancreas.glb",
+        "localPath": "pancreas-male/3d-vh-m-pancreas.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/pancreas-male/v1.3/raw/crosswalk.csv",
+        "bytes": 363,
+        "gitBlobSha1": "c87c5c133b98411d9f47a907ee4804be1f3927c0",
+        "filename": "crosswalk.csv",
+        "localPath": "pancreas-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 6,
+        "expectedUniqueOntologyIds": 6
+      }
+    },
+    {
+      "id": "spleen-female",
+      "variant": "female",
+      "laterality": "not-applicable-to-source-id",
+      "version": "v1.3",
+      "system": "organs",
+      "domain": "immune-lymphatic",
+      "priority": "P1",
+      "title": "3D Reference Organ for Spleen, Female",
+      "doi": "https://doi.org/10.48539/HBM883.DZCZ.658",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata: Visible Human Dataset; crosswalk covers spleen and five labeled surfaces/hilum. Not a lymphatic network or immune cell atlas.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spleen-female/v1.3/raw/metadata.yaml",
+        "bytes": 1938,
+        "gitBlobSha1": "f73e018fead142e03333a8a131c7e4f06911b8db"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spleen-female/v1.3/raw/3d-vh-f-spleen.glb",
+        "bytes": 276824,
+        "gitBlobSha1": "84d6433c83727f705b8eb1677b3ff82b07d9a72e",
+        "filename": "3d-vh-f-spleen.glb",
+        "localPath": "spleen-female/3d-vh-f-spleen.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spleen-female/v1.3/raw/crosswalk.csv",
+        "bytes": 390,
+        "gitBlobSha1": "f829029d2f71c8fbd6dbd22a5207933fdff04679",
+        "filename": "crosswalk.csv",
+        "localPath": "spleen-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 6,
+        "expectedUniqueOntologyIds": 6
+      }
+    },
+    {
+      "id": "spleen-male",
+      "variant": "male",
+      "laterality": "not-applicable-to-source-id",
+      "version": "v1.3",
+      "system": "organs",
+      "domain": "immune-lymphatic",
+      "priority": "P1",
+      "title": "3D Reference Organ for Spleen, Male",
+      "doi": "https://doi.org/10.48539/HBM437.LMTZ.752",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata: Visible Human Male; crosswalk covers same six IDs. Not a lymphatic network or immune cell atlas.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spleen-male/v1.3/raw/metadata.yaml",
+        "bytes": 2053,
+        "gitBlobSha1": "35eb8fcbe5b755e892261c1f346fe97d3bb9364a"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spleen-male/v1.3/raw/3d-vh-m-spleen.glb",
+        "bytes": 540348,
+        "gitBlobSha1": "ef15fd2e38d0ababddc315b625d53c3de048adbe",
+        "filename": "3d-vh-m-spleen.glb",
+        "localPath": "spleen-male/3d-vh-m-spleen.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/spleen-male/v1.3/raw/crosswalk.csv",
+        "bytes": 390,
+        "gitBlobSha1": "859f31796eb3311339da9a48a785e6ffc1d2f94d",
+        "filename": "crosswalk.csv",
+        "localPath": "spleen-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 6,
+        "expectedUniqueOntologyIds": 6
+      }
+    },
+    {
+      "id": "prostate-male",
+      "variant": "male",
+      "laterality": "not-applicable-to-source-id",
+      "version": "v1.2",
+      "system": "organs",
+      "domain": "reproductive",
+      "priority": "P2",
+      "title": "3D Reference Organ for Prostate, Male",
+      "doi": "https://doi.org/10.48539/HBM545.CTNV.442",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata: Visible Human Male, CC BY 4.0; crosswalk root label male reproductive system does not establish whole-system completeness. Scope includes prostate and a limited named associated duct/vesicle subset.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/prostate-male/v1.2/raw/metadata.yaml",
+        "bytes": 2130,
+        "gitBlobSha1": "bcd6b161746689d428b8592593fda83a84e661cc"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/prostate-male/v1.2/raw/3d-vh-m-prostate.glb",
+        "bytes": 4086520,
+        "gitBlobSha1": "14ecc739c5f245c44a0f342ff00eac37b45381bf",
+        "filename": "3d-vh-m-prostate.glb",
+        "localPath": "prostate-male/3d-vh-m-prostate.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/prostate-male/v1.2/raw/crosswalk.csv",
+        "bytes": 1222,
+        "gitBlobSha1": "a2bd39420b48a932a3b67af7c1a935a1399eab2b",
+        "filename": "crosswalk.csv",
+        "localPath": "prostate-male/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 18,
+        "expectedUniqueOntologyIds": 14
+      }
+    },
+    {
+      "id": "uterus-female",
+      "variant": "female",
+      "laterality": "not-applicable-to-source-id",
+      "version": "v1.2",
+      "system": "organs",
+      "domain": "reproductive",
+      "priority": "HOLD",
+      "title": "3D Reference Organ for Uterus, Female",
+      "doi": "https://doi.org/10.48539/HBM627.VTKD.892",
+      "license": "CC-BY-4.0",
+      "reviewState": "NOT_DOWNLOADED",
+      "provenanceNote": "Source metadata: Visible Human Dataset; latest pinned folder v1.2 but citation inside metadata says Uterus v1.1. Resolve reporting/version discrepancy before review. Does not cover all female reproductive organs.",
+      "metadata": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/uterus-female/v1.2/raw/metadata.yaml",
+        "bytes": 2041,
+        "gitBlobSha1": "2f0311bab2341cd19f9f8591e1d1e861e553a1db"
+      },
+      "glb": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/uterus-female/v1.2/raw/3d-vh-f-uterus.glb",
+        "bytes": 980408,
+        "gitBlobSha1": "5f3e38703b33a9e1e1d9beeb5d852329c580453d",
+        "filename": "3d-vh-f-uterus.glb",
+        "localPath": "uterus-female/3d-vh-f-uterus.glb"
+      },
+      "crosswalk": {
+        "url": "https://raw.githubusercontent.com/hubmapconsortium/hra-kg/27d6d493cd53761abb10f087767ec4cc74acb051/digital-objects/ref-organ/uterus-female/v1.2/raw/crosswalk.csv",
+        "bytes": 605,
+        "gitBlobSha1": "01c2b2cf712996ac36f4f1090ab58fed12eb0ef8",
+        "filename": "crosswalk.csv",
+        "localPath": "uterus-female/crosswalk.csv",
+        "columns": [
+          "node_name",
+          "OntologyID",
+          "label"
+        ],
+        "expectedRows": 10,
+        "expectedUniqueOntologyIds": 10
+      }
+    }
+  ],
+  "openGaps": [
+    {
+      "system": "muscles",
+      "reviewState": "BLOCKED_SOURCE_MAPPING",
+      "reason": "No dedicated whole-body skeletal-muscle source folder in this pinned HRA tree; existing BodyParts3D pilot maps eight named muscle-head/muscle concepts but is not exhaustive or female variant coverage. Require exact licensed muscle geometry/crosswalk and subsequent biomechanical review."
+    },
+    {
+      "system": "skeleton",
+      "reviewState": "BLOCKED_COMPLETE_COVERAGE",
+      "reason": "Pelvis source only; knees, intervertebral discs and selected female thoracic bones are separate folders not in this wave. BodyParts3D pilot six bone concepts remain a separate limited source candidate."
+    },
+    {
+      "system": "urinary",
+      "reviewState": "BLOCKED_SOURCE_MAPPING",
+      "reason": "Only left kidney candidates in this wave; both right kidneys, renal pelvises, ureters, urinary bladder deferred. Kidney papilla CSV/metadata discrepancy remains."
+    },
+    {
+      "system": "reproductive",
+      "reviewState": "BLOCKED_COMPLETE_COVERAGE",
+      "reason": "Prostate and uterus are distinct source references, not equivalent sex variants of a complete system. Ovaries, tubes, testicular geometry and related structures require separate sources and laterality verification."
+    },
+    {
+      "system": "endocrine",
+      "reviewState": "BLOCKED_SOURCE_MAPPING",
+      "reason": "Pancreas geometry supplies macroscopic regions only. No thyroid, adrenal or pituitary-specific source folder in pinned tree; require independent verified sources and tissue/cell mapping."
+    },
+    {
+      "system": "immune-lymphatic",
+      "reviewState": "BLOCKED_COMPLETE_COVERAGE",
+      "reason": "Spleen references provide a partial named organ; thymus, lymph nodes and tonsils exist as separate pinned-tree candidate folders but are not inventoried by file in this wave. No lymphatic vessel network claim."
+    }
+  ]
+}

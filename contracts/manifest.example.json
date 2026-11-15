@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0",
+  "assetId": "example:anatomy:test-body",
+  "assetVersion": "0.0.0",
+  "originUrl": "REPLACE_WITH_VERIFIED_SOURCE_URL",
+  "sourceProject": "Open Anatomy 3D — verification required for selected files",
+  "upstreamVersion": "TO_BE_PINNED",
+  "licenseId": "CC-BY-4.0",
+  "attributionText": "REPLACE_WITH_EXACT_UPSTREAM_ATTRIBUTION",
+  "licenseReviewStatus": "pending",
+  "commercialUseReviewed": false,
+  "modifications": [],
+  "canonicalMapFile": "TO_BE_GENERATED.json",
+  "coordinates": {
+    "unit": "m",
+    "upAxis": "Y",
+    "origin": "TO_BE_VERIFIED",
+    "anatomicalOrientation": "TO_BE_VERIFIED"
+  },
+  "levelsOfDetail": [],
+  "sha256": "REPLACE_WITH_HASH_OF_ACTUAL_MODEL_FILE",
+  "requiredAttributionLocations": ["footer", "about/licenses"],
+  "approval": {
+    "assetEngineer": null,
+    "licenseReviewer": null,
+    "anatomyReviewer": null
+  }
+}
