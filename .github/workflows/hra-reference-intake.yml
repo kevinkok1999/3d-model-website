@@ -19,14 +19,14 @@ permissions:
 jobs:
   intake:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
-      - name: Verify and acquire the four exact pinned reference models and crosswalks
+      - name: Verify and acquire fourteen exact pinned reference models and crosswalks
         shell: bash
         run: |
           set -euo pipefail
@@ -34,11 +34,21 @@ jobs:
           node --input-type=module <<'NODE' > "$RUNNER_TEMP/hra-intake/download.tsv"
           import {readFileSync} from 'node:fs';
           import assert from 'node:assert/strict';
-          const manifest=JSON.parse(readFileSync('model-audit/hra-intake-candidates.json','utf8'));
-          const expected=new Set(['blood-vasculature-female','blood-vasculature-male','brain-female','brain-male']);
-          assert.equal(manifest.sources.length,4);
-          assert.match(manifest.source.commit,/^[a-f0-9]{40}$/);
+          const load=name=>JSON.parse(readFileSync(`model-audit/${name}.json`,'utf8'));
+          const manifest=load('hra-expanded-candidates');
+          const original=load('hra-intake-candidates'),next=load('hra-next-candidates'),alternative=load('hra-lung-male-v1.3-candidate');
+          const expected=new Map([...original.sources,...next.sources.filter(s=>s.id!=='lung-male'),...alternative.sources].map(s=>[s.id,s]));
+          assert.equal(expected.size,14);
+          assert.equal(manifest.sources.length,14);
+          assert.equal(manifest.wave,'expanded');
+          assert.equal(manifest.status,'CANDIDATE_INVENTORY_NOT_DOWNLOADED');
+          assert.equal(manifest.source.commit,'27d6d493cd53761abb10f087767ec4cc74acb051');
+          assert.equal(manifest.source.commit,original.source.commit);
+          assert.equal(manifest.source.commit,next.source.commit);
+          assert.equal(manifest.source.commit,alternative.source.commit);
+          assert.equal(manifest.source.repository,'https://github.com/hubmapconsortium/hra-kg');
           for(const row of manifest.sources){
+            assert.deepEqual(row,expected.get(row.id));
             assert(expected.delete(row.id));
             assert.match(row.version,/^v[0-9]+\.[0-9]+$/);
             for(const [kind,file] of [['glb',row.glb],['crosswalk',row.crosswalk]]){
@@ -62,10 +72,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          node model-audit/hra-reference-audit.mjs "$RUNNER_TEMP/hra-intake/assets" model-audit/hra-intake-candidates.json "$RUNNER_TEMP/hra-intake/reports/audit.json"
+          node model-audit/hra-reference-audit.mjs "$RUNNER_TEMP/hra-intake/assets" model-audit/hra-expanded-candidates.json "$RUNNER_TEMP/hra-intake/reports/audit.json" --expanded-wave
 
       - name: Stage exact audited original files only for the local candidate
-        run: node model-audit/hra-stage-candidate.mjs "$RUNNER_TEMP/hra-intake/assets" model-audit/hra-intake-candidates.json "$RUNNER_TEMP/hra-intake/reports/audit.json" prototype/public/hra-candidate
+        run: node model-audit/hra-stage-candidate.mjs "$RUNNER_TEMP/hra-intake/assets" model-audit/hra-expanded-candidates.json "$RUNNER_TEMP/hra-intake/reports/audit.json" prototype/public/hra-candidate --expanded-wave
 
       - name: Build local-only anatomical reference viewer
         run: npm ci && npm run build
@@ -73,7 +83,7 @@ jobs:
       - name: Install the locked Chromium browser
         run: npx --no-install playwright install --with-deps chromium
 
-      - name: Verify actual four HRA references in Chromium
+      - name: Verify fourteen actual HRA references in Chromium
         shell: bash
         env:
           SMOKE_SCREENSHOT_DIR: ${{ runner.temp }}/hra-intake/reports/browser-screenshots

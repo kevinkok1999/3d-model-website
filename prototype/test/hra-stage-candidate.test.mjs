@@ -29,7 +29,7 @@ function fixture(t){
   })};
   const audit=auditHraManifest(manifest,assets);assert.equal(audit.status,'TECHNICAL_PREFLIGHT_PASS','Synthetic fixture must pass technical audit');
   writeFileSync(manifestPath,JSON.stringify(manifest));writeFileSync(auditPath,JSON.stringify(audit));writeFileSync(join(assets,'unrelated.txt'),'must not be staged');
-  const run=(out=output)=>spawnSync(process.execPath,[cli,assets,manifestPath,auditPath,out],{encoding:'utf8'});
+  const run=(out=output,...args)=>spawnSync(process.execPath,[cli,assets,manifestPath,auditPath,out,...args],{encoding:'utf8'});
   const noPartial=()=>assert.ok(readdirSync(dir).every(x=>!x.startsWith('.hra-stage-')),'Private temporary staging directory leaked');
   return {dir,assets,manifestPath,auditPath,output,manifest,audit,run,noPartial};
 }
@@ -58,4 +58,10 @@ test('rejects a path escaping its exact source id directory',t=>{
 });
 test('refuses staging inside the source tree',t=>{
   const f=fixture(t),inside=join(f.assets,'candidate'),r=f.run(inside);assert.notEqual(r.status,0);assert.match(r.stderr,/inside source tree/i);assert.ok(!existsSync(inside));f.noPartial();
+});
+test('expanded mode rejects a valid but incomplete four-source audit without creating output',t=>{
+  const f=fixture(t),r=f.run(f.output,'--expanded-wave');assert.notEqual(r.status,0);assert.doesNotMatch(r.stderr,/Usage:/);assert.match(r.stderr,/expanded|fourteen|inventory/i);assert.ok(!existsSync(f.output));f.noPartial();
+});
+test('unknown staging mode is rejected, never silently treated as initial mode',t=>{
+  const f=fixture(t),r=f.run(f.output,'--next-wave');assert.notEqual(r.status,0);assert.match(r.stderr,/Usage:/);assert.ok(!existsSync(f.output));f.noPartial();
 });

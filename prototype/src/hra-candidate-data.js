@@ -1,9 +1,31 @@
-import inventory from '../../model-audit/hra-intake-candidates.json' with {type:'json'};
+import inventory from '../../model-audit/hra-expanded-candidates.json' with {type:'json'};
 
 // Standalone HRA source intake only. The loader never requests upstream public
 // URLs, synthesizes anatomy, inherits ontology labels or registers coordinates.
 const freeze=v=>{if(v&&typeof v==='object'&&!Object.isFrozen(v)){for(const child of Object.values(v))freeze(child);Object.freeze(v);}return v;};
 export const HRA_SOURCES=freeze(inventory.sources);
+const HRA_EXCLUSIONS=freeze(inventory.excludedSources);
+const FAMILY_LABELS=freeze({
+  'blood-vasculature':{nl:'Bloedvaten',en:'Blood vasculature'},
+  brain:{nl:'Hersenen',en:'Brain'},
+  heart:{nl:'Hart',en:'Heart'},
+  liver:{nl:'Lever',en:'Liver'},
+  lung:{nl:'Longen',en:'Lung'},
+  'small-intestine':{nl:'Dunne darm',en:'Small intestine'},
+  'spinal-cord':{nl:'Ruggenmerg',en:'Spinal cord'},
+});
+export const HRA_FAMILIES=Object.freeze(Object.keys(FAMILY_LABELS));
+export function hraFamilyId(source){
+  const variant=source?.variant,id=source?.id;
+  if(!['female','male'].includes(variant)||typeof id!=='string'||!id.endsWith(`-${variant}`))throw new Error('Invalid HRA source family');
+  const family=id.slice(0,-variant.length-1);
+  if(!Object.hasOwn(FAMILY_LABELS,family))throw new Error('Unknown HRA source family');
+  return family;
+}
+export function hraFamilyLabel(family,locale='nl'){
+  if(!Object.hasOwn(FAMILY_LABELS,family)||!['nl','en'].includes(locale))throw new Error('Unknown HRA source family label');
+  return FAMILY_LABELS[family][locale];
+}
 const byId=new Map(HRA_SOURCES.map(s=>[s.id,s]));
 const MAX_AUDIT=8*1024*1024,MAX_GLB=32*1024*1024,MAX_CSV=1024*1024,MAX_NODES=100_000,MAX_JSON=16*1024*1024;
 const COLUMNS=['node_name','OntologyID','label'];
@@ -19,10 +41,13 @@ const passed=r=>r?.status==='TECHNICAL_PREFLIGHT_PASS'&&r.anatomicallyValidated=
 function validatePin(pin,max){need(record(pin)&&integer(pin.bytes,1,max)&&hex(pin.gitBlobSha1,40),'Invalid pinned HRA asset metadata');}
 function validateAuditAsset(pin,audited,max){validatePin(pin,max);need(record(audited)&&audited.bytes===pin.bytes&&audited.gitBlobSha1===pin.gitBlobSha1&&hex(audited.sha256,64),'Audit differs from pinned HRA asset metadata');}
 export function selectHraAudit(report,id){
-  need(byId.has(id),'Unknown HRA source');need(passed(report)&&Array.isArray(report.results)&&report.results.length===HRA_SOURCES.length,'Complete unregistered HRA audit required');
+  need(byId.has(id),'Unknown HRA source');need(passed(report)&&report.wave==='expanded'&&Array.isArray(report.results)&&report.results.length===HRA_SOURCES.length,'Complete unregistered expanded-wave HRA audit required');
+  need(Array.isArray(report.excludedSources)&&report.excludedSources.length===HRA_EXCLUSIONS.length&&HRA_EXCLUSIONS.every((pin,i)=>{
+    const exclusion=report.excludedSources[i];return record(exclusion)&&Object.keys(exclusion).length===Object.keys(pin).length&&Object.entries(pin).every(([key,value])=>exclusion[key]===value);
+  }),'Explicit blocked HRA source exclusion differs from expanded inventory');
   const seen=new Set();let selected;
   for(const audit of report.results){
-    const source=byId.get(audit?.sourceId);need(source&&!seen.has(source.id)&&audit.variant===source.variant&&passed(audit),'HRA audit source/variant/status mismatch');seen.add(source.id);
+    const source=byId.get(audit?.sourceId);need(source&&!seen.has(source.id)&&audit.variant===source.variant&&audit.version===source.version&&passed(audit),'HRA audit source/variant/version/status mismatch');seen.add(source.id);
     validateAuditAsset(source.glb,audit.glb,MAX_GLB);validateAuditAsset(source.crosswalk,audit.crosswalk,MAX_CSV);
     if(source.id===id)selected=audit;
   }

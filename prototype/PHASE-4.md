@@ -2,6 +2,8 @@
 
 Status: afzonderlijke technische ontwikkelkandidaat. Geen productiepublicatie, samengevoegd lichaamsmodel of medische validatie.
 
+Historische fase-4 momentopname: fase 5 breidt de afzonderlijke bronviewer uit naar veertien referenties. De bron- en browserbewijzen hieronder blijven geldig voor de vermelde revisies, niet automatisch voor de uitgebreide viewer.
+
 ## Werkelijke bronstatus
 
 - BodyParts3D: [echte bronintake en browserproef geslaagd](https://github.com/kevinkok1999/3d-model-website/actions/runs/43740568722), 23/23 ELEMENT-bestanden, 21 concepten.

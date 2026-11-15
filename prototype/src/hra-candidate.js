@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { HRA_SOURCES, loadHraCandidate, HraAssetUnavailableError } from './hra-candidate-data.js';
+import { HRA_SOURCES, HRA_FAMILIES, hraFamilyId, hraFamilyLabel, loadHraCandidate, HraAssetUnavailableError } from './hra-candidate-data.js';
 import { associateHraMeshes, buildHraSelectionIndex, filterHraRows, selectionChange, isolationChange } from './hra-controller.js';
 
 const COPY={
@@ -11,6 +11,9 @@ const COPY={
 const $=id=>document.getElementById(`hra-${id}`);
 COPY.nl.disclaimer+=' De hersenvarianten zijn gespiegeld en geschaald vanuit de Allen-referentieatlas, geen onafhankelijke mannelijke of vrouwelijke scans. De vaatmodellen zijn bewerkt vanuit Visible Human.';
 COPY.en.disclaimer+=' Brain variants were mirrored and rescaled from the Allen reference atlas, not independent male or female scans. Blood vasculature models were adapted from Visible Human.';
+Object.assign(COPY.nl,{intro:'Inspecteer veertien afzonderlijke bronreferenties voor zeven families: bloedvaten, hersenen, hart, lever, longen, dunne darm en ruggenmerg. Selecteer exacte bronrecords via de lijst.',sourceModelInfo:'14 afzonderlijke bronmodellen · 7 families · mannelijke/vrouwelijke bronvarianten — geen samenvoeging.',sourceReleaseNote:'Mannelijk longmodel: oudere bronversie v1.3. Versie v1.4 blijft geblokkeerd.',maleLungWarning:'Bronwaarschuwing: het mannelijke longmodel gebruikt de afzonderlijke oudere bronversie v1.3. Versie v1.4 ontbreekt de gekoppelde node VH_M_hyoid (UBERON:0001685) en blijft geblokkeerd. v1.3 is geen correctie van v1.4; het hyoid blijft onbeoordeeld en ontbreekt in deze bronselectie.',older:'ouder'});
+Object.assign(COPY.en,{intro:'Inspect fourteen separate source references across seven families: blood vasculature, brain, heart, liver, lung, small intestine and spinal cord. Select exact source records from the list.',sourceModelInfo:'14 separate source models · 7 families · male/female source variants — no merge.',sourceReleaseNote:'Male lung model: older source release v1.3. Release v1.4 remains blocked.',maleLungWarning:'Source warning: the male lung model uses the separate older source release v1.3. Release v1.4 lacks the linked node VH_M_hyoid (UBERON:0001685) and remains blocked. v1.3 is not a correction of v1.4; the hyoid remains unreviewed and absent from this source selection.',older:'older'});
+COPY.nl.lungMaleWarning=COPY.nl.maleLungWarning;COPY.en.lungMaleWarning=COPY.en.maleLungWarning;
 const canvas=$('viewport'),status=$('status'),buttons=[...document.querySelectorAll('[data-hra-view]')];
 const axis={front:[0,0,1],back:[0,0,-1],left:[1,0,0],right:[-1,0,0]};
 const sources=new Map(HRA_SOURCES.map(source=>[source.id,source]));
@@ -24,7 +27,7 @@ let tap=null;const pointers=new Set();
 function text(parent,value,tag='p'){const node=document.createElement(tag);node.textContent=value;parent.append(node);return node;}
 function term(dl,key,value){text(dl,key,'dt');text(dl,String(value),'dd');}
 function linkTerm(dl,key,label,url){text(dl,key,'dt');const dd=document.createElement('dd'),a=document.createElement('a');a.textContent=label;a.href=url;a.target='_blank';a.rel='noopener noreferrer';dd.append(a);dl.append(dd);}
-function sourceTitle(source){return `${t(source.system==='nerves'?'brain':'vessels')} · ${t(source.variant)} · ${source.version}`;}
+function sourceTitle(source){return `${hraFamilyLabel(hraFamilyId(source),state.locale)} · ${t(source.variant)} · ${source.version}${source.id==='lung-male'?` (${t('older')})`:''}`;}
 function renderCredits(){
   const host=$('credits');host.replaceChildren();const source=sources.get(state.sourceId);if(!source)return;
   const dl=document.createElement('dl');term(dl,t('reference'),source.title);term(dl,t('variant'),t(source.variant));term(dl,t('version'),source.version);
@@ -47,9 +50,9 @@ function renderList(){
 }
 function renderTranslation(){
   document.documentElement.lang=state.locale;
-  for(const el of document.querySelectorAll('[data-hra-i18n]')){el.textContent=t(el.dataset.hraI18n);if(el.dataset.hraI18n==='maleVesselWarning')el.hidden=state.sourceId!=='blood-vasculature-male';}
+  for(const el of document.querySelectorAll('[data-hra-i18n]')){el.textContent=t(el.dataset.hraI18n);if(el.dataset.hraI18n==='maleVesselWarning')el.hidden=state.sourceId!=='blood-vasculature-male';if(['maleLungWarning','lungMaleWarning'].includes(el.dataset.hraI18n))el.hidden=state.sourceId!=='lung-male';}
   for(const el of document.querySelectorAll('[data-hra-i18n-placeholder]'))el.placeholder=t(el.dataset.hraI18nPlaceholder);
-  const model=$('model');model.replaceChildren();for(const source of HRA_SOURCES){const option=document.createElement('option');option.value=source.id;option.textContent=sourceTitle(source);model.append(option);}model.value=state.sourceId;
+  const model=$('model');model.replaceChildren();for(const family of HRA_FAMILIES){const group=document.createElement('optgroup');group.label=hraFamilyLabel(family,state.locale);for(const source of HRA_SOURCES.filter(source=>hraFamilyId(source)===family)){const option=document.createElement('option');option.value=source.id;option.textContent=sourceTitle(source);group.append(option);}model.append(group);}model.value=state.sourceId;
   status.dataset.phase=state.phase;status.dataset.source=state.sourceId;status.textContent=t(state.phase==='context-lost'?'contextLost':state.phase);
   $('error').textContent=state.phase==='unavailable'?t('missing'):state.phase==='error'?t('failure'):state.phase==='context-lost'?t('contextFailure'):'';
   renderList();renderDetail();renderCredits();sync();

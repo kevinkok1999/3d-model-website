@@ -5,11 +5,15 @@ import { openSync, closeSync, fstatSync, readSync, realpathSync, writeFileSync }
 import { createHash } from 'node:crypto';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 
 const MAX_GLB=256*1024*1024, MAX_CSV=8*1024*1024, MAX_JSON=32*1024*1024;
 const MAX_ELEMENTS=50_000_000, MAX_NODES=100_000;
 const IDS=['blood-vasculature-female','blood-vasculature-male','brain-female','brain-male'];
 const NEXT_IDS=['heart-female','heart-male','liver-female','liver-male','lung-female','lung-male','small-intestine-female','small-intestine-male','spinal-cord-female','spinal-cord-male'];
+const EXPANDED_IDS=[...IDS,...NEXT_IDS];
+const OFFICIAL_COMMIT='27d6d493cd53761abb10f087767ec4cc74acb051';
+const EXPANDED_STATUS='CANDIDATE_INVENTORY_NOT_DOWNLOADED';
 const COLUMNS=['node_name','OntologyID','label'];
 const sha256=b=>createHash('sha256').update(b).digest('hex');
 const gitBlob=b=>createHash('sha1').update(`blob ${b.length}\0`).update(b).digest('hex');
@@ -226,12 +230,34 @@ export function auditHraSource(source,root,allowedIds=IDS){
     crosswalk:{...csv.provenance,...crosswalkAudit(csv.bytes,source.crosswalk,model)}};
 }
 
+// The expanded scope is an explicit, independent source set. Do not derive a
+// fallback at runtime from a failed v1.4 GLB or from partially passed results.
+function validateExpandedPins(manifest){
+  need(manifest.status===EXPANDED_STATUS&&manifest.wave==='expanded','Invalid expanded-wave candidate status or scope');
+  const load=name=>JSON.parse(decode(readBounded(new URL(name,import.meta.url),MAX_CSV)));
+  const initial=load('./hra-intake-candidates.json'),next=load('./hra-next-candidates.json'),alternate=load('./hra-lung-male-v1.3-candidate.json');
+  const withoutNotes=({notes,...rest})=>rest;
+  const pinnedSource=withoutNotes(initial.source);
+  need(pinnedSource.commit===OFFICIAL_COMMIT&&[next,alternate,manifest].every(m=>isDeepStrictEqual(withoutNotes(m.source),pinnedSource)),'Expanded-wave official source metadata pin mismatch');
+  need(initial.sources.length===4&&next.sources.length===10&&alternate.sources.length===1&&alternate.sources[0].id==='lung-male'&&alternate.sources[0].version==='v1.3'&&next.sources.find(s=>s.id==='lung-male')?.version==='v1.4','Invalid canonical expanded-wave source inventories');
+  const expected=[...initial.sources,...next.sources.map(s=>s.id==='lung-male'?alternate.sources[0]:s)];
+  need(expected.length===14&&new Set(expected.map(s=>s.id)).size===14&&EXPANDED_IDS.every(id=>expected.some(s=>s.id===id)),'Invalid canonical expanded-wave source set');
+  const excluded=manifest.excludedSources;
+  need(Array.isArray(excluded)&&excluded.length===1&&excluded[0].id==='lung-male'&&excluded[0].version==='v1.4'&&excluded[0].status==='BLOCKED_SOURCE_MAPPING','Expanded wave must explicitly retain blocked male lung v1.4 exclusion');
+  for(const row of manifest.sources){
+    if(row.id==='lung-male')need(row.version==='v1.3','Blocked male lung v1.4 must not enter the expanded wave; only the pinned v1.3 candidate is permitted');
+    const pin=expected.find(s=>s.id===row.id);
+    need(isDeepStrictEqual(row,pin),`Expanded-wave source pin mismatch: ${row.id}`);
+  }
+}
+
 export function auditHraManifest(manifest,root,{wave='initial'}={}){
-  need(wave==='initial'||wave==='next','Unknown HRA audit wave');
-  const allowedIds=wave==='next'?NEXT_IDS:IDS;
-  need(manifest?.schemaVersion===1&&Array.isArray(manifest.sources)&&manifest.sources.length===allowedIds.length&&new Set(manifest.sources.map(s=>s.id)).size===allowedIds.length&&allowedIds.every(id=>manifest.sources.some(s=>s.id===id)),`Expected exact ${wave==='next'?'ten':'four'}-source HRA inventory`);
+  need(['initial','next','expanded'].includes(wave),'Unknown HRA audit wave');
+  const allowedIds=wave==='expanded'?EXPANDED_IDS:wave==='next'?NEXT_IDS:IDS;
+  need(manifest?.schemaVersion===1&&Array.isArray(manifest.sources)&&manifest.sources.length===allowedIds.length&&new Set(manifest.sources.map(s=>s?.id)).size===allowedIds.length&&allowedIds.every(id=>manifest.sources.some(s=>s?.id===id)),`Expected exact ${wave==='expanded'?'fourteen':wave==='next'?'ten':'four'}-source HRA inventory`);
   const {repository,commit}=manifest.source??{};
   need(repository==='https://github.com/hubmapconsortium/hra-kg'&&/^[a-f0-9]{40}$/.test(commit),'Expected pinned official HRA repository and commit');
+  if(wave==='expanded')validateExpandedPins(manifest);
   for(const source of manifest.sources){
     need(/^v\d+\.\d+$/.test(source.version),'Invalid source version');
     const prefix=`https://raw.githubusercontent.com/hubmapconsortium/hra-kg/${commit}/digital-objects/ref-organ/${source.id}/${source.version}/raw/`;
@@ -239,16 +265,21 @@ export function auditHraManifest(manifest,root,{wave='initial'}={}){
   }
   const results=[];
   for(const source of manifest.sources){
-    try{results.push(auditHraSource(source,root,allowedIds))}catch(e){results.push({sourceId:source.id,variant:source.variant,status:'BLOCKED',error:e.message,anatomicallyValidated:false,mergeAuthorized:false})}
+    let result;
+    try{result=auditHraSource(source,root,allowedIds)}catch(e){result={sourceId:source.id,variant:source.variant,status:'BLOCKED',error:e.message,anatomicallyValidated:false,mergeAuthorized:false}}
+    // Preserve existing wave report schemas. Expanded reports explicitly name
+    // versions so the older lung candidate can never be mistaken for v1.4.
+    results.push(wave==='expanded'?{...result,version:source.version}:result);
   }
-  return {status:results.every(r=>r.status==='TECHNICAL_PREFLIGHT_PASS')?'TECHNICAL_PREFLIGHT_PASS':'BLOCKED',scope:'Actual pinned local bytes, raw triangle geometry ranges and exact source crosswalk only; not anatomical, clinical, spatial registration or merge validation.',anatomicallyValidated:false,mergeAuthorized:false,results};
+  const report={status:results.every(r=>r.status==='TECHNICAL_PREFLIGHT_PASS')?'TECHNICAL_PREFLIGHT_PASS':'BLOCKED',scope:'Actual pinned local bytes, raw triangle geometry ranges and exact source crosswalk only; not anatomical, clinical, spatial registration or merge validation.',anatomicallyValidated:false,mergeAuthorized:false,results};
+  return wave==='expanded'?{...report,wave,excludedSources:manifest.excludedSources}:report;
 }
 
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
   try{
     const [root,manifestPath,reportPath,mode,...extra]=process.argv.slice(2);
-    need(root&&manifestPath&&reportPath&&!extra.length&&(mode===undefined||mode==='--next-wave'),'Usage: node model-audit/hra-reference-audit.mjs <asset-dir> <manifest.json> <report.json> [--next-wave]');
-    const result=auditHraManifest(JSON.parse(decode(readBounded(manifestPath,MAX_CSV))),root,{wave:mode==='--next-wave'?'next':'initial'});
+    need(root&&manifestPath&&reportPath&&!extra.length&&(mode===undefined||['--next-wave','--expanded-wave'].includes(mode)),'Usage: node model-audit/hra-reference-audit.mjs <asset-dir> <manifest.json> <report.json> [--next-wave|--expanded-wave]');
+    const result=auditHraManifest(JSON.parse(decode(readBounded(manifestPath,MAX_CSV))),root,{wave:mode==='--expanded-wave'?'expanded':mode==='--next-wave'?'next':'initial'});
     writeFileSync(reportPath,JSON.stringify(result,null,2)+'\n',{flag:'wx'});
     for(const r of result.results)console.log(r.status==='BLOCKED'?`${r.sourceId}: BLOCKED ${r.error}`:`${r.sourceId}: ${r.status}; ${r.glb.meshNodes} mesh nodes / ${r.crosswalk.directMeshRows} direct matches / ${r.crosswalk.groupRows} groups; SHA256 ${r.glb.sha256}`);
     if(result.status!=='TECHNICAL_PREFLIGHT_PASS')process.exitCode=1;

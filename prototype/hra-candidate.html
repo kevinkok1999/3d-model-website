@@ -35,13 +35,14 @@
       <section class="hra-intro">
         <div class="hra-intro-copy">
           <p class="hra-kicker"><span aria-hidden="true"></span>Human Reference Atlas · HuBMAP</p>
-          <h1 data-hra-i18n="pageTitle">Hersenen en bloedvaten</h1>
-          <p class="hra-lead" data-hra-i18n="intro">Inspecteer de afzonderlijke HRA-bronmodellen en hun exacte node- en ontologieverwijzingen, voor zover technisch beschikbaar.</p>
+          <h1 data-hra-i18n="pageTitle">HRA 3D-bronbibliotheek</h1>
+          <p class="hra-lead" data-hra-i18n="intro">Inspecteer 14 afzonderlijke bronvarianten uit zeven families: hersenen, bloedvaten, hart, lever, longen, dunne darm en ruggenmerg. Verken exacte node- en ontologieverwijzingen voor zover technisch beschikbaar.</p>
         </div>
         <div class="hra-source-card">
           <label for="hra-model" data-hra-i18n="sourceLabel">Kies een bronreferentie</label>
           <select id="hra-model"></select>
-          <p data-hra-i18n="sourceModelInfo">Hersenen v1.4 · Bloedvaten v1.3 · Mannelijke/vrouwelijke bronvarianten.</p>
+          <p data-hra-i18n="sourceModelInfo">7 modelfamilies · 14 afzonderlijke mannelijke/vrouwelijke bronvarianten · selecteer per versie.</p>
+          <p class="hra-source-release" data-hra-i18n="sourceReleaseNote">Longen, mannelijke bron: v1.3 (oudere versie). v1.4 is geblokkeerd.</p>
         </div>
       </section>
 
@@ -52,6 +53,7 @@
           <p data-hra-i18n="disclaimer">Geen anatomische of klinische vrijgave, geen volledig lichaam en geen medisch hulpmiddel. De hersenvarianten zijn gespiegeld en geschaald vanuit de Allen-referentieatlas, geen onafhankelijke mannelijke of vrouwelijke scans. De vaatmodellen zijn bewerkt vanuit Visible Human.</p>
           <p data-hra-i18n="registrationNote">Elke bron blijft afzonderlijk in de eigen coördinaten: geen overlay, geen registratie op de hoofdviewer en geen geverifieerde anatomische oriëntatie.</p>
           <p class="hra-discrepancy" data-hra-i18n="maleVesselWarning">De bronbeschrijving van de mannelijke vaatkandidaat noemt “female”, terwijl titel, bestand en bron-ID “male” aanduiden. De variant blijft onbevestigd.</p>
+          <p class="hra-discrepancy" data-hra-i18n="maleLungWarning">De mannelijke longreferentie v1.4 blijft geblokkeerd: bronmapping VH_M_hyoid / UBERON:0001685 ontbreekt. De oudere v1.3 is een zelfstandig bronmodel, geen reparatie of vervanging van v1.4. Het mappingprobleem voor het tongbeen blijft open.</p>
         </div>
       </section>
       <div id="hra-error" class="hra-error" role="alert" aria-live="assertive"></div>

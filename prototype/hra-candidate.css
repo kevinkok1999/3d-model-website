@@ -53,7 +53,7 @@ select:hover:not(:disabled) { border-color: var(--accent); }
 .hra-paths a { display: inline-flex; align-items: center; min-height: 44px; gap: 5px; text-decoration: none; color: var(--secondary); font-size: .83rem; font-weight: 620; }
 .hra-paths a:hover { color: var(--accent); }
 .hra-paths svg { width: 18px; height: 18px; color: var(--accent); }
-.hra-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 355px); gap: 24px; align-items: center; margin-bottom: 18px; }
+.hra-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 418px); gap: 24px; align-items: center; margin-bottom: 18px; }
 .hra-intro-copy { min-width: 0; }
 .hra-kicker { display: flex; align-items: center; gap: 8px; color: var(--accent); font-size: .76rem; font-weight: 650; line-height: 1.4; letter-spacing: .075em; text-transform: uppercase; margin-bottom: 8px; }
 .hra-kicker span { width: 25px; height: 1px; background: var(--accent); flex: none; }
@@ -61,8 +61,11 @@ select:hover:not(:disabled) { border-color: var(--accent); }
 .hra-lead { color: var(--secondary); font-size: .94rem; line-height: 1.6; max-width: 72ch; }
 .hra-source-card { min-width: 0; display: flex; flex-direction: column; gap: 7px; padding: 14px; border: 1px solid #395978; border-radius: var(--radius); background: linear-gradient(145deg, #17283a, var(--surface)); }
 .hra-source-card label { color: var(--text); font-size: .8rem; font-weight: 680; line-height: 1.4; }
-.hra-source-card select { width: 100%; min-width: 0; }
-.hra-source-card p { color: var(--muted); font-size: .75rem; line-height: 1.5; }
+.hra-source-card select { width: 100%; min-width: 0; font-variant-numeric: tabular-nums; text-overflow: ellipsis; }
+.hra-source-card optgroup { font-weight: 650; }
+.hra-source-card option { font-weight: 400; }
+.hra-source-card p { color: var(--muted); font-size: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
+.hra-source-card .hra-source-release { margin-top: 3px; padding-top: 8px; border-top: 1px solid var(--border); color: #f0dcae; font-weight: 600; }
 .hra-warning { display: flex; align-items: flex-start; gap: 12px; color: #e7d5b2; background: #201f1d; border: 1px solid #796447; border-radius: 10px; padding: 13px 16px; margin-bottom: 16px; }
 .hra-warning-icon { width: 21px; height: 21px; margin-top: 1px; color: var(--selection); }
 .hra-warning-body { min-width: 0; }

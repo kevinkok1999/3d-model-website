@@ -62,14 +62,15 @@ function renameNoReplace(temp,output){
 }
 
 function main(args){
-  need(args.length===4,'Usage: node model-audit/hra-stage-candidate.mjs <asset-dir> <manifest.json> <audit.json> <new-output-dir>');
-  const [input,manifestPath,auditPath,requestedOutput]=args,root=realpathSync(input);
+  need(args.length===4||(args.length===5&&args[4]==='--expanded-wave'),'Usage: node model-audit/hra-stage-candidate.mjs <asset-dir> <manifest.json> <audit.json> <new-output-dir> [--expanded-wave]');
+  const [input,manifestPath,auditPath,requestedOutput,mode]=args,root=realpathSync(input);
+  const options={wave:mode==='--expanded-wave'?'expanded':'initial'};
   const absoluteOutput=resolve(requestedOutput),parent=realpathSync(dirname(absoluteOutput)),output=join(parent,basename(absoluteOutput));
   need(!exists(output),'Staging destination already exists; will not overwrite');
   need(!contains(root,output),'Staging destination inside source tree is forbidden');
   const {json:manifest}=readJson(manifestPath),{json:expected,bytes:auditBytes}=readJson(auditPath);
   need(expected.status===pass,'Existing audit report must have technical preflight PASS');
-  const fresh=auditHraManifest(manifest,root);sameAudit(expected,fresh,'Fresh audit');
+  const fresh=auditHraManifest(manifest,root,options);sameAudit(expected,fresh,'Fresh audit');
   for(const s of manifest.sources)need(/\.glb$/i.test(s.glb.filename)&&s.crosswalk.filename==='crosswalk.csv','Unexpected staged source asset filename');
 
   const temp=mkdtempSync(join(parent,'.hra-stage-'));let moved=false;
@@ -80,10 +81,10 @@ function main(args){
     }
     // Audit the exact copies again, not merely the intake directory. This
     // catches any content replacement or mutation between source audit/copy.
-    sameAudit(expected,auditHraManifest(manifest,temp),'Staged copy audit');
+    sameAudit(expected,auditHraManifest(manifest,temp,options),'Staged copy audit');
     writeFileSync(join(temp,'audit.json'),auditBytes,{flag:'wx',mode:0o600});
     renameNoReplace(temp,output);moved=true;
-    console.log('HRA staged: four ORIGINAL GLBs, four ORIGINAL crosswalks, matching technical audit only. No anatomical validation or merge.');
+    console.log(`HRA staged: ${manifest.sources.length} ORIGINAL GLBs, ${manifest.sources.length} ORIGINAL crosswalks, matching technical audit only. No anatomical validation or merge.`);
   }finally{
     // Only remove our unique private temporary directory, never input or
     // destination. No partial output survives a rejected audit.

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {HRA_SOURCES,HraAssetUnavailableError,loadHraCandidate,verifyHraAsset,parseHraGlb,buildHraRows,selectHraAudit,boundedHraBytes} from '../src/hra-candidate-data.js';
+import {HRA_SOURCES,HRA_FAMILIES,hraFamilyId,hraFamilyLabel,HraAssetUnavailableError,loadHraCandidate,verifyHraAsset,parseHraGlb,buildHraRows,selectHraAudit,boundedHraBytes} from '../src/hra-candidate-data.js';
 
 const encode=s=>new TextEncoder().encode(s);
 const csv=encode('node_name,OntologyID,label\r\nGroup,FMA:1,"Group, label"\r\nDirect,UBERON:2,"Direct ""label"""\r\nOther,UBERON:2,Other label\r\n');
@@ -9,9 +9,24 @@ const gltf={asset:{version:'2.0'},scene:0,scenes:[{nodes:[0,4]}],nodes:[{name:'G
 const source={id:'test',variant:'male',crosswalk:{columns:['node_name','OntologyID','label'],expectedRows:3,expectedUniqueOntologyIds:2}};
 const report={sourceId:'test',variant:'male',status:'TECHNICAL_PREFLIGHT_PASS',anatomicallyValidated:false,mergeAuthorized:false,glb:{nodes:5,meshNodes:4,meshes:4},crosswalk:{rows:3,uniqueOntologyIds:2,directMeshRows:2,groupRows:1,groupCoveredMeshNodes:2,unmappedMeshNodes:0,matches:[{nodeName:'Group',ontologyId:'FMA:1',nodeIndex:0,kind:'group',meshIndex:null},{nodeName:'Direct',ontologyId:'UBERON:2',nodeIndex:1,kind:'mesh',meshIndex:0},{nodeName:'Other',ontologyId:'UBERON:2',nodeIndex:4,kind:'mesh',meshIndex:3}]}};
 
-test('All four actual sources retain distinct pinned inventory sizes and paths; unknown IDs cannot load',async()=>{
-  assert.deepEqual(HRA_SOURCES.map(s=>[s.id,s.glb.bytes,s.crosswalk.expectedRows]),[['blood-vasculature-female',17875996,125],['blood-vasculature-male',18050040,123],['brain-female',11983380,108],['brain-male',11982812,108]]);
+test('All fourteen actual sources retain distinct pinned inventory sizes, versions and paths; unknown IDs cannot load',async()=>{
+  assert.deepEqual(HRA_SOURCES.map(s=>[s.id,s.version,s.glb.bytes,s.crosswalk.expectedRows]).sort(([a],[b])=>a.localeCompare(b)),[
+    ['blood-vasculature-female','v1.3',17875996,125],['blood-vasculature-male','v1.3',18050040,123],['brain-female','v1.4',11983380,108],['brain-male','v1.4',11982812,108],
+    ['heart-female','v1.3',1745560,17],['heart-male','v1.3',4071772,17],['liver-female','v1.2',1738552,23],['liver-male','v1.2',1136412,23],
+    ['lung-female','v1.4',23255188,70],['lung-male','v1.3',10941068,71],['small-intestine-female','v1.2',856536,11],['small-intestine-male','v1.2',618728,12],
+    ['spinal-cord-female','v1.1',7657228,30],['spinal-cord-male','v1.1',490652,31],
+  ]);
+  assert.equal(HRA_SOURCES.reduce((total,s)=>total+s.crosswalk.expectedRows,0),769);
+  for(const s of HRA_SOURCES){assert.equal(s.glb.localPath,`${s.id}/${s.glb.filename}`);assert.equal(s.crosswalk.localPath,`${s.id}/${s.crosswalk.filename}`);assert.ok(s.glb.url.includes(`/${s.id}/${s.version}/raw/`));}
+  const lung=HRA_SOURCES.find(s=>s.id==='lung-male');assert.equal(lung.glb.gitBlobSha1,'dbbfdaf4cc51ea7d75cb0887b8fa003b8da9c00a');assert.match(lung.provenanceNote,/v1\.4.*failed/i);
   await assert.rejects(()=>loadHraCandidate('../outside'),/unknown/i);
+});
+
+test('Seven exact bilingual families have two source variants; labels are not inferred from broad systems',()=>{
+  const pairs=[['blood-vasculature','Bloedvaten','Blood vasculature'],['brain','Hersenen','Brain'],['heart','Hart','Heart'],['liver','Lever','Liver'],['lung','Longen','Lung'],['small-intestine','Dunne darm','Small intestine'],['spinal-cord','Ruggenmerg','Spinal cord']];
+  assert.deepEqual(HRA_FAMILIES,pairs.map(([id])=>id));
+  for(const [id,nl,en] of pairs){const sources=HRA_SOURCES.filter(s=>hraFamilyId(s)===id);assert.equal(sources.length,2);assert.deepEqual(sources.map(s=>s.variant).sort(),['female','male']);assert.equal(hraFamilyLabel(id,'nl'),nl);assert.equal(hraFamilyLabel(id,'en'),en);}
+  assert.throws(()=>hraFamilyId({id:'unknown-male',variant:'male'}));
 });
 
 test('CSV exact labels and repeated ontology IDs are preserved; groups include descendant mesh nodes while direct rows include only their own',()=>{
@@ -54,10 +69,11 @@ test('Local GLB 2.0 validates binary lengths and forbids external image or buffe
   assert.throws(()=>parseHraGlb(glbFixture({...gltf,images:[{uri:'https://example.org/pixel.png'}]})));
 });
 
-function completeAudit(){return {status:'TECHNICAL_PREFLIGHT_PASS',anatomicallyValidated:false,mergeAuthorized:false,results:HRA_SOURCES.map(s=>({sourceId:s.id,variant:s.variant,status:'TECHNICAL_PREFLIGHT_PASS',anatomicallyValidated:false,mergeAuthorized:false,glb:{...s.glb,sha256:'1'.repeat(64)},crosswalk:{...s.crosswalk,sha256:'2'.repeat(64)}}))};}
+function completeAudit(){return {status:'TECHNICAL_PREFLIGHT_PASS',wave:'expanded',excludedSources:[{id:'lung-male',version:'v1.4',status:'BLOCKED_SOURCE_MAPPING',reason:'Missing exact VH_M_hyoid node in pinned source GLB; no correction, alias, row removal or fallback.'}],anatomicallyValidated:false,mergeAuthorized:false,results:HRA_SOURCES.map(s=>({sourceId:s.id,variant:s.variant,version:s.version,status:'TECHNICAL_PREFLIGHT_PASS',anatomicallyValidated:false,mergeAuthorized:false,glb:{...s.glb,sha256:'1'.repeat(64)},crosswalk:{...s.crosswalk,sha256:'2'.repeat(64)}}))};}
 test('Complete audit must match all official sources and never claim anatomical or merge validation',()=>{
   const a=completeAudit();assert.equal(selectHraAudit(a,HRA_SOURCES[2].id).sourceId,'brain-female');
-  for(const mutate of [a=>{a.results.pop();},a=>{a.anatomicallyValidated=true;},a=>{a.results[0].variant='male';},a=>{a.results[2].status='BLOCKED';},a=>{a.results[2].glb.gitBlobSha1='0'.repeat(40);},a=>{a.results[2].crosswalk.sha256='bad';},a=>{a.results[2].mergeAuthorized=true;}]){const invalid=completeAudit();mutate(invalid);assert.throws(()=>selectHraAudit(invalid,'brain-female'));}
+  assert.equal(selectHraAudit(a,'lung-male').glb.gitBlobSha1,'dbbfdaf4cc51ea7d75cb0887b8fa003b8da9c00a');
+  for(const mutate of [a=>{a.results.pop();},a=>{a.results=a.results.slice(0,4);},a=>{a.anatomicallyValidated=true;},a=>{a.results[0].variant='male';},a=>{a.results[2].status='BLOCKED';},a=>{a.results[2].glb.gitBlobSha1='0'.repeat(40);},a=>{a.results[2].crosswalk.sha256='bad';},a=>{a.results[2].mergeAuthorized=true;},a=>{a.results.find(s=>s.sourceId==='lung-male').glb.bytes=10942332;},a=>{delete a.wave;},a=>{a.wave='next';},a=>{a.excludedSources=[];},a=>{a.excludedSources[0].status='TECHNICAL_PREFLIGHT_PASS';},a=>{a.excludedSources[0].reason='corrected';},a=>{a.results.find(s=>s.sourceId==='lung-male').version='v1.4';},a=>{delete a.results[2].version;}]){const invalid=completeAudit();mutate(invalid);assert.throws(()=>selectHraAudit(invalid,'brain-female'));}
 });
 
 test('Bounded body verifies decoded pinned length even for compressed HTTP responses; missing and oversized remain blocked',async()=>{

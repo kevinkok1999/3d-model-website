@@ -10,13 +10,23 @@ import { resolve } from 'node:path';
 const base = new URL(process.argv[2] ?? 'http://127.0.0.1:4173');
 assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(base.hostname), 'Local preview only');
 const evidence = 'ACTUAL_PINNED_HRA_GEOMETRY_NOT_ANATOMICALLY_REVIEWED';
-const scope = 'Actual pinned bytes, 464 crosswalk rows, per-row DOM-driven selection and exact source-node isolation; not anatomical/clinical accuracy, spatial registration, picking accuracy or real-device performance';
-const inventory = JSON.parse(readFileSync(new URL('../../model-audit/hra-intake-candidates.json', import.meta.url), 'utf8'));
+const scope = 'Actual pinned bytes, 769 crosswalk rows, per-row DOM-driven selection and exact source-node isolation; not anatomical/clinical accuracy, spatial registration, picking accuracy or real-device performance';
+const inventory = JSON.parse(readFileSync(new URL('../../model-audit/hra-expanded-candidates.json', import.meta.url), 'utf8'));
+const blockedInventory = JSON.parse(readFileSync(new URL('../../model-audit/hra-next-candidates.json', import.meta.url), 'utf8'));
 const target = new URL('/hra-candidate.html', base);
 const auditUrl = new URL('/hra-candidate/audit.json', base);
 const asset = pin => new URL(`/hra-candidate/${pin.localPath}`, base);
 const sources = inventory.sources;
-assert.equal(sources.length, 4);
+const expectedTotals={models:14,rows:769,meshNodes:1054,directRows:666,groupRows:103};
+assert.equal(sources.length,expectedTotals.models);
+assert.equal(new Set(sources.map(s=>s.id)).size,expectedTotals.models);
+assert.equal(sources.reduce((sum,s)=>sum+s.crosswalk.expectedRows,0),expectedTotals.rows);
+const maleLung=sources.find(s=>s.id==='lung-male'),blockedMaleLung=blockedInventory.sources.find(s=>s.id==='lung-male');
+assert.equal(maleLung.version,'v1.3');assert.equal(blockedMaleLung.version,'v1.4');
+assert.ok(maleLung.glb.url.includes('/lung-male/v1.3/raw/'));
+assert.ok(maleLung.crosswalk.url.includes('/lung-male/v1.3/raw/'));
+assert.notEqual(maleLung.glb.gitBlobSha1,blockedMaleLung.glb.gitBlobSha1);
+assert.notEqual(maleLung.crosswalk.gitBlobSha1,blockedMaleLung.crosswalk.gitBlobSha1);
 const require = createRequire(import.meta.url);
 let playwright;
 try { playwright = require('playwright'); } catch { console.error(JSON.stringify({status:'BLOCKED_NOT_RUN',evidence,reason:'Playwright dependency unavailable'})); process.exit(2); }
@@ -74,11 +84,12 @@ async function fetchPinned(request,pin,report){
   const bytes=await response.body();
   assert.equal(bytes.length,pin.bytes);assert.equal(bytes.length,report.bytes);
   assert.equal(gitBlob(bytes),pin.gitBlobSha1);assert.equal(gitBlob(bytes),report.gitBlobSha1);
-  assert.equal(sha256(bytes),report.sha256);return bytes;
+  assert.equal(sha256(bytes),report.sha256);await response.dispose();return bytes;
 }
 async function sourceData(request,audit,source){
   const report=audit.results.find(x=>x.sourceId===source.id);
   assert.ok(report,`Missing audit source ${source.id}`);assert.equal(report.status,'TECHNICAL_PREFLIGHT_PASS');assert.equal(report.variant,source.variant);
+  assert.equal(report.version,source.version,`${source.id}: pinned release must match exact audit`);
   assert.equal(report.anatomicallyValidated,false);assert.equal(report.mergeAuthorized,false);
   const [glb,csv]=await Promise.all([fetchPinned(request,source.glb,report.glb),fetchPinned(request,source.crosswalk,report.crosswalk)]);
   const rows=crosswalk(csv),nodes=jsonGlb(glb).nodes;
@@ -99,7 +110,9 @@ async function sourceData(request,audit,source){
   assert.equal(rowData.filter(x=>x.kind==='mesh').length,report.crosswalk.directMeshRows);
   assert.equal(rowData.filter(x=>x.kind==='group').length,report.crosswalk.groupRows);
   assert.equal(new Set(rowData.map(x=>x.index)).size,rowData.length);
-  return {source,report,rows:rowData,allMeshes,glb};
+  // Keep only the initial real GLB buffer for race/corruption probes. Avoid
+  // retaining fourteen large buffers after their hashes and hierarchy pass.
+  return {source,report,rows:rowData,allMeshes,glb:source.id===sources[0].id?glb:undefined};
 }
 
 let browser;
@@ -168,35 +181,45 @@ async function verifyModel(page,data){
     assert.deepEqual(visible(await state(page)),allMeshes);
   }
   await type.selectOption('all');
-  const repeated=rows.find(r=>rows.filter(x=>x.ontologyId===r.ontologyId).length>1);
-  assert.ok(repeated,'Expected repeated ontology IDs in source crosswalk');await search.fill(repeated.ontologyId);
-  const matching=rows.filter(r=>r.ontologyId===repeated.ontologyId).map(r=>r.index);
+  const searchRow=rows.find(r=>rows.filter(x=>x.ontologyId===r.ontologyId).length>1)??rows[0];
+  await search.fill(searchRow.ontologyId);
+  const matching=rows.filter(r=>r.ontologyId===searchRow.ontologyId).map(r=>r.index);
   const found=await listKeys(page);
-  const expectedSearch=rows.filter(r=>[r.label,r.nodeName,r.ontologyId,r.index].join(' ').toLowerCase().includes(repeated.ontologyId.toLowerCase())).map(r=>r.index);
+  const expectedSearch=rows.filter(r=>[r.label,r.nodeName,r.ontologyId,r.index].join(' ').toLowerCase().includes(searchRow.ontologyId.toLowerCase())).map(r=>r.index);
   assert.deepEqual(found,sortNum(expectedSearch));await matchesCount(page,expectedSearch.length,rows.length);
   for(const i of matching)assert.ok(found.includes(i),'Shared ontology ID must not lose any source node');
-  await type.selectOption(repeated.kind==='mesh'?'direct':'group');
-  assert.deepEqual(await listKeys(page),sortNum(found.filter(i=>rows.find(r=>r.index===i).kind===repeated.kind)));
+  await type.selectOption(searchRow.kind==='mesh'?'direct':'group');
+  assert.deepEqual(await listKeys(page),sortNum(found.filter(i=>rows.find(r=>r.index===i).kind===searchRow.kind)));
   await search.fill('__hra_qa_no_such_node__');assert.deepEqual(await listKeys(page),[]);await matchesCount(page,0,rows.length);
   await search.fill('');await type.selectOption('all');assert.deepEqual(await listKeys(page),sortNum(rows.map(r=>r.index)));
 
-  const group=rows.find(r=>r.kind==='group'&&r.meshNodeIndices.length>1)??rows.find(r=>r.kind==='group');
-  assert.ok(group);await button(page,group.index).click();await page.locator('#hra-isolate').click();
-  assert.deepEqual(visible(await state(page)),group.meshNodeIndices);
+  const selected=rows.find(r=>r.kind==='group'&&r.meshNodeIndices.length>1)??rows.find(r=>r.kind==='group')??rows[0];
+  await button(page,selected.index).click();await page.locator('#hra-isolate').click();
+  assert.deepEqual(visible(await state(page)),selected.meshNodeIndices);
   for(const [view,axis] of Object.entries({front:[0,0,1],back:[0,0,-1],left:[1,0,0],right:[-1,0,0]})){
     await page.locator(`[data-hra-view="${view}"]`).click();const s=await state(page);
-    assert.equal(s.selected,String(group.index));assert.equal(s.view,view);assert.deepEqual(visible(s),group.meshNodeIndices);
+    assert.equal(s.selected,String(selected.index));assert.equal(s.view,view);assert.deepEqual(visible(s),selected.meshNodeIndices);
     const camera=await page.locator('#hra-metrics').evaluate(n=>({position:JSON.parse(n.dataset.cameraPosition),target:JSON.parse(n.dataset.cameraTarget)}));
     const offset=camera.position.map((x,i)=>x-camera.target[i]);const length=Math.hypot(...offset);assert.ok(Number.isFinite(length)&&length>0);
     assert.ok(offset.every((n,i)=>Math.abs(n/length-axis[i])<0.0001),`${source.id}/${view}: source-axis camera`);
   }
   for(const control of ['#hra-focus','#hra-fit','#hra-zoom-in','#hra-zoom-out']){
-    await page.locator(control).click();assert.equal((await state(page)).selected,String(group.index));assert.deepEqual(visible(await state(page)),group.meshNodeIndices);
+    await page.locator(control).click();assert.equal((await state(page)).selected,String(selected.index));assert.deepEqual(visible(await state(page)),selected.meshNodeIndices);
   }
   await page.locator('#hra-reset').click();assert.equal((await state(page)).selected,'');assert.equal((await state(page)).isolated,'');assert.deepEqual(visible(await state(page)),allMeshes);
   assert.equal(await page.locator('#hra-list [aria-pressed="true"]').count(),0);
   if(screenshots)await page.screenshot({path:resolve(screenshots,`hra-actual-unreviewed-${source.id}-desktop.png`),fullPage:true});
-  checks.push(`${source.id}: exact per-row selection/isolate/restore; direct/group/search filters, source axes and fit/focus/zoom preserve selected group; reset`);
+  const optionText=await page.locator(`#hra-model option[value="${source.id}"]`).innerText();
+  assert.ok(optionText.includes(source.version),`${source.id}: explicit source version in option`);
+  const credits=await page.locator('#hra-credits').innerText();
+  assert.ok(credits.includes(source.title)&&credits.includes(source.version),`${source.id}: exact title/version in provenance panel`);
+  if(source.id==='lung-male'){
+    assert.ok(!optionText.includes('v1.4'),'Blocked male lung v1.4 must not be selectable');
+    const warning=page.locator('[data-hra-i18n="maleLungWarning"]');
+    assert.equal(await warning.isVisible(),true,'Older male lung pin is explicitly disclosed');
+    const text=await warning.innerText();assert.ok(text.includes('v1.3')&&text.includes('v1.4'));
+  }
+  checks.push(`${source.id} ${source.version}: exact per-row selection/isolate/restore; direct/group/search filters, source axes and fit/focus/zoom preserve selected ${selected.kind} row; reset; provenance`);
 }
 
 async function failurePage(name,configure,{noGlb=false}={}){
@@ -217,17 +240,26 @@ try{
   const request=await playwright.request.newContext({baseURL:base.href});
   const auditResponse=await request.get(auditUrl.href);assert.ok(auditResponse.ok(),'Actual audited source manifest is required; no synthetic fallback');
   const audit=await auditResponse.json();assert.equal(audit.status,'TECHNICAL_PREFLIGHT_PASS');assert.equal(audit.anatomicallyValidated,false);assert.equal(audit.mergeAuthorized,false);
+  assert.equal(audit.wave,'expanded');assert.deepEqual(audit.excludedSources,inventory.excludedSources);
+  assert.ok(audit.excludedSources.some(s=>s.id==='lung-male'&&s.version==='v1.4'&&s.status==='BLOCKED_SOURCE_MAPPING'));
   assert.deepEqual(audit.results.map(x=>x.sourceId).sort(),sources.map(s=>s.id).sort());
   const models=[];for(const source of sources)models.push(await sourceData(request,audit,source));
-  await request.dispose();assert.equal(models.reduce((sum,x)=>sum+x.rows.length,0),464);
-  checks.push('Four actual GLB and four actual CSV files match pinned Git blob hashes, measured audit SHA256, bytes and exact 464 crosswalk rows; expected per-node sets independently derived from raw GLB hierarchy');
+  await request.dispose();
+  const actualTotals={models:models.length,rows:models.reduce((sum,x)=>sum+x.rows.length,0),meshNodes:models.reduce((sum,x)=>sum+x.allMeshes.length,0),directRows:models.reduce((sum,x)=>sum+x.rows.filter(r=>r.kind==='mesh').length,0),groupRows:models.reduce((sum,x)=>sum+x.rows.filter(r=>r.kind==='group').length,0)};
+  assert.deepEqual(actualTotals,expectedTotals);
+  const maleLungData=models.find(m=>m.source.id==='lung-male'),femaleLungData=models.find(m=>m.source.id==='lung-female');
+  assert.equal(maleLungData.report.glb.gitBlobSha1,maleLung.glb.gitBlobSha1);assert.notEqual(maleLungData.report.glb.gitBlobSha1,blockedMaleLung.glb.gitBlobSha1);
+  checks.push('Fourteen actual GLB and fourteen actual CSV files match pinned Git blob hashes, measured audit SHA256 and bytes; independent raw hierarchy gives 769 rows, 1054 mesh nodes, 666 direct rows and 103 groups. Male lung v1.3 is a different pin from blocked v1.4.');
   const page=await browser.newPage({viewport:{width:1280,height:900},deviceScaleFactor:1});observe(page);
   await page.goto(target.href,{waitUntil:'domcontentloaded',timeout:30000});await ready(page,sources[0].id);
   const options=await page.locator('#hra-model option').evaluateAll(nodes=>nodes.map(n=>n.value).sort());assert.deepEqual(options,sources.map(s=>s.id).sort());
+  const labels=await page.locator('#hra-model option').allTextContents();assert.equal(new Set(labels).size,expectedTotals.models,'All source labels distinguish organ, variant and version');
+  assert.equal(await page.locator('#hra-model optgroup').count(),7,'Seven source families with paired variants');
+  assert.deepEqual(await page.locator('#hra-model optgroup').evaluateAll(groups=>groups.map(g=>g.querySelectorAll('option').length)),Array(7).fill(2));
   assert.ok(await page.locator('.hra-warning').isVisible(),'Persistent unreviewed source warning');
   for(const data of models)await verifyModel(page,data);
-  assert.equal(recordAudits.reduce((sum,r)=>sum+r.selectedAndIsolated,0),464);
-  for(const data of [models[0],models[3],models[0]]){
+  assert.equal(recordAudits.reduce((sum,r)=>sum+r.selectedAndIsolated,0),expectedTotals.rows);
+  for(const data of [models[0],femaleLungData,maleLungData,models[0]]){
     await page.locator('#hra-model').selectOption(data.source.id);await ready(page,data.source.id);
     assert.deepEqual(await listKeys(page),sortNum(data.rows.map(r=>r.index)));assert.deepEqual(visible(await state(page)),data.allMeshes);
     assert.equal((await state(page)).selected,'');
@@ -246,32 +278,40 @@ try{
   try{
     await race.goto(target.href,{waitUntil:'domcontentloaded',timeout:30000});
     await Promise.race([started,race.waitForTimeout(30000).then(()=>{throw new Error('Initial GLB request was not intercepted');})]);
-    await race.locator('#hra-model').selectOption(models[1].source.id);await ready(race,models[1].source.id);
+    await race.locator('#hra-model').selectOption(maleLungData.source.id);await ready(race,maleLungData.source.id);
     release();await oldSettled;
     // Browser event queue barrier rather than fixed sleep; old cancelled work
     // cannot apply after current source validation and next two frames.
     await race.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
-    assert.equal(await race.locator('#hra-model').inputValue(),models[1].source.id);await ready(race,models[1].source.id);
-    assert.deepEqual(await listKeys(race),sortNum(models[1].rows.map(r=>r.index)));assert.deepEqual(visible(await state(race)),models[1].allMeshes);
+    assert.equal(await race.locator('#hra-model').inputValue(),maleLungData.source.id);await ready(race,maleLungData.source.id);
+    assert.deepEqual(await listKeys(race),sortNum(maleLungData.rows.map(r=>r.index)));assert.deepEqual(visible(await state(race)),maleLungData.allMeshes);
   }finally{release();await race.close();}
   checks.push('Controlled delayed initial GLB + mid-load source switch: latest source retains exact row/mesh state');
 
   const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});observe(mobile);
   await mobile.goto(target.href,{waitUntil:'domcontentloaded',timeout:30000});await ready(mobile,models[0].source.id);
-  assert.ok(await mobile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),'390px mobile no horizontal overflow');
-  const mobileRow=models[0].rows.find(r=>r.kind==='group'&&r.meshNodeIndices.length>1)??models[0].rows[0];
-  await mobile.locator('.hra-jumps a[href="#hra-nav"]').tap();await mobile.locator('#hra-search').fill(mobileRow.nodeName);await button(mobile,mobileRow.index).tap();
-  await mobile.locator('.hra-jumps a[href="#hra-detail-panel"]').tap();assert.equal((await state(mobile)).selected,String(mobileRow.index));
-  await mobile.locator('#hra-isolate').tap();assert.deepEqual(visible(await state(mobile)),mobileRow.meshNodeIndices);
-  if(screenshots)await mobile.screenshot({path:resolve(screenshots,'hra-actual-unreviewed-mobile-390.png'),fullPage:true});
-  await mobile.close();checks.push('390px mobile touch navigation and exact group isolation, no horizontal overflow');
+  for(const data of [models[0],maleLungData]){
+    await mobile.locator('#hra-model').selectOption(data.source.id);await ready(mobile,data.source.id);
+    assert.ok(await mobile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),'390px mobile no horizontal overflow');
+    const mobileRow=data.rows.find(r=>r.kind==='group'&&r.meshNodeIndices.length>1)??data.rows[0];
+    await mobile.locator('.hra-jumps a[href="#hra-nav"]').tap();await mobile.locator('#hra-search').fill(mobileRow.nodeName);await button(mobile,mobileRow.index).tap();
+    await mobile.locator('.hra-jumps a[href="#hra-detail-panel"]').tap();assert.equal((await state(mobile)).selected,String(mobileRow.index));
+    await mobile.locator('#hra-isolate').tap();assert.deepEqual(visible(await state(mobile)),mobileRow.meshNodeIndices);
+    if(screenshots)await mobile.screenshot({path:resolve(screenshots,`hra-actual-unreviewed-${data.source.id}-mobile-390.png`),fullPage:true});
+  }
+  await mobile.close();checks.push('390px mobile touch navigation and exact isolation on initial vasculature and male lung v1.3, no horizontal overflow');
   assert.deepEqual(errors,[],'Unexpected success-path console/page/asset errors');
 
   await failurePage('Missing audit manifest',page=>page.route(auditUrl.href,route=>route.fulfill({status:404,contentType:'application/json',body:'{}'})),{noGlb:true});
   const altered=structuredClone(audit);altered.results[0].crosswalk.matches[0].nodeIndex=-1;
   await failurePage('Changed audit manifest mapping',page=>page.route(auditUrl.href,route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(altered)})));
+  const wrongVersion=structuredClone(audit);const wrongLung=wrongVersion.results.find(r=>r.sourceId==='lung-male');
+  wrongLung.version='v1.4';
+  wrongLung.glb.bytes=blockedMaleLung.glb.bytes;wrongLung.glb.gitBlobSha1=blockedMaleLung.glb.gitBlobSha1;
+  wrongLung.crosswalk.bytes=blockedMaleLung.crosswalk.bytes;wrongLung.crosswalk.gitBlobSha1=blockedMaleLung.crosswalk.gitBlobSha1;
+  await failurePage('Blocked male lung v1.4 pin substituted in audit',page=>page.route(auditUrl.href,route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(wrongVersion)})),{noGlb:true});
   const corrupt=Buffer.from(models[0].glb);corrupt[corrupt.length-1]^=1;
   await failurePage('Actual GLB altered at same byte length',page=>page.route(asset(models[0].source.glb).href,route=>route.fulfill({status:200,contentType:'model/gltf-binary',body:corrupt})));
-  console.log(JSON.stringify({status:'PASSED',evidence,scope,recordAudits,checks},null,2));
+  console.log(JSON.stringify({status:'PASSED',evidence,scope,actualTotals,recordAudits,checks},null,2));
 }catch(error){console.error(JSON.stringify({status:'FAILED',evidence,scope,recordAudits,checks,errors,reason:error.stack},null,2));process.exitCode=1;}
 finally{await browser.close();}
