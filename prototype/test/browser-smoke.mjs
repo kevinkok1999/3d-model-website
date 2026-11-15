@@ -9,6 +9,7 @@ const url = new URL(process.argv[2] ?? 'http://127.0.0.1:4173');
 assert.ok(['localhost','127.0.0.1','[::1]'].includes(url.hostname), 'Smoke test accepts only a local preview URL');
 const require = createRequire(import.meta.url);
 const sourceCatalog = require('open-anatomy-3d/catalog.json');
+const expansionRegister = require('../../model-audit/expansion-register.draft.json');
 const systems = ['skin','skeleton','muscles','organs','vessels','nerves','joints'];
 let playwright;
 try { playwright = require('playwright'); } catch {
@@ -37,13 +38,127 @@ page.on('response', r => { if (/anatomy-(male|female)[^/]*\.glb([?].*)?$/i.test(
 
 const ready = () => page.locator('#status[data-phase="ready"]').waitFor({ state: 'visible', timeout: 45000 });
 const waitListCount = async (count) => page.waitForFunction(n => document.querySelectorAll('#structure-list [data-key]').length === n, count, { timeout: 30000 });
+const readListKeys = () => page.locator('#structure-list [data-key]').evaluateAll(nodes => nodes.map(node => node.dataset.key));
+const readLayerChecks = () => page.locator('#layers input[data-system]').evaluateAll(nodes => Object.fromEntries(nodes.map(node => [node.dataset.system,node.checked])));
+const assertListCountLabel = async (shown, total) => {
+  const label = await page.locator('#structure-count').innerText();
+  assert.deepEqual((label.match(/\d+/g) ?? []).map(Number), [shown, total], `Catalog count label distinguishes filtered result (${shown}) from candidate scope (${total})`);
+};
 const setVariant = async (variant, count) => {
   await page.locator('#search').fill('');
+  await page.locator('#region-select').selectOption('all');
+  await page.locator('#system-select').selectOption('all');
   await page.locator('#model-select').selectOption(variant);
   await ready();
   await waitListCount(count);
   assert.equal(await page.locator('#model-select').inputValue(), variant);
   assertions.push(`${variant}: ${count} list records and ready state`);
+};
+
+const auditFilters = async variant => {
+  const expected = sourceCatalog.filter(record => !record.sex || record.sex === variant);
+  const total = expected.length;
+  const region = page.locator('#region-select'), system = page.locator('#system-select'), search = page.locator('#search');
+  const originalLayers = await readLayerChecks();
+  assert.equal(await region.inputValue(), 'all');
+  assert.equal(await system.inputValue(), 'all');
+  assert.deepEqual((await readListKeys()).sort(), expected.map(record => record.key).sort());
+  await assertListCountLabel(total, total);
+
+  await region.selectOption('upper-limb');
+  const upperLimbKeys = await readListKeys();
+  assert.ok(upperLimbKeys.length > 0 && upperLimbKeys.length < total, `${variant}: upper-limb filter narrows catalog`);
+  for (const key of ['deltoid_l','deltoid_r','forearm_muscles_l','forearm_muscles_r','humerus_l','humerus_r']) assert.ok(upperLimbKeys.includes(key), `${variant}: expected upper-limb source key ${key}`);
+  for (const key of ['heart','brain','calf_l','calf_r','lower_leg_l','lower_leg_r']) assert.ok(!upperLimbKeys.includes(key), `${variant}: unrelated region excluded: ${key}`);
+  await assertListCountLabel(upperLimbKeys.length, total);
+
+  await system.selectOption('muscles');
+  const allowedUpperMuscles = upperLimbKeys.filter(key => expected.some(record => record.key === key && record.system === 'muscles')).sort();
+  assert.deepEqual((await readListKeys()).sort(), allowedUpperMuscles, `${variant}: region and system filters form an exact intersection`);
+  assert.ok(allowedUpperMuscles.length > 0 && allowedUpperMuscles.length < upperLimbKeys.length);
+  await assertListCountLabel(allowedUpperMuscles.length, total);
+
+  await search.fill('deltoid');
+  assert.deepEqual((await readListKeys()).sort(), ['deltoid_l','deltoid_r']);
+  await assertListCountLabel(2, total);
+  await search.fill('__qa-no-match__');
+  assert.deepEqual(await readListKeys(), []);
+  await assertListCountLabel(0, total);
+  await search.fill('');
+  assert.deepEqual((await readListKeys()).sort(), allowedUpperMuscles);
+
+  await region.selectOption('all');
+  const allMuscles = expected.filter(record => record.system === 'muscles').map(record => record.key).sort();
+  assert.deepEqual((await readListKeys()).sort(), allMuscles, `${variant}: all-region muscles filter exact source-key coverage`);
+  await assertListCountLabel(allMuscles.length, total);
+  await system.selectOption('all');
+  await waitListCount(total);
+  assert.deepEqual((await readListKeys()).sort(), expected.map(record => record.key).sort(), `${variant}: reset both filters restores whole candidate list`);
+  await assertListCountLabel(total, total);
+  assert.deepEqual(await readLayerChecks(), originalLayers, `${variant}: list filters are not destructive layer changes`);
+  await ready();
+  assertions.push(`${variant}: region/system/search intersection, no-results/count labels, exact all-system list and reset audited (region fixture and source keys; not anatomical review)`);
+};
+
+const auditCoverage = async (variant, records, meshes) => {
+  const summary = page.locator('#coverage-summary'), content = page.locator('#coverage-content');
+  await summary.waitFor({ state:'visible' });
+  assert.equal(await summary.getAttribute('data-records'), String(records));
+  assert.equal(await summary.getAttribute('data-meshes'), String(meshes));
+  assert.equal(await summary.getAttribute('data-hotspots'), '12');
+  const summaryText = await summary.innerText();
+  for (const count of [records,meshes,12]) assert.match(summaryText, new RegExp(`\\b${count}\\b`), `${variant}: candidate count ${count} disclosed in summary text`);
+  const wasVisible = await content.isVisible();
+  if (!wasVisible) await summary.click();
+  await content.waitFor({ state:'visible' });
+  assert.equal(await content.getAttribute('data-status'), 'draft', 'Expansion targets are marked draft; not presented as released structures');
+  const targets = Number(await content.getAttribute('data-targets'));
+  assert.equal(targets,expansionRegister.targets.length,'Draft expansion target count is exact');
+  const entries=await content.locator('[data-target-id]').evaluateAll(nodes=>nodes.map(node=>({id:node.dataset.targetId,state:node.dataset.targetState,label:node.querySelector('strong')?.textContent,source:node.querySelector('a')?.href})));
+  const expected=expansionRegister.targets.map(row=>({id:row.id,state:row.state,label:row.nl,source:row.sourceUrl}));
+  const order=(a,b)=>a.id.localeCompare(b.id);
+  assert.deepEqual(entries.sort(order),expected.sort(order),`${variant}: no draft expansion records or evidence labels silently lost`);
+  assert.equal(await content.locator('details.coverage-domain').count(),10);
+  const text = await content.innerText();
+  assert.match(text, /Gewrichtsankers zijn geen afzonderlijke meshes/i, 'Hotspot-only coverage limitation is explicitly disclosed');
+  assert.match(text, /Groepsmeshes en ontbrekende onderdelen/i, 'Grouped-mesh and missing-part limitations are explicitly disclosed');
+  for (const system of ['Huid','Skelet','Spieren','Organen','Bloedvaten','Zenuwen','Gewrichten']) assert.match(text, new RegExp(system,'i'), `${variant}: coverage discusses ${system}`);
+  if (!wasVisible) await summary.click();
+  assertions.push(`${variant}: honest coverage summary (${records} records, ${meshes} meshes, 12 anchors); seven systems, grouped/missing parts and draft expansion explicitly disclosed`);
+};
+
+const auditCameraPresets = async selectedKey => {
+  const selected = page.locator(`#structure-list [data-key="${selectedKey}"]`);
+  const beforeLayers = await readLayerChecks();
+  const beforeTitle = await page.locator('#detail-title').innerText();
+  const assertSelectionAndLayers = async id => {
+    await ready();
+    assert.deepEqual(await page.locator('#structure-list [aria-pressed="true"]').evaluateAll(nodes => nodes.map(node => node.dataset.key)), [selectedKey], `${id}: exact source selection preserved`);
+    assert.equal(await selected.getAttribute('aria-pressed'), 'true');
+    assert.equal((await page.locator('#detail-content dl dd').allTextContents()).at(-1)?.trim(), selectedKey);
+    assert.equal(await page.locator('#detail-title').innerText(), beforeTitle);
+    assert.deepEqual(await readLayerChecks(), beforeLayers, `${id}: camera-only operation preserves visibility controls`);
+  };
+  for (const view of ['front','back','left','right']) {
+    const control = page.locator(`[data-view="${view}"]`);
+    assert.equal(await control.count(),1);
+    assert.equal(await control.isEnabled(),true);
+    await control.click();
+    await assertSelectionAndLayers(view);
+    const camera = await page.locator('#metrics').evaluate(el=>({direction:el.dataset.viewDirection,position:JSON.parse(el.dataset.cameraPosition),target:JSON.parse(el.dataset.cameraTarget)}));
+    assert.equal(camera.direction,view);
+    const offset=camera.position.map((n,i)=>n-camera.target[i]);
+    const length=Math.hypot(...offset);
+    assert.ok(length>0&&Number.isFinite(length),`${view}: finite nonzero camera distance`);
+    const expected={front:[0,0,1],back:[0,0,-1],left:[1,0,0],right:[-1,0,0]}[view];
+    assert.ok(offset.every((n,i)=>Math.abs(n/length-expected[i])<0.00001),`${view}: actual camera direction follows anatomical axes`);
+  }
+  const fit = page.locator('#fit-btn');
+  assert.equal(await fit.isEnabled(),true);
+  await fit.click();
+  assert.equal(await page.locator('#metrics').getAttribute('data-camera-fit'),'true');
+  await assertSelectionAndLayers('fit');
+  assertions.push('Front/back/left/right camera presets and fit controls activate while preserving exact selected source key and all seven layer states (no pixel/orientation guarantee)');
 };
 
 // Exhaustive DOM/state audit, not a visual, anatomical, picking or FPS audit.
@@ -124,9 +239,13 @@ try {
   await canvas.waitFor({ state: 'visible', timeout: 30000 });
   assert.ok(await canvas.evaluate(el => el.width > 0 && el.height > 0), 'Canvas drawing buffer has positive dimensions');
   assertions.push('WebGL viewer reported ready and canvas visible');
+  assert.equal(await page.locator('#region-select').inputValue(),'all');
+  assert.equal(await page.locator('#system-select').inputValue(),'all');
 
   await setVariant('male', 140);
   await auditVariantRecords('male', 128);
+  await auditFilters('male');
+  await auditCoverage('male', 140, 128);
   await page.locator('#search').fill('deltoid');
   const left = page.locator('#structure-list [data-key="deltoid_l"]');
   const right = page.locator('#structure-list [data-key="deltoid_r"]');
@@ -151,6 +270,7 @@ try {
   await page.locator('#mode-select').selectOption('leren');
   assert.equal(await left.getAttribute('aria-pressed'), 'true');
   assertions.push('Mode and locale switch preserve exact selected source key');
+  await auditCameraPresets('deltoid_l');
 
   for (const id of ['focus-btn','isolate-btn','reset-btn']) {
     const button = page.locator(`#${id}`);
@@ -172,6 +292,8 @@ try {
 
   await setVariant('female', 145);
   await auditVariantRecords('female', 133);
+  await auditFilters('female');
+  await auditCoverage('female', 145, 133);
   await page.locator('#search').fill('deltoid');
   await page.locator('#structure-list [data-key="deltoid_r"]').click();
   assert.match(await title.innerText(), /deltoid|deltaspier/i);

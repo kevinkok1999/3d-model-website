@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { getViewDirection, cameraOffsetForView } from './camera-presets.js';
 
 // Technical spike. Catalog keys identify source geometry, not proven clinical
 // accuracy. Joint anchors are explicitly synthetic annotations, never meshes of
@@ -10,7 +11,7 @@ const INITIAL_SYSTEMS = ['skeleton', 'muscles', 'organs', 'vessels', 'nerves', '
 const JOINT_SYSTEM = 'joints';
 const NORMAL_MARKER = 0xff9a3c;
 const SELECTED_MARKER = 0x62dbf7;
-const DEFAULT_VIEW = new THREE.Vector3(0, 0.035, 1).normalize();
+const DEFAULT_VIEW = new THREE.Vector3().fromArray(getViewDirection('front'));
 const TAP_TOLERANCE = 8; // CSS pixels, independent of DPR
 
 function normalizeVariant(value) {
@@ -266,6 +267,11 @@ function buildModel(gltf, json, entries, variant) {
  *
  * onStatus({phase:'idle'|'loading'|'ready'|'error'|'context-lost', message,
  *           variant?, metrics?}); onSelect(key|null); onError(Error).
+ * setView('front'|'back'|'left'|'right') changes only the camera; a currently
+ * fitted body/structure is reframed in the new orientation. A free camera
+ * keeps its exact target distance. fit() frames the full reference body in
+ * the current direction without clearing selection, isolation or layer state.
+ * reset() remains the explicit clear-selection/clear-isolation/front-body fit.
  */
 export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, onError = () => {} } = {}) {
   if (!host?.appendChild) throw new TypeError('Een geldig viewer-hostelement is vereist.');
@@ -323,6 +329,7 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
   let model = null, variant = null, selectedKey = null, isolateKey = null;
   let visibleSystems = new Set(INITIAL_SYSTEMS), visibleKeys = [];
   let disposed = false, contextLost = false, atBodyFit = false;
+  let viewDirection = 'front', framedKey = null, applyingCamera = false;
   let width = 1, height = 1, framesRendered = 0, lastRenderMs = 0, loadMs = 0;
 
   function getMetrics() {
@@ -336,6 +343,10 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
       loadMs, visibleKeys: [...visibleKeys], selectedKey, isolateKey, visibleSystems: [...visibleSystems],
       framesRendered, lastRenderMs, pixelRatio: renderer.getPixelRatio(), viewport: { width, height },
+      viewDirection,
+      camera: { position: camera.position.toArray(), target: controls.target.toArray(),
+        distance: camera.position.distanceTo(controls.target), near: camera.near, far: camera.far,
+        atBodyFit, framedKey },
     };
   }
 
@@ -398,14 +409,16 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
     });
   }
 
-  function placeCamera(box, initialView = false, isBodyFit = false) {
+  function placeCamera(box, { direction: requestedDirection = null, bodyFit = false,
+    structureKey = null, preset = viewDirection } = {}) {
     if (!validBounds(box)) return false;
     const sphere = box.getBoundingSphere(new THREE.Sphere());
     const minRadius = (model?.modelHeight ?? 1) * 0.001;
     const radius = Math.max(sphere.radius, minRadius);
     const vHalf = THREE.MathUtils.degToRad(camera.fov) / 2;
     const hHalf = Math.atan(Math.tan(vHalf) * Math.max(camera.aspect, 0.05));
-    const direction = initialView ? DEFAULT_VIEW.clone() : camera.position.clone().sub(controls.target);
+    const direction = requestedDirection ? new THREE.Vector3().fromArray(requestedDirection)
+      : camera.position.clone().sub(controls.target);
     if (direction.lengthSq() < 1e-12) direction.copy(DEFAULT_VIEW);
     direction.normalize();
     // Fit the eight world-bounds corners instead of a broad sphere. This
@@ -422,19 +435,22 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
         offset.dot(direction) + Math.abs(offset.dot(up)) / tanV);
     }
     distance += radius * 0.025;
-    controls.target.copy(sphere.center);
-    camera.position.copy(sphere.center).addScaledVector(direction, distance);
-    const modelScale = model?.modelHeight ?? Math.max(radius * 2, 1e-3);
-    camera.near = Math.max(modelScale * 0.0005, 0.000001);
-    camera.far = Math.max(modelScale * 80, distance * 3, camera.near * 100);
-    camera.updateProjectionMatrix();
-    controls.minDistance = modelScale * 0.004;
-    controls.maxDistance = Math.max(modelScale * 12, distance * 1.5);
-    controls.cursor?.copy(model?.bounds.getCenter(new THREE.Vector3()) ?? sphere.center);
-    if ('maxTargetRadius' in controls) controls.maxTargetRadius = modelScale * 2;
-    camera.lookAt(sphere.center);
-    controls.update();
-    atBodyFit = isBodyFit;
+    applyingCamera = true;
+    try {
+      controls.target.copy(sphere.center);
+      camera.position.copy(sphere.center).addScaledVector(direction, distance);
+      const modelScale = model?.modelHeight ?? Math.max(radius * 2, 1e-3);
+      controls.minDistance = modelScale * 0.004;
+      controls.maxDistance = Math.max(modelScale * 12, distance * 1.5);
+      controls.cursor?.copy(model?.bounds.getCenter(new THREE.Vector3()) ?? sphere.center);
+      if ('maxTargetRadius' in controls) controls.maxTargetRadius = modelScale * 2;
+      camera.lookAt(sphere.center);
+      controls.update();
+      updateCameraClip();
+      atBodyFit = bodyFit;
+      framedKey = structureKey;
+      viewDirection = preset;
+    } finally { applyingCamera = false; }
     invalidate();
     return true;
   }
@@ -501,7 +517,38 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
   function focus(key) {
     if (disposed || !model || !visibleKeys.includes(key)) return false;
     const box = boundsFor(key);
-    return box ? placeCamera(box) : false;
+    return box ? placeCamera(box, { structureKey: key }) : false;
+  }
+
+  function fit() {
+    if (disposed || !model?.group.visible) return false;
+    return placeCamera(model.bounds, { bodyFit: true });
+  }
+
+  function setView(direction) {
+    const presetDirection = getViewDirection(direction);
+    if (disposed || !model?.group.visible || !presetDirection) return false;
+    if (atBodyFit) return placeCamera(model.bounds, { direction: presetDirection, bodyFit: true, preset: direction });
+    if (framedKey) {
+      const box = boundsFor(framedKey);
+      if (box && validBounds(box)) return placeCamera(box, { direction: presetDirection, structureKey: framedKey, preset: direction });
+    }
+    // A manually orbited/panned/zoomed view retains the exact current target
+    // and desired camera distance. Only its anatomical direction changes.
+    const offset = cameraOffsetForView(direction, camera.position.toArray(), controls.target.toArray());
+    if (!offset) return false;
+    applyingCamera = true;
+    try {
+      camera.position.copy(controls.target).add(new THREE.Vector3().fromArray(offset));
+      camera.lookAt(controls.target);
+      controls.update();
+      updateCameraClip();
+      atBodyFit = false;
+      framedKey = null;
+      viewDirection = direction;
+    } finally { applyingCamera = false; }
+    invalidate();
+    return true;
   }
 
   function select(key, options = {}) {
@@ -538,7 +585,7 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
     isolateKey = null;
     select(null);
     updateVisibility();
-    return placeCamera(model.bounds, true, true);
+    return placeCamera(model.bounds, { direction: getViewDirection('front'), bodyFit: true, preset: 'front' });
   }
 
   function clearModel() {
@@ -604,7 +651,7 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
       if (selectedKey !== null) highlight(selectedKey);
       scene.add(model.group);
       updateVisibility();
-      placeCamera(model.bounds, true, true);
+      placeCamera(model.bounds, { direction: getViewDirection('front'), bodyFit: true, preset: 'front' });
       loadMs = performance.now() - started;
       if (contextLost) {
         status('context-lost', 'De grafische context is niet beschikbaar.');
@@ -703,7 +750,11 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      if (model && atBodyFit) placeCamera(model.bounds, false, true);
+      if (model?.group.visible && atBodyFit) placeCamera(model.bounds, { bodyFit: true });
+      else if (model?.group.visible && framedKey) {
+        const box = boundsFor(framedKey);
+        if (box) placeCamera(box, { structureKey: framedKey });
+      }
       invalidate();
     }
   }
@@ -723,9 +774,13 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
     const restoredPhase = pendingController ? 'loading' : model?.group.visible ? 'ready' : 'error';
     status(restoredPhase, 'Grafische context hersteld.', { metrics: true });
   }
-  const startedOrbit = () => { atBodyFit = false; };
-  controls.addEventListener('change', invalidate);
-  controls.addEventListener('start', startedOrbit);
+  // A tap can start OrbitControls without changing the camera. Transition to
+  // free view only on actual, non-programmatic camera changes.
+  const changedOrbit = () => {
+    if (!applyingCamera) { atBodyFit = false; framedKey = null; viewDirection = 'free'; }
+    invalidate();
+  };
+  controls.addEventListener('change', changedOrbit);
   canvas.addEventListener('pointerdown', pointerDown);
   canvas.addEventListener('pointermove', pointerMove);
   canvas.addEventListener('pointerup', pointerUp);
@@ -753,8 +808,7 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
     canvas.removeEventListener('lostpointercapture', pointerCancel);
     canvas.removeEventListener('webglcontextlost', contextLostHandler);
     canvas.removeEventListener('webglcontextrestored', contextRestoredHandler);
-    controls.removeEventListener('change', invalidate);
-    controls.removeEventListener('start', startedOrbit);
+    controls.removeEventListener('change', changedOrbit);
     controls.dispose();
     clearModel();
     renderer.dispose();
@@ -764,5 +818,5 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
   resize();
   invalidate();
   status('idle', '3D-viewer gereed om een model te laden.');
-  return { load, setVisibleSystems, select, isolate, focus, reset, dispose, getMetrics };
+  return { load, setVisibleSystems, select, isolate, focus, fit, setView, reset, dispose, getMetrics };
 }

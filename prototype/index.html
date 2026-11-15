@@ -76,6 +76,19 @@
             <div class="stage">
               <div id="viewport"></div>
             </div>
+            <div class="camera-toolbar" role="group" aria-labelledby="camera-label">
+              <h3 id="camera-label" data-i18n="cameraLabel">Camerastandpunten</h3>
+              <div class="camera-buttons">
+                <button type="button" class="tool-button camera-button" data-view="front"><span data-i18n="viewFront">Voorzijde</span></button>
+                <button type="button" class="tool-button camera-button" data-view="back"><span data-i18n="viewBack">Achterzijde</span></button>
+                <button type="button" class="tool-button camera-button" data-view="left"><span data-i18n="viewLeft">Links</span></button>
+                <button type="button" class="tool-button camera-button" data-view="right"><span data-i18n="viewRight">Rechts</span></button>
+                <button type="button" class="tool-button camera-button" id="fit-btn">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M8 4H4v4m12-4h4v4m0 8v4h-4M4 16v4h4M12 7v10m-4-5h8"/></svg>
+                  <span data-i18n="fitBody">Heel lichaam</span>
+                </button>
+              </div>
+            </div>
             <div class="view-toolbar" role="group" aria-labelledby="viewer-title">
               <button type="button" id="focus-btn" class="tool-button tool-primary">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M8 4H4v4m12-4h4v4m0 8v4h-4M4 16v4h4"/><circle cx="12" cy="12" r="4"/></svg>
@@ -109,6 +122,16 @@
               </div>
             </div>
             <div class="panel-content navigator-content">
+              <div class="catalog-filters">
+                <div class="field">
+                  <label for="region-select" data-i18n="regionLabel">Regio</label>
+                  <select id="region-select"></select>
+                </div>
+                <div class="field">
+                  <label for="system-select" data-i18n="systemLabel">Systeem</label>
+                  <select id="system-select"></select>
+                </div>
+              </div>
               <div class="field search-field">
                 <label for="search" data-i18n="searchLabel">Zoek een structuur</label>
                 <div class="search-control">
@@ -171,6 +194,18 @@
             <p data-i18n="technicalIntro">Actuele metingen van deze previewsessie, indien beschikbaar.</p>
             <div id="metrics" class="resource-body metrics-body"></div>
           </article>
+          <details class="resource-card coverage-card">
+            <summary class="coverage-toggle">
+              <span class="coverage-label">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></span>
+                <span data-i18n="coverageTitle">Catalogusdekking</span>
+              </span>
+              <span id="coverage-summary" class="coverage-status"></span>
+              <svg class="coverage-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="m7 10 5 5 5-5"/></svg>
+            </summary>
+            <p class="coverage-intro" data-i18n="coverageIntro">Overzicht van de beschikbare structuren in het actieve kandidaatmodel; geen bewijs van volledige anatomische dekking.</p>
+            <div id="coverage-content" class="resource-body coverage-content"></div>
+          </details>
         </section>
       </main>
 
