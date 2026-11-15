@@ -32,11 +32,11 @@ Node v24.22.1: `npm run build` slaagt. De build produceert de twee volledige GLB
 
 `npm test` controleert bronidentiteit, GLB-metadata, catalogus/labeldekking, releasepoort en daadwerkelijke CPU-decode. Voor beide modellen: alle meshes hebben eindige vertexattributen en wereldtransformaties, niet-lege eindige bounds, normale vectorattributen en indices binnen het vertexbereik. Source-ID's worden via GLTF-parserassociaties gemapt, ook wanneer de runtime een naam zoals `skin_1` toekent. Zie de tests in `test/` en de testuitvoer voor details. Dit is geen bewijs van WebGL-rendering of anatomische juistheid.
 
-**Browserstatus: NOT_RUN.** Chromium kan in de uitvoeringsomgeving niet starten (socket-permissie geweigerd). Er bestaat geen bewijs van een succesvol gerenderde frame, visuele kwaliteit, daadwerkelijke selectie in WebGL of mobiel gedrag. De browser-smoke-test moet in een normale omgeving of CI slagen; fysieke apparaten blijven daarna vereist. Geen screenshots of rendermetingen worden gefingeerd.
+**Browserstatus: PASS in GitHub Actions, beperkte scope.** Chromium kon lokaal niet starten wegens socket-permissies, maar [CI-run 43737778931](https://github.com/kevinkok1999/3d-model-website/actions/runs/43737778931) slaagde volledig: schone installatie, 20 tests, build en software-WebGL-smoke. De browser bevestigde canvas/ready-status, beide GLB-verzoeken (HTTP 200), lijsten van 140/145 records, zoekactie en toetsenbordselectie, modus-/taalwisseling, focus/isolatie/reset, laagschakelaar en een gesimuleerde 390px viewport zonder horizontale overflow. Geen browserwaarschuwingen in die test. [Screenshot- en logartifact (7 dagen)](https://github.com/kevinkok1999/3d-model-website/actions/runs/43737778931/artifacts/14171416258). Dit bewijst geen daadwerkelijke fysieke telefoonprestaties, visuele of anatomische correctheid, of exhaustive interactie per bronstructuur.
 
 ## Niet afgetekend (release blockers)
 
-1. Browser- en echte apparaatregressies, toegankelijkheid en prestaties, herstel na contextverlies, selectie en rendering voor alle structuren.
+1. Volledige browser- en echte apparaatregressies, toegankelijkheid en prestaties, herstel na contextverlies, selectie en rendering voor alle structuren.
 2. Onafhankelijke anatomische beoordeling en doelcatalogus per systeem/regio met alle ontbrekende onderdelen als afmaaktaken. Khronos glTF-validator, geometrische/visuele beoordeling en per-asset rechtenreview.
 3. Gelijke inhoudsverdieping voor elk onderdeel en elke toepasselijke modus/taal; toetsbare bronnen, animaties en modulecontracten.
 4. LOD en streaming, prijs-/geheugen-/netwerkbudgetten en vergelijking van apparaten. De huidige volledige modellen zijn een technische baseline.

@@ -8,6 +8,8 @@ import { resolve } from 'node:path';
 const url = new URL(process.argv[2] ?? 'http://127.0.0.1:4173');
 assert.ok(['localhost','127.0.0.1','[::1]'].includes(url.hostname), 'Smoke test accepts only a local preview URL');
 const require = createRequire(import.meta.url);
+const sourceCatalog = require('open-anatomy-3d/catalog.json');
+const systems = ['skin','skeleton','muscles','organs','vessels','nerves','joints'];
 let playwright;
 try { playwright = require('playwright'); } catch {
   console.error('NOT_RUN: optional local Playwright runtime is not available');
@@ -27,7 +29,7 @@ try {
   process.exit(2);
 }
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
-const errors = [], warnings = [], modelRequests = [], assertions = [];
+const errors = [], warnings = [], modelRequests = [], assertions = [], recordAudits = [];
 page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
 page.on('console', msg => { if (msg.type() === 'error' && !/favicon\.ico/.test(msg.location().url ?? '')) errors.push(`console: ${msg.text()}`); else if (msg.type() === 'warning') warnings.push(msg.text()); });
 page.on('requestfailed', req => { if (/glb|catalog.json|meshopt/i.test(req.url())) errors.push(`failed asset: ${req.url()} ${req.failure()?.errorText}`); });
@@ -44,6 +46,70 @@ const setVariant = async (variant, count) => {
   assertions.push(`${variant}: ${count} list records and ready state`);
 };
 
+// Exhaustive DOM/state audit, not a visual, anatomical, picking or FPS audit.
+// Batch synchronous activation: the normal list click handler runs for each
+// item; checking after each event avoids a false pass from only the last ID.
+const auditVariantRecords = async (variant, expectedMeshCount) => {
+  const expected = sourceCatalog.filter(record => !record.sex || record.sex === variant);
+  const keys = await page.locator('#structure-list [data-key]').evaluateAll(nodes => nodes.map(node => node.dataset.key));
+  assert.deepEqual([...keys].sort(), expected.map(record => record.key).sort(), `${variant}: no duplicate, absent or extra source key in list`);
+  const metrics = await page.locator('#metrics').innerText();
+  assert.match(metrics, new RegExp(`Gekoppeld:\\s*${expectedMeshCount}\\b`, 'i'));
+  assert.match(metrics, /ankers:\s*12\b/i);
+  assert.match(metrics, /Niet gekoppelde bronrecords:\s*0\b/i);
+  const systemCounts = Object.fromEntries(systems.map(system => [system, expected.filter(record => record.system === system).length]));
+  const layerInputKeys = await page.locator('#layers input[data-system]').evaluateAll(nodes => nodes.map(node => node.dataset.system));
+  assert.deepEqual([...layerInputKeys].sort(), [...systems].sort(), `${variant}: seven declared layer controls`);
+  for (const system of systems) {
+    const input = page.locator(`#layers input[data-system="${system}"]`);
+    const checked = await input.isChecked();
+    const shownCount = await input.evaluate(node => node.closest('label')?.querySelector('small')?.textContent);
+    assert.equal(Number(shownCount), systemCounts[system], `${variant}/${system}: exact layer list count`);
+    await input.setChecked(!checked);
+    assert.equal(await input.isChecked(), !checked, `${variant}/${system}: toggle layer`);
+    await input.setChecked(checked);
+    assert.equal(await input.isChecked(), checked, `${variant}/${system}: restore layer`);
+  }
+  const tested = [];
+  for (let offset = 0; offset < expected.length; offset += 20) {
+    const batch = expected.slice(offset, offset + 20).map(({key,label,system})=>({key,label,system}));
+    const result = await page.evaluate(records => {
+      const failures = [], passed = [];
+      for (const record of records) {
+        const button = document.querySelector(`#structure-list [data-key="${CSS.escape(record.key)}"]`);
+        if (!button) { failures.push(`${record.key}: missing activation target`); continue; }
+        const displayLabel = button.querySelector('span')?.textContent?.trim();
+        button.click();
+        const selected = [...document.querySelectorAll('#structure-list [data-key][aria-pressed="true"]')];
+        const detailPairs = [...document.querySelectorAll('#detail-content dl dd')].map(el=>el.textContent.trim());
+        const detailTitle = document.querySelector('#detail-title')?.textContent?.trim();
+        const activeLayer = document.querySelector(`#layers input[data-system="${CSS.escape(record.system)}"]`);
+        const issue = [];
+        if (selected.length !== 1 || selected[0]?.dataset.key !== record.key) issue.push('exactly one correct selected key required');
+        if (detailPairs.length !== 2 || detailPairs[0] !== record.label || detailPairs[1] !== record.key) issue.push('exact detail ID/source-label mismatch');
+        if (!displayLabel || detailTitle !== displayLabel) issue.push('list/detail label mismatch');
+        if (!activeLayer?.checked) issue.push('selected structure system not activated');
+        const error = document.querySelector('#error');
+        if (error && !error.hidden && error.textContent.trim()) issue.push(`visible viewer error: ${error.textContent.trim()}`);
+        if (document.querySelector('#status')?.dataset.phase !== 'ready') issue.push('viewer no longer ready');
+        if (issue.length) failures.push(`${record.key}: ${issue.join('; ')}`);
+        else passed.push(record.key);
+      }
+      return { passed, failures };
+    }, batch);
+    tested.push(...result.passed);
+    assert.deepEqual(result.failures, [], `${variant}: failures in record audit offset ${offset}`);
+  }
+  assert.deepEqual([...tested].sort(), expected.map(record=>record.key).sort(), `${variant}: every expected source ID exercised`);
+  await page.locator('#reset-btn').click();
+  assert.equal(await page.locator('#structure-list [aria-pressed="true"]').count(), 0, `${variant}: reset clears selection after exhaustive audit`);
+  await ready();
+  recordAudits.push({ variant, expected: expected.length, tested: tested.length, systemCounts,
+    layersToggledAndRestored: systems.length, browserMappingStats: metrics,
+    scope: 'programmatic list activation, exact DOM state and source-label/detail ID, not pixel/picking proof' });
+  assertions.push(`${variant}: all ${tested.length} catalog keys exercised, exact detail ID/source label and aria-pressed; all seven layer controls toggled/restored`);
+};
+
 try {
   await page.goto(url.href, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await ready();
@@ -53,6 +119,7 @@ try {
   assertions.push('WebGL viewer reported ready and canvas visible');
 
   await setVariant('male', 140);
+  await auditVariantRecords('male', 128);
   await page.locator('#search').fill('deltoid');
   const left = page.locator('#structure-list [data-key="deltoid_l"]');
   const right = page.locator('#structure-list [data-key="deltoid_r"]');
@@ -97,6 +164,7 @@ try {
   assertions.push('Layer toggles and restores without rendering failure');
 
   await setVariant('female', 145);
+  await auditVariantRecords('female', 133);
   await page.locator('#search').fill('deltoid');
   await page.locator('#structure-list [data-key="deltoid_r"]').click();
   assert.match(await title.innerText(), /deltoid|deltaspier/i);
@@ -117,9 +185,9 @@ try {
   assert.ok(modelRequests.some(r => /anatomy-female/i.test(r.url) && r.status >= 200 && r.status < 400), 'Female GLB requested successfully');
   assert.equal(await page.locator('#error').isVisible(), false, 'No visible viewer error at the end of smoke');
   assert.deepEqual(errors, [], 'No browser page/asset/console errors during smoke');
-  console.log(JSON.stringify({ status: 'PASS', scope: 'software-WebGL desktop Chromium and emulated mobile viewport only', assertions, modelRequests, warnings }, null, 2));
+  console.log(JSON.stringify({ status: 'PASS', scope: 'software-WebGL desktop Chromium and emulated mobile viewport only', assertions, recordAudits, modelRequests, warnings }, null, 2));
 } catch (error) {
-  console.error(JSON.stringify({ status: 'FAIL', completedAssertions: assertions, errors, warnings, modelRequests,
+  console.error(JSON.stringify({ status: 'FAIL', completedAssertions: assertions, recordAudits, errors, warnings, modelRequests,
     statusText: await page.locator('#status').textContent({ timeout: 1000 }).catch(() => null), cause: error.stack }, null, 2));
   process.exitCode = 1;
 } finally { await browser.close(); }
