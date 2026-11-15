@@ -1,4 +1,4 @@
-import inventory from '../../model-audit/hra-expanded-candidates.json' with {type:'json'};
+import inventory from '../../model-audit/hra-phase6-candidates.json' with {type:'json'};
 
 // Standalone HRA source intake only. The loader never requests upstream public
 // URLs, synthesizes anatomy, inherits ontology labels or registers coordinates.
@@ -13,13 +13,18 @@ const FAMILY_LABELS=freeze({
   lung:{nl:'Longen',en:'Lung'},
   'small-intestine':{nl:'Dunne darm',en:'Small intestine'},
   'spinal-cord':{nl:'Ruggenmerg',en:'Spinal cord'},
+  pelvis:{nl:'Bekken',en:'Pelvis'},
+  'large-intestine':{nl:'Dikke darm',en:'Large intestine'},
+  pancreas:{nl:'Alvleesklier',en:'Pancreas'},
+  spleen:{nl:'Milt',en:'Spleen'},
+  prostate:{nl:'Prostaat',en:'Prostate'},
 });
 export const HRA_FAMILIES=Object.freeze(Object.keys(FAMILY_LABELS));
 export function hraFamilyId(source){
   const variant=source?.variant,id=source?.id;
   if(!['female','male'].includes(variant)||typeof id!=='string'||!id.endsWith(`-${variant}`))throw new Error('Invalid HRA source family');
   const family=id.slice(0,-variant.length-1);
-  if(!Object.hasOwn(FAMILY_LABELS,family))throw new Error('Unknown HRA source family');
+  if(!Object.hasOwn(FAMILY_LABELS,family)||!HRA_SOURCES.some(pin=>pin.id===id&&pin.variant===variant))throw new Error('Unknown HRA source family or variant');
   return family;
 }
 export function hraFamilyLabel(family,locale='nl'){
@@ -41,6 +46,12 @@ export function hraSourceScopeWarning(id,locale='nl'){
     }
     case 'spinal-cord-female':return english?'Source-specific variation: this reference subject had six lumbar vertebrae, not a general anatomical rule. Its crosswalk does not list the fifth sacral segment found in the male crosswalk; no match is fabricated.':'Bronspecifieke variatie: dit referentie-individu had zes lendenwervels; dit is geen algemene anatomische regel. De bronkoppeling vermeldt niet het vijfde sacrale segment uit de mannelijke bronkoppeling; er wordt geen match verzonnen.';
     case 'spinal-cord-male':return english?'Source scope: Frostell et al. (2016) was used during model preparation. A spinal cord source does not establish coverage of peripheral nerves.':'Bronscope: Frostell et al. (2016) is gebruikt bij de modelvoorbereiding. Een ruggenmergbron bewijst geen dekking van perifere zenuwen.';
+    case 'pelvis-female':case 'pelvis-male':return english?'Source scope: the bony pelvis crosswalk contains bone structures and compact/trabecular bone tissue labels. This is not a pelvic muscle atlas and does not validate microscopic morphology.':'Bronscope: de benige bekkenbron bevat labels voor botstructuren en compact/trabeculair botweefsel. Dit is geen bekkenspieratlas en bewijst geen microscopische morfologie.';
+    case 'large-intestine-female':return english?'P2 — extra provenance review: this is an approximate construction from the Visible Human Female pathway, fitted around adjacent organs without direct imaging. It is not a specimen scan or proof of geometrical fidelity equivalent to the male model.':'P2 — extra bronreview: dit is een benadering van het Visible Human Female-traject, passend gemaakt rond aangrenzende organen; er was geen directe beeldvorming. Het is geen specimenscan of bewijs van gelijkwaardige geometrische nauwkeurigheid als het mannelijke model.';
+    case 'large-intestine-male':return english?'Source scope: primarily colonoscopy-derived data credited to Arie Kaufman (Stony Brook University), generally aligned to Visible Human Male. It does not cover the complete digestive tract.':'Bronscope: hoofdzakelijk uit colonoscopie afgeleide gegevens van Arie Kaufman (Stony Brook University), globaal uitgelijnd op Visible Human Male. Dit is geen volledig spijsverteringsstelsel.';
+    case 'pancreas-female':case 'pancreas-male':return english?'Source scope: v1.3 adjusted neck/body/tail proportions. Macroscopic regions only; no islet, endocrine-cell or functional physiology representation is implied.':'Bronscope: v1.3 paste de verhoudingen van hals, lichaam en staart aan. Alleen macroscopische regio’s; geen weergave van eilandjes, endocriene cellen of hun fysiologische functie.';
+    case 'spleen-female':case 'spleen-male':return english?'Source scope: the spleen crosswalk contains six ontology identifiers. It is not a lymphatic network or immune cell atlas.':'Bronscope: de miltbronkoppeling bevat zes ontologie-ID’s. Dit is geen lymfatisch netwerk of immuuncelatlas.';
+    case 'prostate-male':return english?'P2 — extra provenance review: this male-only prostate reference contains a limited named subset of associated ducts and vesicles. The source root label does not establish a complete reproductive system.':'P2 — extra bronreview: deze uitsluitend mannelijke prostaatreferentie bevat een beperkte benoemde selectie van bijbehorende afvoergangen en blaasjes. Het hoofdlabel bewijst geen volledig voortplantingsstelsel.';
     default:return '';
   }
 }
@@ -76,13 +87,13 @@ function validateAuditCardinality(source,audit){
   need(direct===c.directMeshRows&&groups===c.groupRows&&ontologies.size===c.uniqueOntologyIds,'Audit crosswalk match cardinality mismatch');
 }
 export function selectHraAudit(report,id){
-  need(byId.has(id),'Unknown HRA source');need(passed(report)&&report.wave==='expanded'&&Array.isArray(report.results)&&report.results.length===HRA_SOURCES.length,'Complete unregistered expanded-wave HRA audit required');
+  need(byId.has(id),'Unknown HRA source');need(passed(report)&&report.wave==='phase6'&&Array.isArray(report.results)&&report.results.length===HRA_SOURCES.length,'Complete unregistered phase6 HRA audit required');
   need(Array.isArray(report.excludedSources)&&report.excludedSources.length===HRA_EXCLUSIONS.length&&HRA_EXCLUSIONS.every((pin,i)=>{
     const exclusion=report.excludedSources[i];return record(exclusion)&&Object.keys(exclusion).length===Object.keys(pin).length&&Object.entries(pin).every(([key,value])=>exclusion[key]===value);
-  }),'Explicit blocked HRA source exclusion differs from expanded inventory');
+  }),'Explicit blocked/HOLD HRA source exclusions differ from phase6 inventory');
   const seen=new Set();let selected;
   for(const audit of report.results){
-    const source=byId.get(audit?.sourceId);need(source&&!seen.has(source.id)&&audit.variant===source.variant&&audit.version===source.version&&passed(audit),'HRA audit source/variant/version/status mismatch');seen.add(source.id);
+    const source=byId.get(audit?.sourceId);need(source&&!seen.has(source.id)&&audit.variant===source.variant&&audit.version===source.version&&audit.priority===source.priority&&passed(audit),'HRA audit source/variant/version/priority/status mismatch');seen.add(source.id);
     validateAuditAsset(source.glb,audit.glb,MAX_GLB);validateAuditAsset(source.crosswalk,audit.crosswalk,MAX_CSV);validateAuditCardinality(source,audit);
     if(source.id===id)selected=audit;
   }

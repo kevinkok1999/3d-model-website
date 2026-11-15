@@ -62,9 +62,9 @@ function renameNoReplace(temp,output){
 }
 
 function main(args){
-  need(args.length===4||(args.length===5&&args[4]==='--expanded-wave'),'Usage: node model-audit/hra-stage-candidate.mjs <asset-dir> <manifest.json> <audit.json> <new-output-dir> [--expanded-wave]');
+  need(args.length===4||(args.length===5&&['--expanded-wave','--phase6-wave'].includes(args[4])),'Usage: node model-audit/hra-stage-candidate.mjs <asset-dir> <manifest.json> <audit.json> <new-output-dir> [--expanded-wave|--phase6-wave]');
   const [input,manifestPath,auditPath,requestedOutput,mode]=args,root=realpathSync(input);
-  const options={wave:mode==='--expanded-wave'?'expanded':'initial'};
+  const options={wave:mode==='--phase6-wave'?'phase6':mode==='--expanded-wave'?'expanded':'initial'};
   const absoluteOutput=resolve(requestedOutput),parent=realpathSync(dirname(absoluteOutput)),output=join(parent,basename(absoluteOutput));
   need(!exists(output),'Staging destination already exists; will not overwrite');
   need(!contains(root,output),'Staging destination inside source tree is forbidden');

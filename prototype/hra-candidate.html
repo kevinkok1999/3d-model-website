@@ -36,13 +36,15 @@
         <div class="hra-intro-copy">
           <p class="hra-kicker"><span aria-hidden="true"></span>Human Reference Atlas · HuBMAP</p>
           <h1 data-hra-i18n="pageTitle">HRA 3D-bronbibliotheek</h1>
-          <p class="hra-lead" data-hra-i18n="intro">Inspecteer 14 afzonderlijke bronvarianten uit zeven families: hersenen, bloedvaten, hart, lever, longen, dunne darm en ruggenmerg. Verken exacte node- en ontologieverwijzingen voor zover technisch beschikbaar.</p>
+          <p class="hra-lead" data-hra-i18n="intro">Inspecteer 23 afzonderlijke bronvarianten uit 12 modelfamilies. Verken per bronversie de exacte node- en ontologieverwijzingen, voor zover technisch beschikbaar.</p>
         </div>
         <div class="hra-source-card">
           <label for="hra-model" data-hra-i18n="sourceLabel">Kies een bronreferentie</label>
-          <select id="hra-model"></select>
-          <p data-hra-i18n="sourceModelInfo">7 modelfamilies · 14 afzonderlijke mannelijke/vrouwelijke bronvarianten · selecteer per versie.</p>
-          <p class="hra-source-release" data-hra-i18n="sourceReleaseNote">Longen, mannelijke bron: v1.3 (oudere versie). v1.4 is geblokkeerd.</p>
+          <select id="hra-model" aria-describedby="hra-source-model-info hra-source-pair-note hra-source-release-note hra-excluded-sources"></select>
+          <p id="hra-source-model-info" data-hra-i18n="sourceModelInfo">12 modelfamilies · 23 afzonderlijke bronvarianten · selecteer per versie.</p>
+          <p id="hra-source-pair-note" data-hra-i18n="sourcePairNote">11 bronparen en één mannelijke prostaatreferentie. Een ontbrekende tegenvariant wordt niet afgeleid of geconstrueerd.</p>
+          <p id="hra-source-release-note" class="hra-source-release" data-hra-i18n="sourceReleaseNote">Longen, mannelijke bron: v1.3 (oudere versie). v1.4 is geblokkeerd.</p>
+          <p id="hra-excluded-sources" class="hra-source-hold" data-hra-i18n="excludedSources">HOLD · Drie niet-selecteerbare kandidaten: linker nier (vrouw/man, papilmetadata komt niet overeen) en baarmoeder (vrouw, versiediscrepantie).</p>
         </div>
       </section>
 

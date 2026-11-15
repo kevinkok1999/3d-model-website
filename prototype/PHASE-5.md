@@ -2,6 +2,8 @@
 
 Status: technische ontwikkelkandidaat. Geen anatomische, klinische of productievrijgave; geen ruimtelijke registratie/merge.
 
+Historische momentopname: de aanvullende fase-5 [mobiele browserproef op commit `863aada`](https://github.com/kevinkok1999/3d-model-website/actions/runs/43743945220) is geslaagd voor alle 14 referenties in NL/EN. De afzonderlijke [9/9 wave-3 intake](https://github.com/kevinkok1999/3d-model-website/actions/runs/43743945275) is eveneens geslaagd. Fase 6 gebruikt die negen in een nieuwe integratie; eerder bewijs geldt niet automatisch voor de nieuwe revisie.
+
 ## Werkelijke technische resultaten
 
 Commit `f668ec1746faae0e3e80fed882a100924228dbca`: [14-bronnen intake en Chromium](https://github.com/kevinkok1999/3d-model-website/actions/runs/43743697769) volledig PASS. Exact 14 originele GLB-/CSV-paren, beide opnieuw geaudit na staging; 769/769 bronrecords individueel via de interface geselecteerd, geïsoleerd en hersteld. [Rapport, logs en screenshots](https://github.com/kevinkok1999/3d-model-website/actions/runs/43743697769/artifacts/14172778349). [Algemene QA](https://github.com/kevinkok1999/3d-model-website/actions/runs/43743701806) PASS.

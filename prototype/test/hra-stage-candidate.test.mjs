@@ -62,6 +62,9 @@ test('refuses staging inside the source tree',t=>{
 test('expanded mode rejects a valid but incomplete four-source audit without creating output',t=>{
   const f=fixture(t),r=f.run(f.output,'--expanded-wave');assert.notEqual(r.status,0);assert.doesNotMatch(r.stderr,/Usage:/);assert.match(r.stderr,/expanded|fourteen|inventory/i);assert.ok(!existsSync(f.output));f.noPartial();
 });
+test('phase6 staging rejects an incomplete source set before copying',t=>{
+  const f=fixture(t),r=f.run(f.output,'--phase6-wave');assert.notEqual(r.status,0);assert.doesNotMatch(r.stderr,/Usage:/);assert.match(r.stderr,/phase6|twenty-three|inventory/i);assert.ok(!existsSync(f.output));f.noPartial();
+});
 test('unknown staging mode is rejected, never silently treated as initial mode',t=>{
   const f=fixture(t),r=f.run(f.output,'--next-wave');assert.notEqual(r.status,0);assert.match(r.stderr,/Usage:/);assert.ok(!existsSync(f.output));f.noPartial();
 });

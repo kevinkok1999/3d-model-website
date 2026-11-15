@@ -10,17 +10,27 @@ import { resolve } from 'node:path';
 const base = new URL(process.argv[2] ?? 'http://127.0.0.1:4173');
 assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(base.hostname), 'Local preview only');
 const evidence = 'ACTUAL_PINNED_HRA_GEOMETRY_NOT_ANATOMICALLY_REVIEWED';
-const scope = 'Actual pinned bytes, 769 crosswalk rows, per-row DOM-driven selection and exact source-node isolation; not anatomical/clinical accuracy, spatial registration, picking accuracy or real-device performance';
-const inventory = JSON.parse(readFileSync(new URL('../../model-audit/hra-expanded-candidates.json', import.meta.url), 'utf8'));
+const scope = 'Actual pinned bytes, 881 crosswalk rows, per-row DOM-driven selection and exact source-node isolation; not anatomical/clinical accuracy, spatial registration, picking accuracy or real-device performance';
+const inventory = JSON.parse(readFileSync(new URL('../../model-audit/hra-phase6-candidates.json', import.meta.url), 'utf8'));
+const earlierInventory = JSON.parse(readFileSync(new URL('../../model-audit/hra-expanded-candidates.json', import.meta.url), 'utf8'));
 const blockedInventory = JSON.parse(readFileSync(new URL('../../model-audit/hra-next-candidates.json', import.meta.url), 'utf8'));
 const target = new URL('/hra-candidate.html', base);
 const auditUrl = new URL('/hra-candidate/audit.json', base);
 const asset = pin => new URL(`/hra-candidate/${pin.localPath}`, base);
 const sources = inventory.sources;
-const expectedTotals={models:14,rows:769,meshNodes:1054,directRows:666,groupRows:103};
+const expectedTotals={models:23,rows:881};
+const earlierTotals={models:14,rows:769,meshNodes:1054,directRows:666,groupRows:103};
+const earlierIds=new Set(earlierInventory.sources.map(s=>s.id));
+const p2Ids=new Set(['large-intestine-female','prostate-male']);
 assert.equal(sources.length,expectedTotals.models);
 assert.equal(new Set(sources.map(s=>s.id)).size,expectedTotals.models);
 assert.equal(sources.reduce((sum,s)=>sum+s.crosswalk.expectedRows,0),expectedTotals.rows);
+for(const earlier of earlierInventory.sources)assert.deepEqual(sources.find(s=>s.id===earlier.id),earlier,`${earlier.id}: earlier source pin unchanged`);
+assert.deepEqual(sources.filter(s=>s.priority==='P2').map(s=>s.id).sort(),[...p2Ids].sort());
+const holdIds=['kidney-female-left','kidney-male-left','uterus-female'];
+assert.deepEqual(inventory.excludedSources.filter(s=>s.priority==='HOLD').map(s=>s.id).sort(),holdIds);
+for(const id of holdIds)assert.ok(!sources.some(s=>s.id===id),`${id}: HOLD not selectable`);
+assert.ok(!sources.some(s=>s.id==='prostate-female'),'No invented opposite prostate source');
 const maleLung=sources.find(s=>s.id==='lung-male'),blockedMaleLung=blockedInventory.sources.find(s=>s.id==='lung-male');
 assert.equal(maleLung.version,'v1.3');assert.equal(blockedMaleLung.version,'v1.4');
 assert.ok(maleLung.glb.url.includes('/lung-male/v1.3/raw/'));
@@ -49,6 +59,8 @@ const familyLabels={
   'blood-vasculature':{nl:'Bloedvaten',en:'Blood vasculature'},brain:{nl:'Hersenen',en:'Brain'},
   heart:{nl:'Hart',en:'Heart'},liver:{nl:'Lever',en:'Liver'},lung:{nl:'Longen',en:'Lung'},
   'small-intestine':{nl:'Dunne darm',en:'Small intestine'},'spinal-cord':{nl:'Ruggenmerg',en:'Spinal cord'},
+  pelvis:{nl:'Bekken',en:'Pelvis'},'large-intestine':{nl:'Dikke darm',en:'Large intestine'},
+  pancreas:{nl:'Alvleesklier',en:'Pancreas'},spleen:{nl:'Milt',en:'Spleen'},prostate:{nl:'Prostaat',en:'Prostate'},
 };
 const variantLabels={nl:{female:'Vrouwelijk',male:'Mannelijk'},en:{female:'Female',male:'Male'}};
 const familyId=source=>source.id.slice(0,-source.variant.length-1);
@@ -57,8 +69,8 @@ async function assertLocalizedSources(page,locale,source){
   assert.equal(await page.locator('#hra-locale').inputValue(),locale);
   assert.equal(await page.locator('#hra-model').inputValue(),source.id);
   const actual=await page.locator('#hra-model optgroup').evaluateAll(groups=>groups.map(group=>({label:group.label,options:[...group.querySelectorAll('option')].map(option=>({value:option.value,text:option.textContent.trim()}))})));
-  const expected=Object.entries(familyLabels).map(([id,labels])=>({label:labels[locale],options:sources.filter(s=>familyId(s)===id).map(s=>({value:s.id,text:`${labels[locale]} · ${variantLabels[locale][s.variant]} · ${s.version}${s.id==='lung-male'?(locale==='nl'?' (ouder)':' (older)'):''}`}))}));
-  assert.deepEqual(actual,expected,`${locale}: exact seven localized source families, variants, version and older marker`);
+  const expected=Object.entries(familyLabels).map(([id,labels])=>({label:labels[locale],options:sources.filter(s=>familyId(s)===id).map(s=>({value:s.id,text:`${labels[locale]} · ${variantLabels[locale][s.variant]} · ${s.version}${s.id==='lung-male'?(locale==='nl'?' (ouder)':' (older)'):''}${p2Ids.has(s.id)?' · P2':''}`}))}));
+  assert.deepEqual(actual,expected,`${locale}: exact twelve localized source families, variants, version, P2 and older marker`);
   const vessel=page.locator('[data-hra-i18n="maleVesselWarning"]');
   const lung=page.locator('[data-hra-i18n="maleLungWarning"]');
   assert.equal(await vessel.isVisible(),source.id==='blood-vasculature-male',`${source.id}/${locale}: vessel discrepancy visibility`);
@@ -70,12 +82,28 @@ async function assertLocalizedSources(page,locale,source){
   }
   const release=page.locator('[data-hra-i18n="sourceReleaseNote"]');
   assert.equal(await release.isVisible(),true);assert.match(await release.innerText(),locale==='nl'?/v1\.3.*v1\.4.*geblokkeerd/i:/v1\.3.*v1\.4.*blocked/i);
+  const modelInfo=page.locator('#hra-source-model-info');assert.ok(await modelInfo.isVisible());
+  const modelInfoText=await modelInfo.innerText();for(const count of [23,12,881])assert.match(modelInfoText,new RegExp(`\\b${count}\\b`));
+  const pair=page.locator('#hra-source-pair-note'),hold=page.locator('#hra-excluded-sources');
+  assert.ok(await pair.isVisible());assert.ok(await hold.isVisible());
+  const pairText=await pair.innerText(),holdText=await hold.innerText();
+  assert.match(pairText,/11/);assert.match(pairText,locale==='nl'?/prostaat/i:/prostate/i);
+  assert.match(holdText,/HOLD/i);assert.match(holdText,locale==='nl'?/nier/i:/kidney|kidneys/i);
+  assert.match(holdText,locale==='nl'?/baarmoeder/i:/uterus/i);assert.match(holdText,locale==='nl'?/papil/i:/papilla/i);
+  assert.match(holdText,locale==='nl'?/versie/i:/version/i);
+  const describedBy=(await page.locator('#hra-model').getAttribute('aria-describedby')??'').split(/\s+/);
+  for(const id of ['hra-source-model-info','hra-source-pair-note','hra-excluded-sources','hra-source-release-note'])assert.ok(describedBy.includes(id),`Source selector exposes ${id} accessibility note`);
   const scope=page.locator('#hra-scope-warning');
   const scopePatterns={
     brain:{nl:[/Allen/,/gespiegeld/,/geen onafhankelijke/,/perifere zenuwen/],en:[/Allen/,/mirrored/,/not independent/,/peripheral nerves/]},
     lung:{nl:[/strottenhoofd/,/luchtpijp/,/hoofdbronchi/,/longkwabben/,/blijven ontbreken/],en:[/larynx/,/trachea/,/main bronchi/,/lung lobes/,/remain gaps/]},
     'small-intestine':{nl:[/meetmarkeringen/,/geen populatienormen/],en:[/measurement guides/,/not population norms/]},
     'spinal-cord':{nl:source.variant==='female'?[/zes lendenwervels/,/vijfde sacrale segment/,/geen match verzonnen/]:[/Frostell/,/perifere zenuwen/],en:source.variant==='female'?[/six lumbar vertebrae/,/fifth sacral segment/,/no match is fabricated/]:[/Frostell/,/peripheral nerves/]},
+    pelvis:{nl:[/spier/i,/microscop/i],en:[/muscl/i,/microscop/i]},
+    'large-intestine':{nl:source.variant==='female'?[/benader/i,/directe beeldvorming/i,/extra bronreview/i]:[/colonoscop/i,/spijsvertering/i],en:source.variant==='female'?[/approximat/i,/direct imaging/i,/extra provenance review/i]:[/colonoscop/i,/digestive/i]},
+    pancreas:{nl:[/macroscop/i,/eilandjes/i,/endocrien/i],en:[/macroscop/i,/islet/i,/endocrin/i]},
+    spleen:{nl:[/lymf/i,/immuun/i],en:[/lymphatic/i,/immune/i]},
+    prostate:{nl:[/beperkt/i,/blaasjes/i,/voortplanting/i,/extra bronreview/i],en:[/limited/i,/vesicle/i,/reproductive/i,/extra provenance review/i]},
   };
   const sourceScope=scopePatterns[familyId(source)];
   assert.equal(await scope.isVisible(),Boolean(sourceScope),`${source.id}/${locale}: scoped provenance warning visibility`);
@@ -84,6 +112,8 @@ async function assertLocalizedSources(page,locale,source){
     for(const pattern of sourceScope[locale])assert.match(warning,pattern,`${source.id}/${locale}: scoped provenance disclosure`);
     if(familyId(source)==='small-intestine')assert.ok(warning.includes(source.variant==='female'?'VH_F_jejenum':'VH_M_duodenum_horizonal'));
   }
+  const credits=await page.locator('#hra-credits').innerText();
+  assert.equal(/\bP2\b/.test(credits),p2Ids.has(source.id),`${source.id}/${locale}: visible P2 priority in exact source credits`);
   assert.ok(await page.locator('.hra-warning').isVisible(),'Persistent unreviewed-source warning');
 }
 
@@ -133,6 +163,7 @@ async function sourceData(request,audit,source){
   const report=audit.results.find(x=>x.sourceId===source.id);
   assert.ok(report,`Missing audit source ${source.id}`);assert.equal(report.status,'TECHNICAL_PREFLIGHT_PASS');assert.equal(report.variant,source.variant);
   assert.equal(report.version,source.version,`${source.id}: pinned release must match exact audit`);
+  assert.equal(report.priority,source.priority,`${source.id}: exact priority, never silently promote P2`);
   assert.equal(report.anatomicallyValidated,false);assert.equal(report.mergeAuthorized,false);
   const [glb,csv]=await Promise.all([fetchPinned(request,source.glb,report.glb),fetchPinned(request,source.crosswalk,report.crosswalk)]);
   const rows=crosswalk(csv),nodes=jsonGlb(glb).nodes;
@@ -284,26 +315,33 @@ try{
   const request=await playwright.request.newContext({baseURL:base.href});
   const auditResponse=await request.get(auditUrl.href);assert.ok(auditResponse.ok(),'Actual audited source manifest is required; no synthetic fallback');
   const audit=await auditResponse.json();assert.equal(audit.status,'TECHNICAL_PREFLIGHT_PASS');assert.equal(audit.anatomicallyValidated,false);assert.equal(audit.mergeAuthorized,false);
-  assert.equal(audit.wave,'expanded');assert.deepEqual(audit.excludedSources,inventory.excludedSources);
+  assert.equal(audit.wave,'phase6');assert.deepEqual(audit.excludedSources,inventory.excludedSources);
   assert.ok(audit.excludedSources.some(s=>s.id==='lung-male'&&s.version==='v1.4'&&s.status==='BLOCKED_SOURCE_MAPPING'));
   assert.deepEqual(audit.results.map(x=>x.sourceId).sort(),sources.map(s=>s.id).sort());
   const models=[];for(const source of sources)models.push(await sourceData(request,audit,source));
   await request.dispose();
-  const actualTotals={models:models.length,rows:models.reduce((sum,x)=>sum+x.rows.length,0),meshNodes:models.reduce((sum,x)=>sum+x.allMeshes.length,0),directRows:models.reduce((sum,x)=>sum+x.rows.filter(r=>r.kind==='mesh').length,0),groupRows:models.reduce((sum,x)=>sum+x.rows.filter(r=>r.kind==='group').length,0)};
-  assert.deepEqual(actualTotals,expectedTotals);
+  const totals=items=>({models:items.length,rows:items.reduce((sum,x)=>sum+x.rows.length,0),meshNodes:items.reduce((sum,x)=>sum+x.allMeshes.length,0),directRows:items.reduce((sum,x)=>sum+x.rows.filter(r=>r.kind==='mesh').length,0),groupRows:items.reduce((sum,x)=>sum+x.rows.filter(r=>r.kind==='group').length,0)});
+  const actualTotals=totals(models),earlierActual=totals(models.filter(m=>earlierIds.has(m.source.id))),newActual=totals(models.filter(m=>!earlierIds.has(m.source.id)));
+  assert.deepEqual({models:actualTotals.models,rows:actualTotals.rows},expectedTotals);
+  assert.deepEqual(earlierActual,earlierTotals,'Existing fourteen actual-source metrics remain identical');
+  assert.equal(newActual.models,9);assert.equal(newActual.rows,112);
+  assert.equal(actualTotals.directRows+actualTotals.groupRows,actualTotals.rows);
+  assert.equal(newActual.directRows+newActual.groupRows,newActual.rows);
   const maleLungData=models.find(m=>m.source.id==='lung-male'),femaleLungData=models.find(m=>m.source.id==='lung-female');
   assert.equal(maleLungData.report.glb.gitBlobSha1,maleLung.glb.gitBlobSha1);assert.notEqual(maleLungData.report.glb.gitBlobSha1,blockedMaleLung.glb.gitBlobSha1);
-  checks.push('Fourteen actual GLB and fourteen actual CSV files match pinned Git blob hashes, measured audit SHA256 and bytes; independent raw hierarchy gives 769 rows, 1054 mesh nodes, 666 direct rows and 103 groups. Male lung v1.3 is a different pin from blocked v1.4.');
+  checks.push(`23 actual GLB and 23 actual CSV files match pinned Git blob hashes, measured audit SHA256 and bytes; independent raw hierarchy gives ${actualTotals.rows} rows, ${actualTotals.meshNodes} mesh nodes, ${actualTotals.directRows} direct rows and ${actualTotals.groupRows} groups. Existing fourteen unchanged, new nine observed separately. Male lung v1.3 differs from blocked v1.4.`);
   const page=await browser.newPage({viewport:{width:1280,height:900},deviceScaleFactor:1});observe(page);
   await page.goto(target.href,{waitUntil:'domcontentloaded',timeout:30000});await ready(page,sources[0].id);
   const options=await page.locator('#hra-model option').evaluateAll(nodes=>nodes.map(n=>n.value).sort());assert.deepEqual(options,sources.map(s=>s.id).sort());
   const labels=await page.locator('#hra-model option').allTextContents();assert.equal(new Set(labels).size,expectedTotals.models,'All source labels distinguish organ, variant and version');
-  assert.equal(await page.locator('#hra-model optgroup').count(),7,'Seven source families with paired variants');
-  assert.deepEqual(await page.locator('#hra-model optgroup').evaluateAll(groups=>groups.map(g=>g.querySelectorAll('option').length)),Array(7).fill(2));
+  assert.equal(await page.locator('#hra-model optgroup').count(),12,'Twelve source families: eleven pairs and male-only prostate');
+  assert.deepEqual(await page.locator('#hra-model optgroup').evaluateAll(groups=>groups.map(g=>g.querySelectorAll('option').length)),[...Array(11).fill(2),1]);
+  assert.ok(!options.includes('prostate-female')&&holdIds.every(id=>!options.includes(id)),'No synthesized opposite / HOLD source options');
   assert.ok(await page.locator('.hra-warning').isVisible(),'Persistent unreviewed source warning');
   for(const data of models)await verifyModel(page,data);
   assert.equal(recordAudits.reduce((sum,r)=>sum+r.selectedAndIsolated,0),expectedTotals.rows);
-  for(const data of [models[0],femaleLungData,maleLungData,models[0]]){
+  const prostateData=models.find(m=>m.source.id==='prostate-male');
+  for(const data of [models[0],femaleLungData,maleLungData,prostateData,models[0]]){
     await page.locator('#hra-model').selectOption(data.source.id);await ready(page,data.source.id);
     assert.deepEqual(await listKeys(page),sortNum(data.rows.map(r=>r.index)));assert.deepEqual(visible(await state(page)),data.allMeshes);
     assert.equal((await state(page)).selected,'');
@@ -372,7 +410,7 @@ try{
   }
   assert.equal(mobileAudits.length,expectedTotals.models);
   assert.ok(mobileAudits.some(r=>r.kind==='mesh')&&mobileAudits.some(r=>r.kind==='group'));
-  await mobile.close();checks.push('Every one of 14 sources at 390px: touch navigation/select/isolate/restore/reset, no horizontal overflow in NL/EN; exact localized source options and source-specific warnings; locale switch retains precise selection/filter/isolation and source');
+  await mobile.close();checks.push('Every one of 23 sources at 390px: touch navigation/select/isolate/restore/reset, no horizontal overflow in NL/EN; exact localized source options, HOLD/P2 and source-specific warnings; locale switch retains precise selection/filter/isolation and source');
   assert.deepEqual(errors,[],'Unexpected success-path console/page/asset errors');
 
   await failurePage('Missing audit manifest',page=>page.route(auditUrl.href,route=>route.fulfill({status:404,contentType:'application/json',body:'{}'})),{noGlb:true});
@@ -383,8 +421,12 @@ try{
   wrongLung.glb.bytes=blockedMaleLung.glb.bytes;wrongLung.glb.gitBlobSha1=blockedMaleLung.glb.gitBlobSha1;
   wrongLung.crosswalk.bytes=blockedMaleLung.crosswalk.bytes;wrongLung.crosswalk.gitBlobSha1=blockedMaleLung.crosswalk.gitBlobSha1;
   await failurePage('Blocked male lung v1.4 pin substituted in audit',page=>page.route(auditUrl.href,route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(wrongVersion)})),{noGlb:true});
+  const omittedHold=structuredClone(audit);omittedHold.excludedSources=omittedHold.excludedSources.filter(s=>s.id!=='uterus-female');
+  await failurePage('HOLD exclusion omitted from audit',page=>page.route(auditUrl.href,route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(omittedHold)})),{noGlb:true});
+  const promoted=structuredClone(audit);promoted.results.find(s=>s.sourceId==='prostate-male').priority='P1';
+  await failurePage('P2 priority silently promoted in audit',page=>page.route(auditUrl.href,route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(promoted)})),{noGlb:true});
   const corrupt=Buffer.from(models[0].glb);corrupt[corrupt.length-1]^=1;
   await failurePage('Actual GLB altered at same byte length',page=>page.route(asset(models[0].source.glb).href,route=>route.fulfill({status:200,contentType:'model/gltf-binary',body:corrupt})));
-  console.log(JSON.stringify({status:'PASSED',evidence,scope,actualTotals,recordAudits,mobileAudits,checks},null,2));
+  console.log(JSON.stringify({status:'PASSED',evidence,scope,actualTotals,earlierActual,newActual,recordAudits,mobileAudits,checks},null,2));
 }catch(error){console.error(JSON.stringify({status:'FAILED',evidence,scope,recordAudits,checks,errors,reason:error.stack},null,2));process.exitCode=1;}
 finally{await browser.close();}
