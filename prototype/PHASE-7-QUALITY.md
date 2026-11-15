@@ -1,5 +1,7 @@
 # Fase 7 — Centraal oriëntatiemodel, gecontroleerde registratie en vrijgave
 
+**Technisch bewijs:** [PHASE-7.md](PHASE-7.md) registreert de inmiddels geslaagde centrale en staged HRA-browserproeven en de registratiesoftwaretests. De afzonderlijke anatomische en ruimtelijke vrijgavegates blijven open.
+
 **Status: kwaliteitsarchitectuur en acceptatiespecificatie, geen nieuwe vrijgave.** Het bestaande whole-body model is het centrale toegangspunt voor de gebruiker. De 23 HRA-bronnen blijven afzonderlijke bronreferenties met eigen broncoördinaten, versies, geometrie en beperkingen. Zie [fase 6](PHASE-6.md), [fase-6-kwaliteitsmatrix](PHASE-6-QUALITY.md), [kwaliteitscontract](../docs/model/QUALITY-CONTRACT.md) en [gapbacklog](../docs/model/GAP-BACKLOG.md). Een technisch passende transformatie is nog geen anatomisch correcte samenstelling. Er wordt in fase 7 geen automatische merge geautoriseerd.
 
 ## 1. Beginpunt, inventaris en beslisgrenzen
