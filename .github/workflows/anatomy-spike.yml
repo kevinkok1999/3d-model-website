@@ -1,0 +1,75 @@
+name: Anatomy spike QA
+
+# Validation only. This workflow does not publish a deployment.
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: anatomy-spike-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Source integrity and technical release-gate tests
+        run: npm test
+
+      - name: Build the candidate
+        run: npm run build
+
+      - name: Install the browser for the locked Playwright package
+        run: npx --no-install playwright install --with-deps chromium
+
+      - name: Browser smoke on local preview only
+        shell: bash
+        env:
+          SMOKE_SCREENSHOT_DIR: ${{ runner.temp }}/anatomy-smoke
+        run: |
+          set -euo pipefail
+          npm run preview -- --port 4173 --strictPort > "$RUNNER_TEMP/anatomy-preview.log" 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent --show-error http://127.0.0.1:4173/ > /dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            if ! kill -0 "$preview_pid" 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != 1 ]; then
+            cat "$RUNNER_TEMP/anatomy-preview.log"
+            echo 'Preview failed to become ready.'
+            exit 1
+          fi
+          node prototype/test/browser-smoke.mjs http://127.0.0.1:4173
+
+      - name: Preserve smoke-test evidence when available
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anatomy-smoke-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/anatomy-preview.log
+            ${{ runner.temp }}/anatomy-smoke/
+          if-no-files-found: ignore
+          retention-days: 7

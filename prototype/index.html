@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1220" />
+    <meta name="description" content="3D Universe — een technische preview van de interactieve anatomieatlas." />
+    <title>3D Universe · Anatomieatlas</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <a class="skip-link" href="#nav-panel" data-i18n="skipLink">Direct naar de structuurlijst</a>
+      <header class="app-header">
+        <div class="header-inner">
+          <div class="brand" aria-label="3D Universe">
+            <svg class="brand-mark" viewBox="0 0 36 36" width="36" height="36" aria-hidden="true" fill="none">
+              <path d="M18 2.5 31.4 10.2v15.5L18 33.5 4.6 25.7V10.2L18 2.5Z" stroke="currentColor" stroke-width="1.55"/>
+              <path d="M4.6 10.2 18 18l13.4-7.8M18 18v15.5M18 2.5 11.3 14.1v15.5M31.4 25.7l-13.4-7.8" stroke="currentColor" stroke-width="1.1" opacity=".62"/>
+              <circle cx="18" cy="18" r="2.4" fill="currentColor"/>
+            </svg>
+            <strong data-i18n="brand">3D Universe</strong>
+          </div>
+          <div class="header-actions">
+            <span class="preview-badge"><span class="status-dot" aria-hidden="true"></span><span data-i18n="preview">Technische preview</span></span>
+            <div class="locale-field">
+              <label for="locale-select" class="sr-only" data-i18n="localeLabel">Taal</label>
+              <select id="locale-select">
+                <option value="nl" lang="nl">Nederlands</option>
+                <option value="en" lang="en">English</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="app-main" id="main-content">
+        <section class="workspace-heading" aria-labelledby="page-title">
+          <div class="heading-copy">
+            <span class="preview-kicker" data-i18n="preview">Technische preview</span>
+            <h1 id="page-title" data-i18n="pageTitle">Anatomieatlas</h1>
+            <p data-i18n="intro">Verken een 3D-lichaamsmodel, selecteer structuren en ontdek de anatomische lagen.</p>
+          </div>
+          <div class="context-controls">
+            <div class="field">
+              <label for="model-select" data-i18n="modelLabel">Anatomisch model</label>
+              <select id="model-select">
+                <option value="male" data-i18n="modelMale">Mannelijk model</option>
+                <option value="female" data-i18n="modelFemale">Vrouwelijk model</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="mode-select" data-i18n="modeLabel">Modus</label>
+              <select id="mode-select">
+                <option value="herstellen" data-i18n="modeHerstellen">Herstellen</option>
+                <option value="trainen" data-i18n="modeTrainen">Trainen</option>
+                <option value="leren" selected data-i18n="modeLeren">Leren</option>
+                <option value="blessures" data-i18n="modeBlessures">Blessures</option>
+                <option value="sporten" data-i18n="modeSporten">Sporten</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <div id="error" class="error-notice" role="alert" aria-live="assertive"></div>
+
+        <div class="workbench">
+          <section class="panel viewer-panel" aria-labelledby="viewer-title">
+            <div class="panel-header viewer-header">
+              <div class="panel-heading">
+                <span class="icon icon-cube" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg></span>
+                <h2 id="viewer-title" data-i18n="viewerTitle">3D-werkvlak</h2>
+              </div>
+              <span id="status" class="viewer-status" role="status" aria-live="polite" aria-atomic="true">Model voorbereiden…</span>
+            </div>
+            <div class="stage">
+              <div id="viewport"></div>
+            </div>
+            <div class="view-toolbar" role="group" aria-labelledby="viewer-title">
+              <button type="button" id="focus-btn" class="tool-button tool-primary">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M8 4H4v4m12-4h4v4m0 8v4h-4M4 16v4h4"/><circle cx="12" cy="12" r="4"/></svg>
+                <span data-i18n="focus">Focus</span>
+              </button>
+              <button type="button" id="isolate-btn" class="tool-button" aria-pressed="false">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M4 4h4M4 4v4m16-4h-4m4 0v4M4 20h4m-4 0v-4m16 4h-4m4 0v-4"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+                <span data-i18n="isolate">Isoleren</span>
+              </button>
+              <button type="button" id="reset-btn" class="tool-button">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M4 7v5h5M4.5 12a7.5 7.5 0 1 1 2.2 5.3"/></svg>
+                <span data-i18n="reset">Reset</span>
+              </button>
+              <button type="button" id="clear-btn" class="tool-button">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="m7 7 10 10M17 7 7 17"/></svg>
+                <span data-i18n="clear">Deselecteer</span>
+              </button>
+            </div>
+            <p class="viewer-hint" data-i18n="viewerHint">Sleep om te draaien · scroll of knijp om te zoomen · tik op een structuur of gebruik de lijst.</p>
+            <div class="small-screen-links">
+              <a href="#nav-panel"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M5 6h14M5 12h14M5 18h14"/></svg><span data-i18n="structuresTitle">Structuren</span></a>
+              <a href="#detail-panel"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg><span data-i18n="detailTitle">Informatie</span></a>
+            </div>
+          </section>
+
+          <aside id="nav-panel" class="panel structure-panel" aria-labelledby="structures-title" tabindex="-1">
+            <div class="panel-header">
+              <div class="panel-heading">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 6h14M5 12h14M5 18h14"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg></span>
+                <h2 id="structures-title" data-i18n="structuresTitle">Structuren</h2>
+              </div>
+            </div>
+            <div class="panel-content navigator-content">
+              <div class="field search-field">
+                <label for="search" data-i18n="searchLabel">Zoek een structuur</label>
+                <div class="search-control">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.1 15.1 4.4 4.4"/></svg>
+                  <input id="search" type="search" autocomplete="off" spellcheck="false" placeholder="Naam of structuur…" data-i18n-placeholder="searchPlaceholder" />
+                </div>
+              </div>
+              <div class="navigator-section layer-section">
+                <h3 data-i18n="layersTitle">Anatomische lagen</h3>
+                <div id="layers" class="layers-list"></div>
+              </div>
+              <div class="navigator-section catalog-section">
+                <div class="section-heading">
+                  <h3 data-i18n="catalogTitle">Catalogus</h3>
+                  <span id="structure-count" class="count-label" aria-live="polite" aria-atomic="true"></span>
+                </div>
+                <div id="structure-list" class="structure-list" tabindex="0" aria-labelledby="structures-title"></div>
+              </div>
+            </div>
+          </aside>
+
+          <aside id="detail-panel" class="panel detail-panel" aria-labelledby="information-title" tabindex="-1">
+            <div class="panel-header">
+              <div class="panel-heading">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg></span>
+                <h2 id="information-title" data-i18n="detailTitle">Informatie</h2>
+              </div>
+            </div>
+            <div class="panel-content information-content" aria-live="polite" aria-atomic="false">
+              <div class="selection-detail">
+                <span class="selection-marker" aria-hidden="true"></span>
+                <div>
+                  <h3 id="detail-title">Kies een structuur</h3>
+                  <p id="detail-meta" class="detail-meta"></p>
+                </div>
+              </div>
+              <div id="detail-content" class="detail-body">Selecteer een onderdeel in het werkvlak of zoek het op in de catalogus.</div>
+              <div class="info-note">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 3 3 20h18L12 3Z"/><path d="M12 9v5m0 3v.01"/></svg>
+                <p data-i18n="previewDisclaimer">Technische preview met kandidaat-catalogus. Niet anatomisch of klinisch gevalideerd; geen medisch advies.</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <section class="project-information">
+          <article class="resource-card">
+            <div class="resource-heading">
+              <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0 0 4m0-4h13"/><path d="M8 7h7m-7 4h7"/></svg></span>
+              <h2 data-i18n="sourcesTitle">Bronnen &amp; herkomst</h2>
+            </div>
+            <p data-i18n="sourcesIntro">Model- en catalogusinformatie van de actieve kandidaatbron.</p>
+            <div id="credits" class="resource-body"></div>
+          </article>
+          <article class="resource-card">
+            <div class="resource-heading">
+              <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h17M8 15l4-5 3 3 5-7"/></svg></span>
+              <h2 data-i18n="technicalTitle">Technische metingen</h2>
+            </div>
+            <p data-i18n="technicalIntro">Actuele metingen van deze previewsessie, indien beschikbaar.</p>
+            <div id="metrics" class="resource-body metrics-body"></div>
+          </article>
+        </section>
+      </main>
+
+      <footer class="app-footer"><p data-i18n="footer">3D Universe · Anatomie · Technische ontwikkelomgeving</p></footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
