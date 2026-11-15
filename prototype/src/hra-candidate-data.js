@@ -27,6 +27,23 @@ export function hraFamilyLabel(family,locale='nl'){
   return FAMILY_LABELS[family][locale];
 }
 const byId=new Map(HRA_SOURCES.map(s=>[s.id,s]));
+// Localized scope statements transcribed from the pinned manifest provenance
+// notes, not an anatomical assessment or an interpretation of mesh geometry.
+export function hraSourceScopeWarning(id,locale='nl'){
+  if(!byId.has(id)||!['nl','en'].includes(locale))throw new Error('Unknown HRA source warning');
+  const english=locale==='en';
+  switch(id){
+    case 'brain-female':case 'brain-male':return english?'Source scope: structures were mirrored and rescaled from the Allen reference atlas. These models are not independent female or male brain scans and do not cover peripheral nerves.':'Bronscope: structuren zijn gespiegeld en geschaald vanuit de Allen-referentieatlas. Dit zijn geen onafhankelijke vrouwelijke of mannelijke hersenscans en ze bevatten geen dekking van perifere zenuwen.';
+    case 'lung-female':case 'lung-male':return english?'Source scope: v1.3 removed the larynx, trachea and main bronchi; lung lobes and intrapulmonary bronchi were retained. Separate upper-airway source assets remain gaps.':'Bronscope: v1.3 verwijderde het strottenhoofd, de luchtpijp en de hoofdbronchi; longkwabben en intrapulmonale bronchi bleven behouden. Afzonderlijke bronnen voor deze bovenste luchtwegen blijven ontbreken.';
+    case 'small-intestine-female':case 'small-intestine-male':{
+      const spelling=id.endsWith('-female')?'VH_F_jejenum':'VH_M_duodenum_horizonal';
+      return english?`Source scope: this model includes position and measurement guides along a centerline, not exclusively anatomy. Source-specific segment lengths are not population norms. The source spelling ${spelling} is retained verbatim.`:`Bronscope: dit model bevat positie- en meetmarkeringen langs een middellijn, niet uitsluitend anatomie. Bronspecifieke segmentlengtes zijn geen populatienormen. De bronspelling ${spelling} blijft letterlijk behouden.`;
+    }
+    case 'spinal-cord-female':return english?'Source-specific variation: this reference subject had six lumbar vertebrae, not a general anatomical rule. Its crosswalk does not list the fifth sacral segment found in the male crosswalk; no match is fabricated.':'Bronspecifieke variatie: dit referentie-individu had zes lendenwervels; dit is geen algemene anatomische regel. De bronkoppeling vermeldt niet het vijfde sacrale segment uit de mannelijke bronkoppeling; er wordt geen match verzonnen.';
+    case 'spinal-cord-male':return english?'Source scope: Frostell et al. (2016) was used during model preparation. A spinal cord source does not establish coverage of peripheral nerves.':'Bronscope: Frostell et al. (2016) is gebruikt bij de modelvoorbereiding. Een ruggenmergbron bewijst geen dekking van perifere zenuwen.';
+    default:return '';
+  }
+}
 const MAX_AUDIT=8*1024*1024,MAX_GLB=32*1024*1024,MAX_CSV=1024*1024,MAX_NODES=100_000,MAX_JSON=16*1024*1024;
 const COLUMNS=['node_name','OntologyID','label'];
 const ALLOWED_REQUIRED=new Set(['KHR_materials_unlit','KHR_materials_specular','KHR_materials_ior','KHR_materials_pbrSpecularGlossiness','KHR_materials_transmission','KHR_materials_clearcoat','KHR_materials_emissive_strength','KHR_texture_transform']);
@@ -40,6 +57,24 @@ const passed=r=>r?.status==='TECHNICAL_PREFLIGHT_PASS'&&r.anatomicallyValidated=
 
 function validatePin(pin,max){need(record(pin)&&integer(pin.bytes,1,max)&&hex(pin.gitBlobSha1,40),'Invalid pinned HRA asset metadata');}
 function validateAuditAsset(pin,audited,max){validatePin(pin,max);need(record(audited)&&audited.bytes===pin.bytes&&audited.gitBlobSha1===pin.gitBlobSha1&&hex(audited.sha256,64),'Audit differs from pinned HRA asset metadata');}
+// This is inexpensive consistency checking of the complete audit report. It
+// does not read/decode unselected asset bytes or independently prove geometry.
+function validateAuditCardinality(source,audit){
+  const g=audit.glb,c=audit.crosswalk;
+  need(integer(g.nodes,1,MAX_NODES)&&integer(g.meshNodes,1,g.nodes)&&integer(g.meshes,1,g.meshNodes)&&integer(g.primitives,g.meshes,MAX_NODES),'Audit GLB node/mesh cardinality mismatch');
+  need(c.rows===source.crosswalk.expectedRows&&integer(c.rows,1,g.nodes)&&c.uniqueOntologyIds===source.crosswalk.expectedUniqueOntologyIds&&integer(c.uniqueOntologyIds,1,c.rows),'Audit crosswalk pinned row cardinality mismatch');
+  need(integer(c.directMeshRows,0,g.meshNodes)&&integer(c.groupRows,0,g.nodes-g.meshNodes)&&c.directMeshRows+c.groupRows===c.rows,'Audit crosswalk direct/group cardinality mismatch');
+  need(c.unmappedMeshNodes===0&&integer(c.groupCoveredMeshNodes,0,g.meshNodes)&&c.directMeshRows+c.groupCoveredMeshNodes===g.meshNodes,'Audit crosswalk mesh coverage cardinality mismatch');
+  need(Array.isArray(c.matches)&&c.matches.length===c.rows,'Audit crosswalk match inventory missing');
+  const names=new Set(),indices=new Set(),ontologies=new Set();let direct=0,groups=0;
+  for(const match of c.matches){
+    need(record(match)&&typeof match.nodeName==='string'&&match.nodeName&&match.nodeName.trim()===match.nodeName&&!names.has(match.nodeName)&&integer(match.nodeIndex,0,g.nodes-1)&&!indices.has(match.nodeIndex)&&typeof match.ontologyId==='string'&&/^(?:FMA|UBERON):\d+$/.test(match.ontologyId),'Invalid or duplicate audit crosswalk match');
+    if(match.kind==='mesh'){need(integer(match.meshIndex,0,g.meshes-1),'Invalid audit direct mesh index');direct++;}
+    else{need(match.kind==='group'&&match.meshIndex===null,'Invalid audit group mesh index');groups++;}
+    names.add(match.nodeName);indices.add(match.nodeIndex);ontologies.add(match.ontologyId);
+  }
+  need(direct===c.directMeshRows&&groups===c.groupRows&&ontologies.size===c.uniqueOntologyIds,'Audit crosswalk match cardinality mismatch');
+}
 export function selectHraAudit(report,id){
   need(byId.has(id),'Unknown HRA source');need(passed(report)&&report.wave==='expanded'&&Array.isArray(report.results)&&report.results.length===HRA_SOURCES.length,'Complete unregistered expanded-wave HRA audit required');
   need(Array.isArray(report.excludedSources)&&report.excludedSources.length===HRA_EXCLUSIONS.length&&HRA_EXCLUSIONS.every((pin,i)=>{
@@ -48,7 +83,7 @@ export function selectHraAudit(report,id){
   const seen=new Set();let selected;
   for(const audit of report.results){
     const source=byId.get(audit?.sourceId);need(source&&!seen.has(source.id)&&audit.variant===source.variant&&audit.version===source.version&&passed(audit),'HRA audit source/variant/version/status mismatch');seen.add(source.id);
-    validateAuditAsset(source.glb,audit.glb,MAX_GLB);validateAuditAsset(source.crosswalk,audit.crosswalk,MAX_CSV);
+    validateAuditAsset(source.glb,audit.glb,MAX_GLB);validateAuditAsset(source.crosswalk,audit.crosswalk,MAX_CSV);validateAuditCardinality(source,audit);
     if(source.id===id)selected=audit;
   }
   need(selected,'HRA source preflight not available');return selected;

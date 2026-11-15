@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { HRA_SOURCES, HRA_FAMILIES, hraFamilyId, hraFamilyLabel, loadHraCandidate, HraAssetUnavailableError } from './hra-candidate-data.js';
+import { HRA_SOURCES, HRA_FAMILIES, hraFamilyId, hraFamilyLabel, hraSourceScopeWarning, loadHraCandidate, HraAssetUnavailableError } from './hra-candidate-data.js';
 import { associateHraMeshes, buildHraSelectionIndex, filterHraRows, selectionChange, isolationChange } from './hra-controller.js';
 
 const COPY={
@@ -51,6 +51,8 @@ function renderList(){
 function renderTranslation(){
   document.documentElement.lang=state.locale;
   for(const el of document.querySelectorAll('[data-hra-i18n]')){el.textContent=t(el.dataset.hraI18n);if(el.dataset.hraI18n==='maleVesselWarning')el.hidden=state.sourceId!=='blood-vasculature-male';if(['maleLungWarning','lungMaleWarning'].includes(el.dataset.hraI18n))el.hidden=state.sourceId!=='lung-male';}
+  let scopeWarning=$('scope-warning');if(!scopeWarning){scopeWarning=document.createElement('p');scopeWarning.id='hra-scope-warning';scopeWarning.className='hra-discrepancy';scopeWarning.setAttribute('role','note');document.querySelector('[data-hra-i18n="registrationNote"]').after(scopeWarning);}
+  scopeWarning.textContent=hraSourceScopeWarning(state.sourceId,state.locale);scopeWarning.hidden=!scopeWarning.textContent;
   for(const el of document.querySelectorAll('[data-hra-i18n-placeholder]'))el.placeholder=t(el.dataset.hraI18nPlaceholder);
   const model=$('model');model.replaceChildren();for(const family of HRA_FAMILIES){const group=document.createElement('optgroup');group.label=hraFamilyLabel(family,state.locale);for(const source of HRA_SOURCES.filter(source=>hraFamilyId(source)===family)){const option=document.createElement('option');option.value=source.id;option.textContent=sourceTitle(source);group.append(option);}model.append(group);}model.value=state.sourceId;
   status.dataset.phase=state.phase;status.dataset.source=state.sourceId;status.textContent=t(state.phase==='context-lost'?'contextLost':state.phase);

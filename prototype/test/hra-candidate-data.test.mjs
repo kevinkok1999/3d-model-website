@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {HRA_SOURCES,HRA_FAMILIES,hraFamilyId,hraFamilyLabel,HraAssetUnavailableError,loadHraCandidate,verifyHraAsset,parseHraGlb,buildHraRows,selectHraAudit,boundedHraBytes} from '../src/hra-candidate-data.js';
+import {HRA_SOURCES,HRA_FAMILIES,hraFamilyId,hraFamilyLabel,hraSourceScopeWarning,HraAssetUnavailableError,loadHraCandidate,verifyHraAsset,parseHraGlb,buildHraRows,selectHraAudit,boundedHraBytes} from '../src/hra-candidate-data.js';
 
 const encode=s=>new TextEncoder().encode(s);
 const csv=encode('node_name,OntologyID,label\r\nGroup,FMA:1,"Group, label"\r\nDirect,UBERON:2,"Direct ""label"""\r\nOther,UBERON:2,Other label\r\n');
@@ -69,11 +69,37 @@ test('Local GLB 2.0 validates binary lengths and forbids external image or buffe
   assert.throws(()=>parseHraGlb(glbFixture({...gltf,images:[{uri:'https://example.org/pixel.png'}]})));
 });
 
-function completeAudit(){return {status:'TECHNICAL_PREFLIGHT_PASS',wave:'expanded',excludedSources:[{id:'lung-male',version:'v1.4',status:'BLOCKED_SOURCE_MAPPING',reason:'Missing exact VH_M_hyoid node in pinned source GLB; no correction, alias, row removal or fallback.'}],anatomicallyValidated:false,mergeAuthorized:false,results:HRA_SOURCES.map(s=>({sourceId:s.id,variant:s.variant,version:s.version,status:'TECHNICAL_PREFLIGHT_PASS',anatomicallyValidated:false,mergeAuthorized:false,glb:{...s.glb,sha256:'1'.repeat(64)},crosswalk:{...s.crosswalk,sha256:'2'.repeat(64)}}))};}
+function completeAudit(){return {status:'TECHNICAL_PREFLIGHT_PASS',wave:'expanded',excludedSources:[{id:'lung-male',version:'v1.4',status:'BLOCKED_SOURCE_MAPPING',reason:'Missing exact VH_M_hyoid node in pinned source GLB; no correction, alias, row removal or fallback.'}],anatomicallyValidated:false,mergeAuthorized:false,results:HRA_SOURCES.map(s=>{
+  const rows=s.crosswalk.expectedRows,uniqueOntologyIds=s.crosswalk.expectedUniqueOntologyIds;
+  return {sourceId:s.id,variant:s.variant,version:s.version,status:'TECHNICAL_PREFLIGHT_PASS',anatomicallyValidated:false,mergeAuthorized:false,
+    glb:{...s.glb,sha256:'1'.repeat(64),nodes:rows+1,meshNodes:rows,meshes:rows,primitives:rows},
+    crosswalk:{...s.crosswalk,sha256:'2'.repeat(64),rows,uniqueOntologyIds,directMeshRows:rows-1,groupRows:1,groupCoveredMeshNodes:1,unmappedMeshNodes:0,
+      matches:Array.from({length:rows},(_,i)=>({nodeIndex:i,nodeName:`node_${i}`,ontologyId:`FMA:${1+i%uniqueOntologyIds}`,kind:i?'mesh':'group',meshIndex:i?i-1:null}))}};
+})};}
 test('Complete audit must match all official sources and never claim anatomical or merge validation',()=>{
   const a=completeAudit();assert.equal(selectHraAudit(a,HRA_SOURCES[2].id).sourceId,'brain-female');
   assert.equal(selectHraAudit(a,'lung-male').glb.gitBlobSha1,'dbbfdaf4cc51ea7d75cb0887b8fa003b8da9c00a');
   for(const mutate of [a=>{a.results.pop();},a=>{a.results=a.results.slice(0,4);},a=>{a.anatomicallyValidated=true;},a=>{a.results[0].variant='male';},a=>{a.results[2].status='BLOCKED';},a=>{a.results[2].glb.gitBlobSha1='0'.repeat(40);},a=>{a.results[2].crosswalk.sha256='bad';},a=>{a.results[2].mergeAuthorized=true;},a=>{a.results.find(s=>s.sourceId==='lung-male').glb.bytes=10942332;},a=>{delete a.wave;},a=>{a.wave='next';},a=>{a.excludedSources=[];},a=>{a.excludedSources[0].status='TECHNICAL_PREFLIGHT_PASS';},a=>{a.excludedSources[0].reason='corrected';},a=>{a.results.find(s=>s.sourceId==='lung-male').version='v1.4';},a=>{delete a.results[2].version;}]){const invalid=completeAudit();mutate(invalid);assert.throws(()=>selectHraAudit(invalid,'brain-female'));}
+});
+
+test('Every unselected source must carry consistent pinned row, mesh and match cardinalities before loading',()=>{
+  for(const mutate of [
+    r=>{delete r.glb.nodes;},r=>{r.glb.meshNodes=0;},r=>{r.glb.meshes=r.glb.meshNodes+1;},r=>{r.glb.nodes=r.glb.meshNodes-1;},r=>{r.glb.primitives=0;},
+    r=>{delete r.crosswalk.rows;},r=>{r.crosswalk.rows++;},r=>{r.crosswalk.uniqueOntologyIds++;},r=>{r.crosswalk.directMeshRows--;},r=>{r.crosswalk.groupRows=-1;},r=>{r.crosswalk.unmappedMeshNodes=1;},r=>{r.crosswalk.groupCoveredMeshNodes++;},
+    r=>{r.crosswalk.matches.pop();},r=>{r.crosswalk.matches[1].nodeIndex=r.glb.nodes;},r=>{r.crosswalk.matches[1].nodeName=r.crosswalk.matches[0].nodeName;},r=>{r.crosswalk.matches[1].nodeIndex=0;},r=>{r.crosswalk.matches[1].meshIndex=r.glb.meshes;},r=>{r.crosswalk.matches[0].meshIndex=0;},r=>{r.crosswalk.matches[1].ontologyId='bogus';},r=>{r.crosswalk.matches[1].kind='group';},
+  ]){const proof=completeAudit();mutate(proof.results.find(row=>row.sourceId==='liver-male'));assert.throws(()=>selectHraAudit(proof,'brain-female'));}
+});
+
+test('Bilingual source warnings retain version-specific scope and guide caveats',()=>{
+  for(const sex of ['male','female']){
+    assert.match(hraSourceScopeWarning(`brain-${sex}`,'nl'),/gespiegeld.*(onafhankelijke|zelfstandige)/i);assert.match(hraSourceScopeWarning(`brain-${sex}`,'en'),/mirrored.*independent/i);
+    assert.match(hraSourceScopeWarning(`small-intestine-${sex}`,'nl'),/meet.*(norm|populatie)/i);assert.match(hraSourceScopeWarning(`small-intestine-${sex}`,'en'),/guide.*population/i);
+    assert.match(hraSourceScopeWarning(`lung-${sex}`,'nl'),/strottenhoofd.*luchtpijp.*hoofdbronchi/i);assert.match(hraSourceScopeWarning(`lung-${sex}`,'en'),/larynx.*trachea.*main bronchi/i);
+  }
+  assert.match(hraSourceScopeWarning('spinal-cord-female','nl'),/zes.*lendenwervels.*vijfde.*sacrale/i);
+  assert.match(hraSourceScopeWarning('spinal-cord-female','en'),/six.*lumbar.*fifth.*sacral/i);
+  assert.match(hraSourceScopeWarning('spinal-cord-male','en'),/peripheral nerves/i);assert.equal(hraSourceScopeWarning('heart-male','nl'),'');
+  assert.throws(()=>hraSourceScopeWarning('fake','nl'));
 });
 
 test('Bounded body verifies decoded pinned length even for compressed HTTP responses; missing and oversized remain blocked',async()=>{

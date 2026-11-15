@@ -43,6 +43,49 @@ const visible = s => sortNum((s.visibleNodeIndices??'').split(',').filter(Boolea
 const ready = (page,id) => page.locator(`#hra-status[data-phase="ready"][data-source="${id}"]`).waitFor({state:'visible',timeout:90000});
 const button = (page,index) => page.locator(`#hra-list [data-node-index="${index}"]`);
 const matchesCount = async (page,shown,total) => assert.match(await page.locator('#hra-count').innerText(), new RegExp(`\\b${shown}\\s*/\\s*${total}\\b`));
+// Independent UX expectations: exact visible NL/EN group labels, not merely
+// fourteen opaque option values. Source names/IDs remain pinned English labels.
+const familyLabels={
+  'blood-vasculature':{nl:'Bloedvaten',en:'Blood vasculature'},brain:{nl:'Hersenen',en:'Brain'},
+  heart:{nl:'Hart',en:'Heart'},liver:{nl:'Lever',en:'Liver'},lung:{nl:'Longen',en:'Lung'},
+  'small-intestine':{nl:'Dunne darm',en:'Small intestine'},'spinal-cord':{nl:'Ruggenmerg',en:'Spinal cord'},
+};
+const variantLabels={nl:{female:'Vrouwelijk',male:'Mannelijk'},en:{female:'Female',male:'Male'}};
+const familyId=source=>source.id.slice(0,-source.variant.length-1);
+async function assertLocalizedSources(page,locale,source){
+  assert.equal(await page.locator('html').getAttribute('lang'),locale);
+  assert.equal(await page.locator('#hra-locale').inputValue(),locale);
+  assert.equal(await page.locator('#hra-model').inputValue(),source.id);
+  const actual=await page.locator('#hra-model optgroup').evaluateAll(groups=>groups.map(group=>({label:group.label,options:[...group.querySelectorAll('option')].map(option=>({value:option.value,text:option.textContent.trim()}))})));
+  const expected=Object.entries(familyLabels).map(([id,labels])=>({label:labels[locale],options:sources.filter(s=>familyId(s)===id).map(s=>({value:s.id,text:`${labels[locale]} · ${variantLabels[locale][s.variant]} · ${s.version}${s.id==='lung-male'?(locale==='nl'?' (ouder)':' (older)'):''}`}))}));
+  assert.deepEqual(actual,expected,`${locale}: exact seven localized source families, variants, version and older marker`);
+  const vessel=page.locator('[data-hra-i18n="maleVesselWarning"]');
+  const lung=page.locator('[data-hra-i18n="maleLungWarning"]');
+  assert.equal(await vessel.isVisible(),source.id==='blood-vasculature-male',`${source.id}/${locale}: vessel discrepancy visibility`);
+  assert.equal(await lung.isVisible(),source.id==='lung-male',`${source.id}/${locale}: lung discrepancy visibility`);
+  if(source.id==='blood-vasculature-male')assert.match(await vessel.innerText(),locale==='nl'?/vrouwelijke variant/i:/female variant/i);
+  if(source.id==='lung-male'){
+    const warning=await lung.innerText();assert.match(warning,/v1\.3/);assert.match(warning,/v1\.4/);assert.match(warning,/VH_M_hyoid/);assert.match(warning,/UBERON:0001685/);
+    assert.match(warning,locale==='nl'?/geblokkeerd/i:/blocked/i);
+  }
+  const release=page.locator('[data-hra-i18n="sourceReleaseNote"]');
+  assert.equal(await release.isVisible(),true);assert.match(await release.innerText(),locale==='nl'?/v1\.3.*v1\.4.*geblokkeerd/i:/v1\.3.*v1\.4.*blocked/i);
+  const scope=page.locator('#hra-scope-warning');
+  const scopePatterns={
+    brain:{nl:[/Allen/,/gespiegeld/,/geen onafhankelijke/,/perifere zenuwen/],en:[/Allen/,/mirrored/,/not independent/,/peripheral nerves/]},
+    lung:{nl:[/strottenhoofd/,/luchtpijp/,/hoofdbronchi/,/longkwabben/,/blijven ontbreken/],en:[/larynx/,/trachea/,/main bronchi/,/lung lobes/,/remain gaps/]},
+    'small-intestine':{nl:[/meetmarkeringen/,/geen populatienormen/],en:[/measurement guides/,/not population norms/]},
+    'spinal-cord':{nl:source.variant==='female'?[/zes lendenwervels/,/vijfde sacrale segment/,/geen match verzonnen/]:[/Frostell/,/perifere zenuwen/],en:source.variant==='female'?[/six lumbar vertebrae/,/fifth sacral segment/,/no match is fabricated/]:[/Frostell/,/peripheral nerves/]},
+  };
+  const sourceScope=scopePatterns[familyId(source)];
+  assert.equal(await scope.isVisible(),Boolean(sourceScope),`${source.id}/${locale}: scoped provenance warning visibility`);
+  if(sourceScope){
+    const warning=await scope.innerText();assert.equal(await scope.getAttribute('role'),'note');
+    for(const pattern of sourceScope[locale])assert.match(warning,pattern,`${source.id}/${locale}: scoped provenance disclosure`);
+    if(familyId(source)==='small-intestine')assert.ok(warning.includes(source.variant==='female'?'VH_F_jejenum':'VH_M_duodenum_horizonal'));
+  }
+  assert.ok(await page.locator('.hra-warning').isVisible(),'Persistent unreviewed-source warning');
+}
 
 // Independent CSV parser (including quote/doubled quote/CRLF handling): do
 // not treat duplicate ontology IDs as duplicates of raw source node identity.
@@ -163,6 +206,7 @@ async function verifyModel(page,data){
   const {source,rows,allMeshes}=data;
   await page.locator('#hra-model').selectOption(source.id);await ready(page,source.id);
   assert.equal(await page.locator('#hra-model').inputValue(),source.id);
+  await assertLocalizedSources(page,'nl',source);
   assert.equal(await page.locator('#hra-viewport').isVisible(),true);
   assert.ok(await page.locator('#hra-viewport').evaluate(n=>n.width>0&&n.height>0));
   await page.locator('#hra-search').fill('');await page.locator('#hra-type').selectOption('all');
@@ -290,21 +334,50 @@ try{
 
   const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});observe(mobile);
   await mobile.goto(target.href,{waitUntil:'domcontentloaded',timeout:30000});await ready(mobile,models[0].source.id);
-  for(const data of [models[0],maleLungData]){
+  const mobileAudits=[];
+  for(const [ordinal,data] of models.entries()){
     await mobile.locator('#hra-model').selectOption(data.source.id);await ready(mobile,data.source.id);
+    assert.equal((await state(mobile)).selected,'',`${data.source.id}: no previous source selection`);
+    assert.equal((await state(mobile)).isolated,'');
+    assert.deepEqual(visible(await state(mobile)),data.allMeshes);
+    await assertLocalizedSources(mobile,'nl',data.source);
     assert.ok(await mobile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),'390px mobile no horizontal overflow');
-    const mobileRow=data.rows.find(r=>r.kind==='group'&&r.meshNodeIndices.length>1)??data.rows[0];
+    // Exercise both direct and group states across the fourteen devices/models
+    // without inventing a group for a source that only has direct rows.
+    const mobileRow=(ordinal%2===0?data.rows.find(r=>r.kind==='group'&&r.meshNodeIndices.length>1):data.rows.find(r=>r.kind==='mesh'))??data.rows[0];
     await mobile.locator('.hra-jumps a[href="#hra-nav"]').tap();await mobile.locator('#hra-search').fill(mobileRow.nodeName);await button(mobile,mobileRow.index).tap();
     await mobile.locator('.hra-jumps a[href="#hra-detail-panel"]').tap();assert.equal((await state(mobile)).selected,String(mobileRow.index));
+    assert.equal(await button(mobile,mobileRow.index).getAttribute('aria-pressed'),'true');
     await mobile.locator('#hra-isolate').tap();assert.deepEqual(visible(await state(mobile)),mobileRow.meshNodeIndices);
+    assert.equal((await state(mobile)).isolated,String(mobileRow.index));
+    const filteredBefore=await listKeys(mobile);
+    for(const locale of ['en','nl']){
+      await mobile.locator('#hra-locale').selectOption(locale);await ready(mobile,data.source.id);
+      await assertLocalizedSources(mobile,locale,data.source);
+      assert.ok(await mobile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),`${data.source.id}/${locale}: no horizontal overflow`);
+      const localized=await state(mobile);
+      assert.equal(localized.selected,String(mobileRow.index));assert.equal(localized.isolated,String(mobileRow.index));
+      assert.deepEqual(visible(localized),mobileRow.meshNodeIndices);
+      assert.deepEqual(await listKeys(mobile),filteredBefore);
+      assert.equal(await button(mobile,mobileRow.index).getAttribute('aria-pressed'),'true');
+      const detail=await mobile.locator('#hra-detail').innerText();assert.ok(detail.includes(mobileRow.nodeName)&&detail.includes(mobileRow.ontologyId));
+    }
     if(screenshots)await mobile.screenshot({path:resolve(screenshots,`hra-actual-unreviewed-${data.source.id}-mobile-390.png`),fullPage:true});
+    await mobile.locator('#hra-isolate').tap();
+    assert.equal((await state(mobile)).isolated,'');assert.deepEqual(visible(await state(mobile)),data.allMeshes);
+    await mobile.locator('#hra-reset').tap();assert.equal((await state(mobile)).selected,'');assert.equal((await state(mobile)).isolated,'');
+    assert.deepEqual(visible(await state(mobile)),data.allMeshes);
+    await mobile.locator('#hra-search').fill('');assert.deepEqual(await listKeys(mobile),sortNum(data.rows.map(r=>r.index)));
+    mobileAudits.push({sourceId:data.source.id,version:data.source.version,selectedIndex:mobileRow.index,kind:mobileRow.kind,isolatedMeshNodes:mobileRow.meshNodeIndices.length,locales:['en','nl'],width:390});
   }
-  await mobile.close();checks.push('390px mobile touch navigation and exact isolation on initial vasculature and male lung v1.3, no horizontal overflow');
+  assert.equal(mobileAudits.length,expectedTotals.models);
+  assert.ok(mobileAudits.some(r=>r.kind==='mesh')&&mobileAudits.some(r=>r.kind==='group'));
+  await mobile.close();checks.push('Every one of 14 sources at 390px: touch navigation/select/isolate/restore/reset, no horizontal overflow in NL/EN; exact localized source options and source-specific warnings; locale switch retains precise selection/filter/isolation and source');
   assert.deepEqual(errors,[],'Unexpected success-path console/page/asset errors');
 
   await failurePage('Missing audit manifest',page=>page.route(auditUrl.href,route=>route.fulfill({status:404,contentType:'application/json',body:'{}'})),{noGlb:true});
   const altered=structuredClone(audit);altered.results[0].crosswalk.matches[0].nodeIndex=-1;
-  await failurePage('Changed audit manifest mapping',page=>page.route(auditUrl.href,route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(altered)})));
+  await failurePage('Changed audit manifest mapping',page=>page.route(auditUrl.href,route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(altered)})),{noGlb:true});
   const wrongVersion=structuredClone(audit);const wrongLung=wrongVersion.results.find(r=>r.sourceId==='lung-male');
   wrongLung.version='v1.4';
   wrongLung.glb.bytes=blockedMaleLung.glb.bytes;wrongLung.glb.gitBlobSha1=blockedMaleLung.glb.gitBlobSha1;
@@ -312,6 +385,6 @@ try{
   await failurePage('Blocked male lung v1.4 pin substituted in audit',page=>page.route(auditUrl.href,route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(wrongVersion)})),{noGlb:true});
   const corrupt=Buffer.from(models[0].glb);corrupt[corrupt.length-1]^=1;
   await failurePage('Actual GLB altered at same byte length',page=>page.route(asset(models[0].source.glb).href,route=>route.fulfill({status:200,contentType:'model/gltf-binary',body:corrupt})));
-  console.log(JSON.stringify({status:'PASSED',evidence,scope,actualTotals,recordAudits,checks},null,2));
+  console.log(JSON.stringify({status:'PASSED',evidence,scope,actualTotals,recordAudits,mobileAudits,checks},null,2));
 }catch(error){console.error(JSON.stringify({status:'FAILED',evidence,scope,recordAudits,checks,errors,reason:error.stack},null,2));process.exitCode=1;}
 finally{await browser.close();}
