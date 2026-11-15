@@ -60,9 +60,11 @@ const auditVariantRecords = async (variant, expectedMeshCount) => {
   const systemCounts = Object.fromEntries(systems.map(system => [system, expected.filter(record => record.system === system).length]));
   const layerInputKeys = await page.locator('#layers input[data-system]').evaluateAll(nodes => nodes.map(node => node.dataset.system));
   assert.deepEqual([...layerInputKeys].sort(), [...systems].sort(), `${variant}: seven declared layer controls`);
+  const originalLayerChecks = {};
   for (const system of systems) {
     const input = page.locator(`#layers input[data-system="${system}"]`);
     const checked = await input.isChecked();
+    originalLayerChecks[system] = checked;
     const shownCount = await input.evaluate(node => node.closest('label')?.querySelector('small')?.textContent);
     assert.equal(Number(shownCount), systemCounts[system], `${variant}/${system}: exact layer list count`);
     await input.setChecked(!checked);
@@ -101,6 +103,11 @@ const auditVariantRecords = async (variant, expectedMeshCount) => {
     assert.deepEqual(result.failures, [], `${variant}: failures in record audit offset ${offset}`);
   }
   assert.deepEqual([...tested].sort(), expected.map(record=>record.key).sort(), `${variant}: every expected source ID exercised`);
+  for (const system of systems) {
+    const input = page.locator(`#layers input[data-system="${system}"]`);
+    await input.setChecked(originalLayerChecks[system]);
+    assert.equal(await input.isChecked(), originalLayerChecks[system], `${variant}/${system}: restore baseline after per-record auto-reveal`);
+  }
   await page.locator('#reset-btn').click();
   assert.equal(await page.locator('#structure-list [aria-pressed="true"]').count(), 0, `${variant}: reset clears selection after exhaustive audit`);
   await ready();
