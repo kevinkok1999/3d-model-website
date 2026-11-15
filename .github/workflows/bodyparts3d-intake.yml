@@ -10,6 +10,10 @@ on:
       - 'model-audit/bodyparts3d-*.py'
       - 'model-audit/bodyparts3d-intake-candidates.json'
       - 'prototype/test/bodyparts3d-obj-audit.test.mjs'
+      - 'prototype/test/bodyparts3d-*'
+      - 'prototype/bodyparts3d-candidate.*'
+      - 'prototype/src/bodyparts3d-candidate*'
+      - 'prototype/vite.config.js'
   workflow_dispatch:
 
 permissions:
@@ -18,12 +22,13 @@ permissions:
 jobs:
   audit:
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+          cache: npm
 
       - name: Verify metadata mapping against official element table
         shell: bash
@@ -41,20 +46,57 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --max-time 240 --max-filesize 200000000 \
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --connect-timeout 30 --max-time 660 --max-filesize 200000000 \
             'https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_BP3D_4.0_obj_99.zip' \
-            --output "$RUNNER_TEMP/bodyparts-intake/source.zip"
+            --output "$RUNNER_TEMP/bodyparts-intake/isa_BP3D_4.0_obj_99.zip"
 
       - name: Audit exact candidate OBJ geometry (no import or publication)
         shell: bash
         run: |
           set -euo pipefail
           python3 model-audit/bodyparts3d-obj-audit.py \
-            "$RUNNER_TEMP/bodyparts-intake/source.zip" \
+            "$RUNNER_TEMP/bodyparts-intake/isa_BP3D_4.0_obj_99.zip" \
             model-audit/bodyparts3d-intake-candidates.json \
             "$RUNNER_TEMP/bodyparts-intake/reports/geometry.json"
 
-      - name: Preserve audit metadata and logs only
+      - name: Convert audited source geometry to a temporary reference-only GLB
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p prototype/public/bodyparts3d-candidate
+          python3 model-audit/bodyparts3d-export.py \
+            "$RUNNER_TEMP/bodyparts-intake/isa_BP3D_4.0_obj_99.zip" \
+            model-audit/bodyparts3d-intake-candidates.json \
+            "$RUNNER_TEMP/bodyparts-intake/reports/geometry.json" \
+            prototype/public/bodyparts3d-candidate/model.glb \
+            prototype/public/bodyparts3d-candidate/model.json
+          cp prototype/public/bodyparts3d-candidate/model.json "$RUNNER_TEMP/bodyparts-intake/reports/export.json"
+
+      - name: Build the quarantined viewer
+        run: npm ci && npm run build
+
+      - name: Install Chromium
+        run: npx --no-install playwright install --with-deps chromium
+
+      - name: Exercise real-source model in a local browser only
+        shell: bash
+        env:
+          SMOKE_SCREENSHOT_DIR: ${{ runner.temp }}/bodyparts-intake/reports/browser-screenshots
+        run: |
+          set -euo pipefail
+          npm run preview -- --port 4173 --strictPort > "$RUNNER_TEMP/bodyparts-intake/reports/preview.log" 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:4173/bodyparts3d-candidate.html >/dev/null; then ready=1; break; fi
+            if ! kill -0 "$preview_pid" 2>/dev/null; then break; fi
+            sleep 1
+          done
+          test "$ready" = 1
+          node prototype/test/bodyparts3d-browser-smoke.mjs http://127.0.0.1:4173 --actual | tee "$RUNNER_TEMP/bodyparts-intake/reports/browser.log"
+
+      - name: Preserve audit metadata and browser evidence only
         if: always()
         uses: actions/upload-artifact@v4
         with:

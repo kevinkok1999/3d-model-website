@@ -33,6 +33,16 @@ jobs:
       - name: Build the candidate
         run: npm run build
 
+      - name: Generate the synthetic QA-only candidate using the ordinary audit pipeline
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p prototype/public/bodyparts3d-candidate
+          python3 prototype/test/bodyparts3d-fixture.py "$RUNNER_TEMP/SYNTHETIC-QA-ONLY.zip"
+          python3 model-audit/bodyparts3d-obj-audit.py "$RUNNER_TEMP/SYNTHETIC-QA-ONLY.zip" model-audit/bodyparts3d-intake-candidates.json "$RUNNER_TEMP/bp-fixture-audit.json"
+          python3 model-audit/bodyparts3d-export.py "$RUNNER_TEMP/SYNTHETIC-QA-ONLY.zip" model-audit/bodyparts3d-intake-candidates.json "$RUNNER_TEMP/bp-fixture-audit.json" prototype/public/bodyparts3d-candidate/model.glb prototype/public/bodyparts3d-candidate/model.json
+          npm run build
+
       - name: Install the browser for the locked Playwright package
         run: npx --no-install playwright install --with-deps chromium
 
@@ -62,6 +72,7 @@ jobs:
             exit 1
           fi
           node prototype/test/browser-smoke.mjs http://127.0.0.1:4173
+          node prototype/test/bodyparts3d-browser-smoke.mjs http://127.0.0.1:4173 --fixture
 
       - name: Preserve smoke-test evidence when available
         if: always()
