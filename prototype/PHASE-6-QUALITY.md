@@ -1,5 +1,7 @@
 # Fase 6 — 23 afzonderlijke HRA-referenties en de weg naar een uniforme atlas
 
+**Uitvoeringsbewijs:** zie [PHASE-6.md](PHASE-6.md) voor de inmiddels geslaagde daadwerkelijke 23-bronnenaudit en 881/881 browserproef. Deze matrix blijft de vooraf vastgelegde kwaliteits- en vrijgavespecificatie; de open anatomische gates blijven van kracht.
+
 **Status: kwaliteits- en integratieplan, geen vrijgavebewijs.** Fase 6 breidt de technische bronwerkbank uit; zij combineert geen bronnen tot één menselijk lichaam en bewijst geen medisch hulpmiddel, anatomische juistheid of volledige dekking. Zie de eerdere [fase-5-resultaten](PHASE-5.md), [kwaliteitsmatrix](PHASE-5-QUALITY.md), [derde brongolf](HRA-WAVE3-RESEARCH.md), [uniform kwaliteitscontract](../docs/model/QUALITY-CONTRACT.md) en [gapbacklog](../docs/model/GAP-BACKLOG.md). Ieder criterium hieronder is te toetsen met een eigen resultaat, verantwoordelijke, reviewer, revisie/hash en bewijsverwijzing. Zonder die gegevens blijft het criterium OPEN.
 
 ## 1. Exacte reikwijdte en noemer
