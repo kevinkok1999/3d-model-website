@@ -9,6 +9,7 @@ import { pathToFileURL } from 'node:url';
 const MAX_GLB=256*1024*1024, MAX_CSV=8*1024*1024, MAX_JSON=32*1024*1024;
 const MAX_ELEMENTS=50_000_000, MAX_NODES=100_000;
 const IDS=['blood-vasculature-female','blood-vasculature-male','brain-female','brain-male'];
+const NEXT_IDS=['heart-female','heart-male','liver-female','liver-male','lung-female','lung-male','small-intestine-female','small-intestine-male','spinal-cord-female','spinal-cord-male'];
 const COLUMNS=['node_name','OntologyID','label'];
 const sha256=b=>createHash('sha256').update(b).digest('hex');
 const gitBlob=b=>createHash('sha1').update(`blob ${b.length}\0`).update(b).digest('hex');
@@ -215,8 +216,8 @@ function crosswalkAudit(bytes,pin,model){
   return {rows:rows.length,uniqueOntologyIds:unique.size,directMeshRows,groupRows,groupCoveredMeshNodes:groupCoveredMeshNodeNames.length,unmappedMeshNodes:0,matches};
 }
 
-export function auditHraSource(source,root){
-  need(IDS.includes(source?.id)&&source.id.endsWith(`-${source.variant}`),'Unknown HRA source or variant');
+export function auditHraSource(source,root,allowedIds=IDS){
+  need(allowedIds.includes(source?.id)&&source.id.endsWith(`-${source.variant}`),'Unknown HRA source or variant');
   const glb=pinnedAsset(root,source.id,source.glb,MAX_GLB),csv=pinnedAsset(root,source.id,source.crosswalk,MAX_CSV);
   const {json,bin,jsonBytes}=glbChunks(glb.bytes),{ranges,byteLength,viewCount}=modelRanges(json,bin);
   const {meshDefs,meshCount,...meshStats}=meshesAudit(json,bin,ranges),model=nodesAudit(json,meshDefs);
@@ -225,8 +226,10 @@ export function auditHraSource(source,root){
     crosswalk:{...csv.provenance,...crosswalkAudit(csv.bytes,source.crosswalk,model)}};
 }
 
-export function auditHraManifest(manifest,root){
-  need(manifest?.schemaVersion===1&&Array.isArray(manifest.sources)&&manifest.sources.length===4&&new Set(manifest.sources.map(s=>s.id)).size===4&&IDS.every(id=>manifest.sources.some(s=>s.id===id)),'Expected exact four-source HRA inventory');
+export function auditHraManifest(manifest,root,{wave='initial'}={}){
+  need(wave==='initial'||wave==='next','Unknown HRA audit wave');
+  const allowedIds=wave==='next'?NEXT_IDS:IDS;
+  need(manifest?.schemaVersion===1&&Array.isArray(manifest.sources)&&manifest.sources.length===allowedIds.length&&new Set(manifest.sources.map(s=>s.id)).size===allowedIds.length&&allowedIds.every(id=>manifest.sources.some(s=>s.id===id)),`Expected exact ${wave==='next'?'ten':'four'}-source HRA inventory`);
   const {repository,commit}=manifest.source??{};
   need(repository==='https://github.com/hubmapconsortium/hra-kg'&&/^[a-f0-9]{40}$/.test(commit),'Expected pinned official HRA repository and commit');
   for(const source of manifest.sources){
@@ -236,16 +239,16 @@ export function auditHraManifest(manifest,root){
   }
   const results=[];
   for(const source of manifest.sources){
-    try{results.push(auditHraSource(source,root))}catch(e){results.push({sourceId:source.id,variant:source.variant,status:'BLOCKED',error:e.message,anatomicallyValidated:false,mergeAuthorized:false})}
+    try{results.push(auditHraSource(source,root,allowedIds))}catch(e){results.push({sourceId:source.id,variant:source.variant,status:'BLOCKED',error:e.message,anatomicallyValidated:false,mergeAuthorized:false})}
   }
   return {status:results.every(r=>r.status==='TECHNICAL_PREFLIGHT_PASS')?'TECHNICAL_PREFLIGHT_PASS':'BLOCKED',scope:'Actual pinned local bytes, raw triangle geometry ranges and exact source crosswalk only; not anatomical, clinical, spatial registration or merge validation.',anatomicallyValidated:false,mergeAuthorized:false,results};
 }
 
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
   try{
-    const [root,manifestPath,reportPath]=process.argv.slice(2);
-    need(root&&manifestPath&&reportPath,'Usage: node model-audit/hra-reference-audit.mjs <asset-dir> <manifest.json> <report.json>');
-    const result=auditHraManifest(JSON.parse(decode(readBounded(manifestPath,MAX_CSV))),root);
+    const [root,manifestPath,reportPath,mode,...extra]=process.argv.slice(2);
+    need(root&&manifestPath&&reportPath&&!extra.length&&(mode===undefined||mode==='--next-wave'),'Usage: node model-audit/hra-reference-audit.mjs <asset-dir> <manifest.json> <report.json> [--next-wave]');
+    const result=auditHraManifest(JSON.parse(decode(readBounded(manifestPath,MAX_CSV))),root,{wave:mode==='--next-wave'?'next':'initial'});
     writeFileSync(reportPath,JSON.stringify(result,null,2)+'\n',{flag:'wx'});
     for(const r of result.results)console.log(r.status==='BLOCKED'?`${r.sourceId}: BLOCKED ${r.error}`:`${r.sourceId}: ${r.status}; ${r.glb.meshNodes} mesh nodes / ${r.crosswalk.directMeshRows} direct matches / ${r.crosswalk.groupRows} groups; SHA256 ${r.glb.sha256}`);
     if(result.status!=='TECHNICAL_PREFLIGHT_PASS')process.exitCode=1;
