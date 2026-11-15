@@ -42,7 +42,7 @@ Alle 23 bronnen zijn ook op 390 CSS-px met Chromium-touch-emulatie getest: NL/EN
 
 ## Verbreding en volgende technische stap
 
-De [tweede BodyParts3D-inventaris](BODYPARTS3D-WAVE2-RESEARCH.md) bevat 50 aanvullende concepten en 51 unieke ELEMENT-bestands-ID's. In de [afzonderlijke broncontrole](https://github.com/kevinkok1999/3d-model-website/actions/runs/43744710007) is de officiële volledige catalogus- en mappingcontrole geslaagd; de archive/OBJ-geometriecontrole loopt nog op het moment van dit verslag. De resultaten zijn apart van deze geslaagde HRA-browserproef. Geen wave-2-geometrie als gevalideerd of geïntegreerd aanmerken totdat de daadwerkelijke audit geslaagd is.
+De [tweede BodyParts3D-inventaris](BODYPARTS3D-WAVE2-RESEARCH.md) bevat 50 aanvullende concepten en 51 unieke ELEMENT-bestands-ID's. De [afzonderlijke broncontrole](https://github.com/kevinkok1999/3d-model-website/actions/runs/43744710007) is inmiddels geslaagd: `METADATA_AUDIT_PASSED: 50/50 selected concepts` en `GEOMETRY_AUDIT_PASSED: 51/51 ELEMENT files` op commit `7798d2a4a7e063dbb4a68dca9edf16eb55ad4a42`. Dit is een source-only OBJ-audit; de 50 concepten zijn niet voor de browser geëxporteerd, ruimtelijk geregistreerd of anatomisch gereviewd.
 
 De [microschaal-intake](MICROSCALE-SOURCE-RESEARCH.md) documenteert vier kandidaten, waaronder echte volumemicroscopie; nog niet geladen of geïntegreerd. 2D-weefselillustraties, ruwe opnames, bronannotaties, ML-voorspellingen en afgeleide meshes blijven verschillende bewijsklassen.
 
