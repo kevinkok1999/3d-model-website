@@ -1,0 +1,64 @@
+name: BodyParts3D source intake
+
+# Quarantined source review, never deploys or publishes model geometry.
+on:
+  push:
+    branches: [spike/anatomy-engine-v1]
+    paths:
+      - '.github/workflows/bodyparts3d-intake.yml'
+      - 'model-audit/bodyparts3d-*.mjs'
+      - 'model-audit/bodyparts3d-*.py'
+      - 'model-audit/bodyparts3d-intake-candidates.json'
+      - 'prototype/test/bodyparts3d-obj-audit.test.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify metadata mapping against official element table
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bodyparts-intake/reports"
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --max-time 60 --max-filesize 5000000 \
+            'https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_element_parts.txt' \
+            --output "$RUNNER_TEMP/bodyparts-intake/isa_element_parts.txt"
+          node model-audit/bodyparts3d-mapping.mjs "$RUNNER_TEMP/bodyparts-intake/isa_element_parts.txt" > "$RUNNER_TEMP/bodyparts-intake/reports/mapping.json"
+          node --input-type=module -e 'import {readFileSync} from "node:fs"; import assert from "node:assert/strict"; const src=JSON.parse(readFileSync("model-audit/bodyparts3d-intake-candidates.json","utf8")); const mapped=JSON.parse(readFileSync(process.argv[1],"utf8")).mapped; assert.equal(mapped.length,src.candidates.length); for(const row of src.candidates){ const actual=mapped.find(x=>x.fma===row.fma); assert.deepEqual([...actual.elementFileIds].sort(),[...row.elementFileIds].sort(),row.fma); } console.log("Official element table matches all curated concept IDs");' "$RUNNER_TEMP/bodyparts-intake/reports/mapping.json"
+          sha256sum "$RUNNER_TEMP/bodyparts-intake/isa_element_parts.txt" > "$RUNNER_TEMP/bodyparts-intake/reports/element-table.sha256"
+
+      - name: Acquire official archive for quarantine inspection
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --max-time 240 --max-filesize 200000000 \
+            'https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_BP3D_4.0_obj_99.zip' \
+            --output "$RUNNER_TEMP/bodyparts-intake/source.zip"
+
+      - name: Audit exact candidate OBJ geometry (no import or publication)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 model-audit/bodyparts3d-obj-audit.py \
+            "$RUNNER_TEMP/bodyparts-intake/source.zip" \
+            model-audit/bodyparts3d-intake-candidates.json \
+            "$RUNNER_TEMP/bodyparts-intake/reports/geometry.json"
+
+      - name: Preserve audit metadata and logs only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bodyparts3d-intake-${{ github.run_id }}
+          path: ${{ runner.temp }}/bodyparts-intake/reports/
+          if-no-files-found: ignore
+          retention-days: 7
