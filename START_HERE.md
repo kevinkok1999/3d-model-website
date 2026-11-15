@@ -19,3 +19,6 @@ De huidige repository bevat uitsluitend technische voorbereiding en een dependen
 
 ## UX-voorbereiding
 Lees vóór de technische spike [de UX-blauwdruk](docs/ux/UX-00-OVERZICHT.md). Volg de vijf specialistische werkproducten en de bestaande releasepoorten. De visuele wireframes zijn schematische ontwerpreferenties, geen anatomische modellen.
+
+## 3D-modelwerk: hoogste prioriteit
+Lees [het 3D-masterdocument](docs/model/MASTER.md), [het uniforme kwaliteitscontract](docs/model/QUALITY-CONTRACT.md) en [de model-audit](model-audit/README.md). De eerste kandidaat omvat 147 cataloguslabels, die nog niet de definitieve anatomische doellijst vormen. Ontbrekende delen worden concrete afmaaktaken; geen gehele-lichaamclaim voordat de doelcatalogus en elke afzonderlijke structuur zijn beoordeeld.

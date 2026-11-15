@@ -27,3 +27,7 @@
 5. Welk workflowmodel voor medische reviewers en vertalers wordt gebruikt.
 6. Beheer van auteursrechten/licenties van eigen animaties en derdepartijvideo's.
 7. Wel/geen server-side voortgangssync na hernieuwd privacybesluit.
+
+## ADR-014 — Uniforme kwaliteitsvloer en complete doellijst
+
+**Status: ACCEPTED_FOR_POC als producteis; feitelijke dekkingsbewijzen OPEN.** Vastgelegd na opdracht van de projecteigenaar. Scheid kandidaatcatalogus van de gereviewde doelcatalogus; alle onderdelen binnen de afgesproken scope krijgen gelijke toetsbare kwaliteit en open afmaaktaken tot ze voldoen. De schouder-spike is geen uitzondering voor de productrelease. Een complete publieke atlas vereist onafhankelijke signoff; een beperkte release is alleen mogelijk met een afzonderlijk expliciet besluit en een eerlijke beschrijving. Zie [kwaliteitscontract](model/QUALITY-CONTRACT.md).

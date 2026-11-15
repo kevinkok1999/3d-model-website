@@ -121,3 +121,7 @@ Geen kopie van Astra AI, geen commerciële betaalstroom, geen automatische AI-ch
 ## 9. Eerste beslispunt
 
 Maak een technische spike die aantoont dat één Open Anatomy 3D-model in een eigen viewer laadt, dat een schouderspier per stabiele ID is selecteerbaar, dat NL/EN-content verschijnt en dat de vijf modi de scene kunnen delen. De technische architect, 3D-engineer, anatomie-reviewer, QA en licentiebeheerder ondertekenen de bewijsstukken. Daarna pas volledige productontwikkeling.
+
+## 10. Versterkte producteis: volledige gelijkmatige kwaliteit
+
+De eerste schouderroute blijft een technische proof of concept. Voor de beoogde complete publieke atlas gelden de [uniforme kwaliteits- en afmaakregels](model/QUALITY-CONTRACT.md): ieder onderdeel binnen de expliciete doelcatalogus wordt volledig uitgewerkt en beoordeeld, inclusief hoogwaardig beeld, anatomische identiteit, inhoud, vijf modi × twee talen, toegankelijkheid en performance. Onderdelen die ontbreken of te grof zijn worden gap-/afmaaktaken; de scope kan niet stilzwijgend worden verkleind. De [3D-engineeringblauwdruk](model/MASTER.md) en [machinecontrole](../model-audit/README.md) operationaliseren dit. Dezelfde kwaliteitsregel geldt voor elke later toegevoegde vakmodule.
