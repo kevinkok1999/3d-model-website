@@ -1,0 +1,76 @@
+name: HRA male lung v1.3 independent intake
+
+on:
+  push:
+    branches: [spike/anatomy-engine-v1]
+    paths:
+      - '.github/workflows/hra-lung-alternative-intake.yml'
+      - 'model-audit/hra-lung-male-v1.3-candidate.json'
+      - 'model-audit/hra-reference-audit.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  intake:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Acquire separately pinned v1.3 GLB and crosswalk
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/hra-lung-alt/assets/lung-male" "$RUNNER_TEMP/hra-lung-alt/reports"
+          node --input-type=module <<'NODE' > "$RUNNER_TEMP/hra-lung-alt/download.tsv"
+          import {readFileSync} from 'node:fs';
+          import assert from 'node:assert/strict';
+          const m=JSON.parse(readFileSync('model-audit/hra-lung-male-v1.3-candidate.json'));
+          assert.equal(m.source.repository,'https://github.com/hubmapconsortium/hra-kg');
+          assert.match(m.source.commit,/^[a-f0-9]{40}$/);
+          assert.equal(m.sources.length,1);
+          const s=m.sources[0];
+          assert.equal(s.id,'lung-male'); assert.equal(s.variant,'male'); assert.equal(s.version,'v1.3');
+          assert.equal(s.crosswalk.expectedRows,71); assert.equal(s.crosswalk.expectedUniqueOntologyIds,59);
+          for(const [kind,file] of [['glb',s.glb],['crosswalk',s.crosswalk]]){
+            assert.match(file.filename,kind==='glb'?/^[a-z0-9-]+\.glb$/:/^crosswalk\.csv$/);
+            assert.equal(file.localPath,`${s.id}/${file.filename}`);
+            assert.equal(file.url,`https://raw.githubusercontent.com/hubmapconsortium/hra-kg/${m.source.commit}/digital-objects/ref-organ/${s.id}/v1.3/raw/${file.filename}`);
+            assert(Number.isSafeInteger(file.bytes)&&file.bytes>0&&file.bytes<25_000_000);
+            assert.match(file.gitBlobSha1,/^[a-f0-9]{40}$/);
+            console.log([file.url,file.localPath,file.bytes].join('\t'));
+          }
+          NODE
+          while IFS=$'\t' read -r url path bytes; do
+            curl --fail --silent --show-error --proto '=https' --connect-timeout 30 --max-time 120 --max-filesize "$bytes" "$url" --output "$RUNNER_TEMP/hra-lung-alt/assets/$path" || echo "Acquisition failed: $path"
+          done < "$RUNNER_TEMP/hra-lung-alt/download.tsv"
+      - name: Apply unchanged strict source audit
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync,writeFileSync} from 'node:fs';
+          import {auditHraSource} from './model-audit/hra-reference-audit.mjs';
+          const source=JSON.parse(readFileSync('model-audit/hra-lung-male-v1.3-candidate.json')).sources[0];
+          const root=process.env.RUNNER_TEMP+'/hra-lung-alt';
+          let report;
+          try {
+            report={...auditHraSource(source,root+'/assets',['lung-male']),version:source.version};
+            console.log(`${report.status}: ${report.glb.meshNodes} mesh nodes, ${report.crosswalk.directMeshRows} direct, ${report.crosswalk.groupRows} groups, ${report.crosswalk.rows} rows`);
+          } catch(e) {
+            report={sourceId:source.id,version:source.version,status:'BLOCKED',error:e.message,anatomicallyValidated:false,mergeAuthorized:false};
+            console.error(e.message); process.exitCode=1;
+          }
+          writeFileSync(root+'/reports/audit.json',JSON.stringify(report,null,2)+'\n',{flag:'wx'});
+          NODE
+      - name: Preserve independent evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hra-male-lung-v1.3-audit-${{ github.run_id }}
+          path: ${{ runner.temp }}/hra-lung-alt/reports/
+          if-no-files-found: ignore
+          retention-days: 7

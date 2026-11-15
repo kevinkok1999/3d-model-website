@@ -15,6 +15,8 @@ Een crosswalkrij is een verwijzing naar een oorspronkelijke glTF-node, niet naar
 
 De bestaande HRA-intakepipeline haalt de vier originele bestanden en CSV's opnieuw op, voert een onafhankelijke byte- en geometrie-audit uit, stageert de bestanden tijdelijk, bouwt de kandidaatviewer en test de echte bronmodellen in een lokale Chromium-preview. Alleen auditrapporten en gekenmerkte browserbewijzen zijn artifacts; nooit de GLB's of CSV's.
 
+**Werkelijke browserproef [geslaagd](https://github.com/kevinkok1999/3d-model-website/actions/runs/43742493321):** alle 464 crosswalkrijen (125/123 bloedvaten, 108/108 hersenen) zijn individueel via de interface geselecteerd, geïsoleerd en hersteld. Ook bronwissels tijdens een lopende download, filters, camera, 390px mobiele bediening en harde blokkades bij ontbrekend of gewijzigd bewijs zijn getest. [Audit en screenshots](https://github.com/kevinkok1999/3d-model-website/actions/runs/43742493321/artifacts/14173326202). Dit bewijst geen anatomische juistheid, fysieke-device-performance of nauwkeurigheid van handmatige 3D-picking.
+
 ## Open vrijgavepunten
 
 - Anatomische beoordeling, herkomstvariant, bronregistratie op gemeenschappelijk lichaam, dekking van overige systemen en individuele perifere zenuwen.
@@ -35,3 +37,5 @@ De vastgepinde inventaris `model-audit/hra-next-candidates.json` bevat 306 cross
 | Totaal van negen gepasseerde bronnen | 214 | 198 | 36 |
 
 De 234 gepasseerde crosswalkrijen zijn bronkoppelingen (direct of groep). Samen met de eerste vier HRA-bronnen is technisch bewijs voor 996 mesh-node-instanties in dertien referenties beschikbaar; dat is geen dekkingstelling van het menselijk lichaam en geen vrijgave voor gebruik. Alle tien volgende modellen, inclusief de negen geslaagde, blijven buiten de viewer totdat hun eigen integratie en kwaliteitscontrole gedaan zijn.
+
+De [bronafwijking van de mannelijke long](HRA-LUNG-BLOCKER.md) is onderzocht. De oudere officiële v1.3 is afzonderlijk vastgepind en krijgt een eigen intake met dezelfde audit; v1.4 blijft ongewijzigd geblokkeerd. Geen geometrie wordt stilzwijgend vervangen of gemengd.
