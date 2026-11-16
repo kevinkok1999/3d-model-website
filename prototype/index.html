@@ -108,6 +108,16 @@
               </button>
             </div>
             <p class="viewer-hint" data-i18n="viewerHint">Sleep om te draaien · scroll of knijp om te zoomen · tik op een structuur of gebruik de lijst.</p>
+            <section id="landmark-panel" class="landmark-panel" aria-labelledby="landmark-title">
+              <h3 id="landmark-title" data-capture-copy="title">Bronpunt vastleggen</h3>
+              <p data-capture-copy="note"></p>
+              <div class="landmark-actions" role="group" aria-labelledby="landmark-title">
+                <button type="button" class="tool-button" data-capture-toggle data-capture-copy="toggle" aria-pressed="false" disabled>Punt vastleggen</button>
+                <button type="button" class="tool-button" data-capture-download data-capture-copy="download" disabled>Download bewijs (JSON)</button>
+                <button type="button" class="tool-button" data-capture-clear data-capture-copy="clear" disabled>Wis punt</button>
+              </div>
+              <p data-capture-status role="status" aria-live="polite" aria-atomic="true"></p>
+            </section>
             <div class="small-screen-links">
               <a href="#nav-panel"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M5 6h14M5 12h14M5 18h14"/></svg><span data-i18n="structuresTitle">Structuren</span></a>
               <a href="#detail-panel"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg><span data-i18n="detailTitle">Informatie</span></a>

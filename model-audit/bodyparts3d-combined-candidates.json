@@ -1,0 +1,1032 @@
+{
+  "schemaVersion": 1,
+  "status": "CANDIDATE_INVENTORY_NOT_DOWNLOADED",
+  "wave": "combined",
+  "source": {
+    "provider": "BodyParts3D, The Database Center for Life Science (DBCLS)",
+    "release": "4.0",
+    "catalogType": "IS-A",
+    "catalogUrl": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_parts_list_e.txt",
+    "elementMappingUrl": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_element_parts.txt",
+    "modelArchiveUrl": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_BP3D_4.0_obj_99.zip",
+    "sourceLicenseUrl": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html",
+    "declaredLicense": "CC-BY-4.0",
+    "referenceVariant": "adult_male",
+    "verifiedAt": "2026-11-15",
+    "notes": "Combined exact selected IS-A catalog labels, FMA and BP identifiers and explicit ELEMENT mappings from the frozen 21-concept original and 50-concept wave 2 inventories. Independent full-table byte validation, OBJ archive acquisition and anatomy/clinical/coordinate registration review are not implied. Region/system classifications and Dutch display labels are provisional navigation only."
+  },
+  "inputInventories": [
+    {
+      "name": "bodyparts3d-intake-candidates.json",
+      "canonicalJsonSha256": "50961b30b3b1e5a282d56948d9b8399f78d937299be120ae456af1af555ad88f"
+    },
+    {
+      "name": "bodyparts3d-wave2-candidates.json",
+      "canonicalJsonSha256": "237077c85e58700310c3a0cfa9ef314446ce4331cf16692cfeea378ef4af66ad"
+    }
+  ],
+  "candidates": [
+    {
+      "fma": "FMA24474",
+      "representation": "BP8920",
+      "sourceLabel": "right femur",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "elementFileIds": [
+        "FJ3365"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "lower-limb",
+      "proposedDutchLabel": "Dijbeen (rechts)"
+    },
+    {
+      "fma": "FMA24475",
+      "representation": "BP9042",
+      "sourceLabel": "left femur",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "elementFileIds": [
+        "FJ3259"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "lower-limb",
+      "proposedDutchLabel": "Dijbeen (links)"
+    },
+    {
+      "fma": "FMA24477",
+      "representation": "BP8031",
+      "sourceLabel": "right tibia",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "elementFileIds": [
+        "FJ3387"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "lower-limb",
+      "proposedDutchLabel": "Scheenbeen (rechts)"
+    },
+    {
+      "fma": "FMA24478",
+      "representation": "BP9202",
+      "sourceLabel": "left tibia",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "elementFileIds": [
+        "FJ3282"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "lower-limb",
+      "proposedDutchLabel": "Scheenbeen (links)"
+    },
+    {
+      "fma": "FMA24473",
+      "representation": "BP8000",
+      "sourceLabel": "left fifth metacarpal bone",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "elementFileIds": [
+        "FJ3252"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Vijfde middenhandsbeentje (links)"
+    },
+    {
+      "fma": "FMA24501",
+      "representation": "BP8599",
+      "sourceLabel": "navicular bone of left foot",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "elementFileIds": [
+        "FJ3307"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "lower-limb",
+      "proposedDutchLabel": "Scheepvormig voetbeen (links)"
+    },
+    {
+      "fma": "FMA37684",
+      "representation": "BP5558",
+      "sourceLabel": "short head of right biceps brachii",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "elementFileIds": [
+        "FJ1512"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Korte kop van de biceps brachii (rechts)"
+    },
+    {
+      "fma": "FMA37685",
+      "representation": "BP9153",
+      "sourceLabel": "short head of left biceps brachii",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "elementFileIds": [
+        "FJ1512M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Korte kop van de biceps brachii (links)"
+    },
+    {
+      "fma": "FMA37686",
+      "representation": "BP5566",
+      "sourceLabel": "long head of right biceps brachii",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "elementFileIds": [
+        "FJ1478"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Lange kop van de biceps brachii (rechts)"
+    },
+    {
+      "fma": "FMA37687",
+      "representation": "BP8816",
+      "sourceLabel": "long head of left biceps brachii",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "elementFileIds": [
+        "FJ1478M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Lange kop van de biceps brachii (links)"
+    },
+    {
+      "fma": "FMA38479",
+      "representation": "BP4848",
+      "sourceLabel": "right flexor digitorum profundus",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "elementFileIds": [
+        "FJ1497"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Diepe vingerbuiger (rechts)"
+    },
+    {
+      "fma": "FMA38480",
+      "representation": "BP7826",
+      "sourceLabel": "left flexor digitorum profundus",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "elementFileIds": [
+        "FJ1497M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Diepe vingerbuiger (links)"
+    },
+    {
+      "fma": "FMA38928",
+      "representation": "BP5598",
+      "sourceLabel": "right rectus femoris",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "elementFileIds": [
+        "FJ1433"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "lower-limb",
+      "proposedDutchLabel": "Rectus femoris (rechts)"
+    },
+    {
+      "fma": "FMA38929",
+      "representation": "BP8094",
+      "sourceLabel": "left rectus femoris",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "elementFileIds": [
+        "FJ1433M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "lower-limb",
+      "proposedDutchLabel": "Rectus femoris (links)"
+    },
+    {
+      "fma": "FMA22733",
+      "representation": "BP6335",
+      "sourceLabel": "right radial artery",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "vessels",
+      "elementFileIds": [
+        "FJ2294"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Spaakbeenslagader (rechts)"
+    },
+    {
+      "fma": "FMA22734",
+      "representation": "BP6336",
+      "sourceLabel": "left radial artery",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "vessels",
+      "elementFileIds": [
+        "FJ2242"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Spaakbeenslagader (links)"
+    },
+    {
+      "fma": "FMA22797",
+      "representation": "BP6315",
+      "sourceLabel": "right ulnar artery",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "vessels",
+      "elementFileIds": [
+        "FJ2310"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Ellebeenslagader (rechts)"
+    },
+    {
+      "fma": "FMA22798",
+      "representation": "BP6316",
+      "sourceLabel": "left ulnar artery",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "vessels",
+      "elementFileIds": [
+        "FJ2258"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Ellebeenslagader (links)"
+    },
+    {
+      "fma": "FMA22948",
+      "representation": "BP5927",
+      "sourceLabel": "right radial vein",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "vessels",
+      "elementFileIds": [
+        "FJ2296"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Spaakbeenader (rechts)"
+    },
+    {
+      "fma": "FMA22949",
+      "representation": "BP5928",
+      "sourceLabel": "left radial vein",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "vessels",
+      "elementFileIds": [
+        "FJ2244"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "upper-limb",
+      "proposedDutchLabel": "Spaakbeenader (links)"
+    },
+    {
+      "fma": "FMA3815",
+      "representation": "BP7824",
+      "sourceLabel": "first anterior ventricular branch of right coronary artery",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "vessels",
+      "elementFileIds": [
+        "FJ2671",
+        "FJ2673",
+        "FJ2677"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "proposedRegion": "trunk",
+      "proposedDutchLabel": "Eerste voorste ventrikelvertakking van de rechter kransslagader"
+    },
+    {
+      "fma": "FMA33581",
+      "representation": "BP5638",
+      "sourceLabel": "ascending part of right trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1520"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1315,
+      "proposedDutchLabel": "Opstijgend deel van de trapezius (rechts)"
+    },
+    {
+      "fma": "FMA33583",
+      "representation": "BP8225",
+      "sourceLabel": "ascending part of left trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1520M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1316,
+      "proposedDutchLabel": "Opstijgend deel van de trapezius (links)"
+    },
+    {
+      "fma": "FMA33584",
+      "representation": "BP5610",
+      "sourceLabel": "transverse part of right trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1554"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1317,
+      "proposedDutchLabel": "Dwars deel van de trapezius (rechts)"
+    },
+    {
+      "fma": "FMA33585",
+      "representation": "BP8252",
+      "sourceLabel": "transverse part of left trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1554M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1318,
+      "proposedDutchLabel": "Dwars deel van de trapezius (links)"
+    },
+    {
+      "fma": "FMA33586",
+      "representation": "BP5636",
+      "sourceLabel": "descending part of right trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1521"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1319,
+      "proposedDutchLabel": "Afdalend deel van de trapezius (rechts)"
+    },
+    {
+      "fma": "FMA33587",
+      "representation": "BP8267",
+      "sourceLabel": "descending part of left trapezius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1521M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1320,
+      "proposedDutchLabel": "Afdalend deel van de trapezius (links)"
+    },
+    {
+      "fma": "FMA13403",
+      "representation": "BP4766",
+      "sourceLabel": "right serratus posterior superior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1542"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 449,
+      "proposedDutchLabel": "Serratus posterior superior (rechts)"
+    },
+    {
+      "fma": "FMA13404",
+      "representation": "BP8298",
+      "sourceLabel": "left serratus posterior superior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1542M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 450,
+      "proposedDutchLabel": "Serratus posterior superior (links)"
+    },
+    {
+      "fma": "FMA13405",
+      "representation": "BP4768",
+      "sourceLabel": "right serratus posterior inferior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1541"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 451,
+      "proposedDutchLabel": "Serratus posterior inferior (rechts)"
+    },
+    {
+      "fma": "FMA13406",
+      "representation": "BP9048",
+      "sourceLabel": "left serratus posterior inferior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1541M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 452,
+      "proposedDutchLabel": "Serratus posterior inferior (links)"
+    },
+    {
+      "fma": "FMA13381",
+      "representation": "BP4780",
+      "sourceLabel": "right rhomboid major",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1536"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 427,
+      "proposedDutchLabel": "Rhomboideus major (rechts)"
+    },
+    {
+      "fma": "FMA13382",
+      "representation": "BP9245",
+      "sourceLabel": "left rhomboid major",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "back",
+      "elementFileIds": [
+        "FJ1536M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 428,
+      "proposedDutchLabel": "Rhomboideus major (links)"
+    },
+    {
+      "fma": "FMA13398",
+      "representation": "BP4782",
+      "sourceLabel": "right serratus anterior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ1459"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 444,
+      "proposedDutchLabel": "Serratus anterior (rechts)"
+    },
+    {
+      "fma": "FMA13399",
+      "representation": "BP8760",
+      "sourceLabel": "left serratus anterior",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ1459M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 445,
+      "proposedDutchLabel": "Serratus anterior (links)"
+    },
+    {
+      "fma": "FMA34690",
+      "representation": "BP5582",
+      "sourceLabel": "clavicular part of right pectoralis major",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ1447"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1333,
+      "proposedDutchLabel": "Sleutelbeendeel van de pectoralis major (rechts)"
+    },
+    {
+      "fma": "FMA34691",
+      "representation": "BP9095",
+      "sourceLabel": "clavicular part of left pectoralis major",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ1447M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1334,
+      "proposedDutchLabel": "Sleutelbeendeel van de pectoralis major (links)"
+    },
+    {
+      "fma": "FMA34680",
+      "representation": "BP7573",
+      "sourceLabel": "clavicular part of right deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1468"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1325,
+      "proposedDutchLabel": "Sleutelbeendeel van de deltoideus (rechts)"
+    },
+    {
+      "fma": "FMA34681",
+      "representation": "BP8259",
+      "sourceLabel": "clavicular part of left deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1468M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1326,
+      "proposedDutchLabel": "Sleutelbeendeel van de deltoideus (links)"
+    },
+    {
+      "fma": "FMA34682",
+      "representation": "BP7571",
+      "sourceLabel": "acromial part of right deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1467"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1327,
+      "proposedDutchLabel": "Acromiaal deel van de deltoideus (rechts)"
+    },
+    {
+      "fma": "FMA34683",
+      "representation": "BP9075",
+      "sourceLabel": "acromial part of left deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1467M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1328,
+      "proposedDutchLabel": "Acromiaal deel van de deltoideus (links)"
+    },
+    {
+      "fma": "FMA34684",
+      "representation": "BP5607",
+      "sourceLabel": "spinal part of right deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1513"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1329,
+      "proposedDutchLabel": "Spinaal deel van de deltoideus (rechts)"
+    },
+    {
+      "fma": "FMA34685",
+      "representation": "BP8151",
+      "sourceLabel": "spinal part of left deltoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1513M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1330,
+      "proposedDutchLabel": "Spinaal deel van de deltoideus (links)"
+    },
+    {
+      "fma": "FMA13414",
+      "representation": "BP4795",
+      "sourceLabel": "right subscapularis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1504"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 460,
+      "proposedDutchLabel": "Subscapularis (rechts)"
+    },
+    {
+      "fma": "FMA13415",
+      "representation": "BP8214",
+      "sourceLabel": "left subscapularis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ1504M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 461,
+      "proposedDutchLabel": "Subscapularis (links)"
+    },
+    {
+      "fma": "FMA13408",
+      "representation": "BP4909",
+      "sourceLabel": "right sternocleidomastoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "neck",
+      "elementFileIds": [
+        "FJ1595"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 454,
+      "proposedDutchLabel": "Sternocleidomastoideus (rechts)"
+    },
+    {
+      "fma": "FMA13409",
+      "representation": "BP4910",
+      "sourceLabel": "left sternocleidomastoid",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "neck",
+      "elementFileIds": [
+        "FJ1573"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 455,
+      "proposedDutchLabel": "Sternocleidomastoideus (links)"
+    },
+    {
+      "fma": "FMA22328",
+      "representation": "BP5065",
+      "sourceLabel": "right gluteus maximus",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1418"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 784,
+      "proposedDutchLabel": "Gluteus maximus (rechts)"
+    },
+    {
+      "fma": "FMA22329",
+      "representation": "BP8401",
+      "sourceLabel": "left gluteus maximus",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1418M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 785,
+      "proposedDutchLabel": "Gluteus maximus (links)"
+    },
+    {
+      "fma": "FMA22354",
+      "representation": "BP4994",
+      "sourceLabel": "right sartorius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1434"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 801,
+      "proposedDutchLabel": "Sartorius (rechts)"
+    },
+    {
+      "fma": "FMA22355",
+      "representation": "BP8876",
+      "sourceLabel": "left sartorius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1434M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 802,
+      "proposedDutchLabel": "Sartorius (links)"
+    },
+    {
+      "fma": "FMA22358",
+      "representation": "BP4991",
+      "sourceLabel": "right semitendinosus",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1436"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 804,
+      "proposedDutchLabel": "Semitendinosus (rechts)"
+    },
+    {
+      "fma": "FMA22359",
+      "representation": "BP9066",
+      "sourceLabel": "left semitendinosus",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1436M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 805,
+      "proposedDutchLabel": "Semitendinosus (links)"
+    },
+    {
+      "fma": "FMA38930",
+      "representation": "BP5602",
+      "sourceLabel": "right vastus lateralis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1442"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1508,
+      "proposedDutchLabel": "Vastus lateralis (rechts)"
+    },
+    {
+      "fma": "FMA38931",
+      "representation": "BP8754",
+      "sourceLabel": "left vastus lateralis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1442M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1509,
+      "proposedDutchLabel": "Vastus lateralis (links)"
+    },
+    {
+      "fma": "FMA38932",
+      "representation": "BP5600",
+      "sourceLabel": "right vastus medialis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1443"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1510,
+      "proposedDutchLabel": "Vastus medialis (rechts)"
+    },
+    {
+      "fma": "FMA38933",
+      "representation": "BP9128",
+      "sourceLabel": "left vastus medialis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1443M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1511,
+      "proposedDutchLabel": "Vastus medialis (links)"
+    },
+    {
+      "fma": "FMA38934",
+      "representation": "BP5604",
+      "sourceLabel": "right vastus intermedius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1441"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1512,
+      "proposedDutchLabel": "Vastus intermedius (rechts)"
+    },
+    {
+      "fma": "FMA38935",
+      "representation": "BP9207",
+      "sourceLabel": "left vastus intermedius",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "thigh-hip",
+      "elementFileIds": [
+        "FJ1441M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1513,
+      "proposedDutchLabel": "Vastus intermedius (links)"
+    },
+    {
+      "fma": "FMA37386",
+      "representation": "BP4855",
+      "sourceLabel": "right abductor pollicis brevis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "hand",
+      "elementFileIds": [
+        "FJ1483"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1360,
+      "proposedDutchLabel": "Abductor pollicis brevis (rechts)"
+    },
+    {
+      "fma": "FMA37387",
+      "representation": "BP8706",
+      "sourceLabel": "left abductor pollicis brevis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "hand",
+      "elementFileIds": [
+        "FJ1483M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1361,
+      "proposedDutchLabel": "Abductor pollicis brevis (links)"
+    },
+    {
+      "fma": "FMA37390",
+      "representation": "BP4853",
+      "sourceLabel": "right opponens pollicis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "hand",
+      "elementFileIds": [
+        "FJ1501"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1364,
+      "proposedDutchLabel": "Opponens pollicis (rechts)"
+    },
+    {
+      "fma": "FMA37391",
+      "representation": "BP8596",
+      "sourceLabel": "left opponens pollicis",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "muscles",
+      "proposedRegion": "hand",
+      "elementFileIds": [
+        "FJ1501M"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 1365,
+      "proposedDutchLabel": "Opponens pollicis (links)"
+    },
+    {
+      "fma": "FMA13395",
+      "representation": "BP9101",
+      "sourceLabel": "right scapula",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ3384"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 441,
+      "proposedDutchLabel": "Schouderblad (rechts)"
+    },
+    {
+      "fma": "FMA13396",
+      "representation": "BP9121",
+      "sourceLabel": "left scapula",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "shoulder",
+      "elementFileIds": [
+        "FJ3279"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 442,
+      "proposedDutchLabel": "Schouderblad (links)"
+    },
+    {
+      "fma": "FMA52749",
+      "representation": "BP8836",
+      "sourceLabel": "hyoid bone",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "neck",
+      "elementFileIds": [
+        "FJ2772",
+        "FJ3201"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 2056,
+      "proposedDutchLabel": "Tongbeen"
+    },
+    {
+      "fma": "FMA7857",
+      "representation": "BP8341",
+      "sourceLabel": "right first rib",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ3334"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 186,
+      "proposedDutchLabel": "Eerste rib (rechts)"
+    },
+    {
+      "fma": "FMA7987",
+      "representation": "BP8800",
+      "sourceLabel": "left first rib",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "torso",
+      "elementFileIds": [
+        "FJ3228"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 194,
+      "proposedDutchLabel": "Eerste rib (links)"
+    },
+    {
+      "fma": "FMA52748",
+      "representation": "BP8107",
+      "sourceLabel": "mandible",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "skeleton",
+      "proposedRegion": "head",
+      "elementFileIds": [
+        "FJ3289"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 2055,
+      "proposedDutchLabel": "Onderkaak"
+    },
+    {
+      "fma": "FMA52676",
+      "representation": "BP5733",
+      "sourceLabel": "right anterior ethmoidal nerve",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "nerves",
+      "proposedRegion": "head",
+      "elementFileIds": [
+        "FJ1333"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 2035,
+      "proposedDutchLabel": "Nervus ethmoidalis anterior (rechts)"
+    },
+    {
+      "fma": "FMA52677",
+      "representation": "BP5734",
+      "sourceLabel": "left anterior ethmoidal nerve",
+      "sourceCatalog": "IS-A",
+      "proposedSystem": "nerves",
+      "proposedRegion": "head",
+      "elementFileIds": [
+        "FJ1283"
+      ],
+      "reviewState": "NOT_DOWNLOADED",
+      "catalogExcerptLine": 2036,
+      "proposedDutchLabel": "Nervus ethmoidalis anterior (links)"
+    }
+  ],
+  "openSourceGaps": [
+    {
+      "proposedSystem": "nerves",
+      "required": "sciatic, femoral, median, radial, ulnar and vagus nerves",
+      "reviewState": "BLOCKED_SOURCE_MAPPING",
+      "notes": "Targeted catalog search for sciatic nerve found no match. Original intake could not verify these major peripheral PN structures; the exact two new anterior ethmoidal nerve mappings do not close this gap."
+    },
+    {
+      "proposedSystem": "muscles",
+      "required": "complete individual muscle heads, attachments, tendons and calibrated movement",
+      "reviewState": "BLOCKED_COMPLETE_COVERAGE",
+      "notes": "Exact region-specific candidate labels and mapped source ELEMENT files only, not complete musculoskeletal or movement representation."
+    },
+    {
+      "proposedSystem": "skeleton",
+      "required": "complete individual bones, articulations and both reference variants",
+      "reviewState": "BLOCKED_COMPLETE_COVERAGE",
+      "notes": "Selected six additional bone concepts only. Hyoid maps to two ELEMENT files; their geometry and identity require separate review."
+    },
+    {
+      "proposedSystem": "all",
+      "required": "matching independently reviewed female source geometry",
+      "reviewState": "BLOCKED_VARIANT_SOURCE",
+      "notes": "This inventory is male reference source only."
+    }
+  ]
+}

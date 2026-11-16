@@ -91,6 +91,16 @@
             <button id="hra-clear" type="button" class="hra-tool"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="m7 7 10 10M17 7 7 17"/></svg><span data-hra-i18n="clear">Deselecteer</span></button>
           </div>
           <p id="hra-viewer-hint" class="hra-hint" data-hra-i18n="viewerHint">Draai, zoom en selecteer in het model, of gebruik de bronstructuurlijst en de knoppen.</p>
+          <section id="hra-landmark-panel" class="landmark-panel" aria-labelledby="hra-landmark-title">
+            <h3 id="hra-landmark-title" data-capture-copy="title">Bronpunt vastleggen</h3>
+            <p data-capture-copy="note"></p>
+            <div class="landmark-actions" role="group" aria-labelledby="hra-landmark-title">
+              <button type="button" class="hra-tool" data-capture-toggle data-capture-copy="toggle" aria-pressed="false" disabled>Punt vastleggen</button>
+              <button type="button" class="hra-tool" data-capture-download data-capture-copy="download" disabled>Download bewijs (JSON)</button>
+              <button type="button" class="hra-tool" data-capture-clear data-capture-copy="clear" disabled>Wis punt</button>
+            </div>
+            <p data-capture-status role="status" aria-live="polite" aria-atomic="true"></p>
+          </section>
           <div class="hra-jumps">
             <a href="#hra-nav"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M5 6h14M5 12h14M5 18h14"/></svg><span data-hra-i18n="structuresTitle">Bronstructuren</span></a>
             <a href="#hra-detail-panel"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg><span data-hra-i18n="detailTitle">Broninformatie</span></a>

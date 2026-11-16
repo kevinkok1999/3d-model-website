@@ -19,9 +19,9 @@ def main():
     parser.add_argument("output", type=Path, help="new synthetic QA-only ZIP path")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
-    manifest = json.loads((root / "model-audit/bodyparts3d-intake-candidates.json").read_text(encoding="utf-8"))
+    manifest = json.loads((root / "model-audit/bodyparts3d-combined-candidates.json").read_text(encoding="utf-8"))
     ids = sorted({eid for row in manifest["candidates"] for eid in row["elementFileIds"]})
-    if len(manifest["candidates"]) != 21 or len(ids) != 23:
+    if len(manifest["candidates"]) != 71 or len(ids) != 74:
         raise ValueError("Fixture scope changed; review the QA contract before regenerating")
     with zipfile.ZipFile(args.output, "x", compression=zipfile.ZIP_DEFLATED) as archive:
         for i, eid in enumerate(ids):
@@ -35,7 +35,7 @@ def main():
             entry = zipfile.ZipInfo(f"SYNTHETIC_QA_ONLY/{eid}.obj")
             entry.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(entry, obj)
-    print(f"SYNTHETIC_QA_FIXTURE_NOT_ANATOMY: 21 concepts / {len(ids)} arbitrary tetrahedra: {args.output}")
+    print(f"SYNTHETIC_QA_FIXTURE_NOT_ANATOMY: 71 concepts / {len(ids)} arbitrary tetrahedra: {args.output}")
 
 
 if __name__ == "__main__":

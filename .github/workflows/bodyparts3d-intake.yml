@@ -9,6 +9,8 @@ on:
       - 'model-audit/bodyparts3d-*.mjs'
       - 'model-audit/bodyparts3d-*.py'
       - 'model-audit/bodyparts3d-intake-candidates.json'
+      - 'model-audit/bodyparts3d-wave2-candidates.json'
+      - 'model-audit/bodyparts3d-combined-candidates.json'
       - 'prototype/test/bodyparts3d-obj-audit.test.mjs'
       - 'prototype/test/bodyparts3d-*'
       - 'prototype/bodyparts3d-candidate.*'
@@ -41,6 +43,10 @@ jobs:
           node model-audit/bodyparts3d-mapping.mjs "$RUNNER_TEMP/bodyparts-intake/isa_element_parts.txt" > "$RUNNER_TEMP/bodyparts-intake/reports/mapping.json"
           node --input-type=module -e 'import {readFileSync} from "node:fs"; import assert from "node:assert/strict"; const src=JSON.parse(readFileSync("model-audit/bodyparts3d-intake-candidates.json","utf8")); const mapped=JSON.parse(readFileSync(process.argv[1],"utf8")).mapped; assert.equal(mapped.length,src.candidates.length); for(const row of src.candidates){ const actual=mapped.find(x=>x.fma===row.fma); assert.deepEqual([...actual.elementFileIds].sort(),[...row.elementFileIds].sort(),row.fma); } console.log("Official element table matches all curated concept IDs");' "$RUNNER_TEMP/bodyparts-intake/reports/mapping.json"
           sha256sum "$RUNNER_TEMP/bodyparts-intake/isa_element_parts.txt" > "$RUNNER_TEMP/bodyparts-intake/reports/element-table.sha256"
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --max-time 120 --max-filesize 2000000 \
+            'https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_parts_list_e.txt' \
+            --output "$RUNNER_TEMP/bodyparts-intake/isa_parts_list_e.txt"
+          node model-audit/bodyparts3d-wave2-audit.mjs "$RUNNER_TEMP/bodyparts-intake/isa_parts_list_e.txt" "$RUNNER_TEMP/bodyparts-intake/isa_element_parts.txt" "$RUNNER_TEMP/bodyparts-intake/reports/wave2-metadata.json"
 
       - name: Acquire official archive for quarantine inspection
         shell: bash
@@ -56,7 +62,7 @@ jobs:
           set -euo pipefail
           python3 model-audit/bodyparts3d-obj-audit.py \
             "$RUNNER_TEMP/bodyparts-intake/isa_BP3D_4.0_obj_99.zip" \
-            model-audit/bodyparts3d-intake-candidates.json \
+            model-audit/bodyparts3d-combined-candidates.json \
             "$RUNNER_TEMP/bodyparts-intake/reports/geometry.json"
 
       - name: Convert audited source geometry to a temporary reference-only GLB
@@ -66,7 +72,7 @@ jobs:
           mkdir -p prototype/public/bodyparts3d-candidate
           python3 model-audit/bodyparts3d-export.py \
             "$RUNNER_TEMP/bodyparts-intake/isa_BP3D_4.0_obj_99.zip" \
-            model-audit/bodyparts3d-intake-candidates.json \
+            model-audit/bodyparts3d-combined-candidates.json \
             "$RUNNER_TEMP/bodyparts-intake/reports/geometry.json" \
             prototype/public/bodyparts3d-candidate/model.glb \
             prototype/public/bodyparts3d-candidate/model.json

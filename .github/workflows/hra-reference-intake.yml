@@ -16,6 +16,9 @@ on:
       - 'prototype/index.html'
       - 'prototype/styles.css'
       - 'prototype/test/atlas-phase7-browser.mjs'
+      - 'prototype/test/landmark-*'
+      - 'prototype/src/landmark-*'
+      - 'model-audit/landmark-*'
       - 'prototype/vite.config.js'
   workflow_dispatch:
 
@@ -101,6 +104,7 @@ jobs:
           test "$ready" = 1
           node prototype/test/hra-browser-smoke.mjs http://127.0.0.1:4173 | tee "$RUNNER_TEMP/hra-intake/reports/browser.log"
           node prototype/test/atlas-phase7-browser.mjs http://127.0.0.1:4173 --hra-staged | tee "$RUNNER_TEMP/hra-intake/reports/phase7-atlas-navigation.log"
+          node prototype/test/landmark-capture-browser.mjs http://127.0.0.1:4173 --hra-staged | tee "$RUNNER_TEMP/hra-intake/reports/phase8-landmark-capture.log"
 
       - name: Preserve technical evidence only
         if: always()

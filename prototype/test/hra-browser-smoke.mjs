@@ -240,6 +240,10 @@ async function verifyModel(page,data){
   await assertLocalizedSources(page,'nl',source);
   assert.equal(await page.locator('#hra-viewport').isVisible(),true);
   assert.ok(await page.locator('#hra-viewport').evaluate(n=>n.width>0&&n.height>0));
+  const capture=page.locator('#hra-landmark-panel');
+  assert.equal(await capture.getAttribute('data-capture-state'),'idle',`${source.id}: source capture must be available`);
+  assert.equal(await capture.locator('[data-capture-toggle]').isEnabled(),true,`${source.id}: native triangle capture available`);
+  assert.equal(await capture.locator('[data-capture-download]').isEnabled(),false,`${source.id}: no unearned evidence on model load`);
   await page.locator('#hra-search').fill('');await page.locator('#hra-type').selectOption('all');
   assert.deepEqual(await listKeys(page),sortNum(rows.map(r=>r.index)));await matchesCount(page,rows.length,rows.length);
   assert.equal(Number((await state(page)).mappedMeshNodes),allMeshes.length);assert.deepEqual(visible(await state(page)),allMeshes);
@@ -306,6 +310,7 @@ async function failurePage(name,configure,{noGlb=false}={}){
   assert.equal(await page.locator('#hra-status[data-phase="ready"]').count(),0);
   assert.ok((await page.locator('#hra-error').innerText()).trim());
   for(const sel of ['#hra-fit','#hra-focus','#hra-isolate','#hra-reset'])assert.equal(await page.locator(sel).isEnabled(),false,`${name}/${sel} must fail closed`);
+  for(const sel of ['[data-capture-toggle]','[data-capture-download]'])assert.equal(await page.locator(`#hra-landmark-panel ${sel}`).isEnabled(),false,`${name}/${sel} must fail closed`);
   assert.equal(await page.locator('#hra-list [data-node-index]').count(),0);
   if(noGlb)assert.equal(requested,0,`${name} must not fetch unchecked geometry`);
   await page.close();checks.push(`${name}: explicit failure, empty list, disabled geometry controls`);

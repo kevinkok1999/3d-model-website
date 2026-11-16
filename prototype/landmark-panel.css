@@ -1,0 +1,7 @@
+.landmark-panel{margin:0 14px 14px;padding:12px;border:1px solid rgba(145,178,207,.25);border-radius:10px;min-width:0;color:inherit}
+.landmark-panel h3{font-size:.83rem;margin:0 0 6px;color:inherit}
+.landmark-panel p{font-size:.76rem;line-height:1.5;margin:6px 0;color:inherit;overflow-wrap:anywhere}
+.landmark-actions{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.landmark-actions button{flex:1 1 auto;min-width:0;max-width:100%;min-height:44px;white-space:normal;justify-content:center;overflow-wrap:anywhere}
+.landmark-actions button[aria-pressed=true]{outline:2px solid #72d9eb;outline-offset:2px}
+.landmark-panel [data-capture-status]{font-variant-numeric:tabular-nums}

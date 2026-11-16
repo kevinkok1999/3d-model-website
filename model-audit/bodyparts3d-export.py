@@ -147,15 +147,26 @@ def geometry(raw, audited, remaining):
 
 def make_export(archive_path, manifest_path, audit_path, out_path, stage):
     wanted, concepts, manifest_hash = audit.load_manifest(manifest_path)
-    pinned = Path(__file__).with_name("bodyparts3d-intake-candidates.json")
-    pinned_ids, pinned_concepts, _ = audit.load_manifest(pinned)
+    # Both immutable scopes are allowed; the standalone expanded viewer
+    # accepts only the combined scope. No arbitrary or partial inventory.
+    pins = {
+        "34852433d7b6fa84d68954a96cca9b2396b8a9a8c35a1695f33d0e4e427f2b07": ("bodyparts3d-intake-candidates.json", 21, 23),
+        "1cf9dd5a0264fc477ea2c07a8f7bd000d000655c6b4b50c5d54ee91bae13e3bd": ("bodyparts3d-combined-candidates.json", 71, 74),
+    }
+    if manifest_hash not in pins:
+        raise ValueError("Manifest differs from pinned exact BodyParts3D candidate inventory")
+    filename, concept_count, element_count = pins[manifest_hash]
+    pinned = Path(__file__).with_name(filename)
+    pinned_ids, pinned_concepts, pinned_sha = audit.load_manifest(pinned)
     manifest, reference = bounded_json(manifest_path), bounded_json(pinned)
-    if len(wanted) != 23 or len(concepts) != 21 or wanted != pinned_ids or concepts != pinned_concepts or manifest.get("source") != reference.get("source"):
+    if (pinned_sha != manifest_hash or len(wanted) != element_count or len(concepts) != concept_count or
+            wanted != pinned_ids or concepts != pinned_concepts or manifest != reference or
+            sum(len(c["elementFileIds"]) for c in concepts) != element_count):
         raise ValueError("Manifest differs from pinned exact BodyParts3D candidate inventory")
 
     evidence = bounded_json(audit_path)
     expected_concepts = [{**concept, "status": "PASSED"} for concept in concepts]
-    expected_summary = {"uniqueElementFiles": 23, "conceptMappings": 21, "elementReferences": 23, "passedFiles": 23, "passedConcepts": 21}
+    expected_summary = {"uniqueElementFiles": element_count, "conceptMappings": concept_count, "elementReferences": element_count, "passedFiles": element_count, "passedConcepts": concept_count}
     if (evidence.get("schemaVersion") != 1 or evidence.get("status") != "GEOMETRY_AUDIT_PASSED" or
             evidence.get("errors") != [] or evidence.get("clinicallyVerified") is not False or
             evidence.get("manifestSha256") != manifest_hash or evidence.get("conceptMappings") != expected_concepts or
@@ -163,8 +174,8 @@ def make_export(archive_path, manifest_path, audit_path, out_path, stage):
         raise ValueError("Missing, stale or invalid passing geometry audit")
     evidence_rows = evidence.get("files", [])
     lookup = {row.get("elementFileId"): row for row in evidence_rows}
-    if len(evidence_rows) != 23 or set(lookup) != wanted or any(row.get("status") != "PASSED" for row in evidence_rows):
-        raise ValueError("Audit must contain exactly the 23 passing Element IDs")
+    if len(evidence_rows) != element_count or set(lookup) != wanted or any(row.get("status") != "PASSED" for row in evidence_rows):
+        raise ValueError(f"Audit must contain exactly the {element_count} passing Element IDs")
 
     doc = {"asset": {"version": "2.0", "generator": "3D Universe offline BodyParts3D candidate exporter",
                      "copyright": "BodyParts3D, The Database Center for Life Science (DBCLS); see source metadata"},

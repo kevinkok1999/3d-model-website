@@ -1,37 +1,17 @@
-import inventory from '../../model-audit/bodyparts3d-intake-candidates.json' with { type: 'json' };
+import inventory from '../../model-audit/bodyparts3d-combined-candidates.json' with { type: 'json' };
 
-// This remains the exact, source-labelled 21-concept candidate; no observed
+// Exact, source-labelled 71-concept candidate; no observed
 // geometry, registration or anatomical completeness is inferred from labels.
 export const MAX_MANIFEST_BYTES = 512 * 1024;
-export const MAX_GLB_BYTES = 128 * 1024 * 1024;
-
-const NL_CONCEPTS = Object.freeze({
-  FMA24474: 'Dijbeen (rechts)', FMA24475: 'Dijbeen (links)',
-  FMA24477: 'Scheenbeen (rechts)', FMA24478: 'Scheenbeen (links)',
-  FMA24473: 'Vijfde middenhandsbeentje (links)', FMA24501: 'Scheepvormig voetbeen (links)',
-  FMA37684: 'Korte kop van de biceps brachii (rechts)', FMA37685: 'Korte kop van de biceps brachii (links)',
-  FMA37686: 'Lange kop van de biceps brachii (rechts)', FMA37687: 'Lange kop van de biceps brachii (links)',
-  FMA38479: 'Diepe vingerbuiger (rechts)', FMA38480: 'Diepe vingerbuiger (links)',
-  FMA38928: 'Rectus femoris (rechts)', FMA38929: 'Rectus femoris (links)',
-  FMA22733: 'Spaakbeenslagader (rechts)', FMA22734: 'Spaakbeenslagader (links)',
-  FMA22797: 'Ellebeenslagader (rechts)', FMA22798: 'Ellebeenslagader (links)',
-  FMA22948: 'Spaakbeenader (rechts)', FMA22949: 'Spaakbeenader (links)',
-  FMA3815: 'Eerste voorste ventrikelvertakking van de rechter kransslagader',
-});
-
-const CONCEPT_REGION = Object.freeze({
-  FMA24474:'lower-limb', FMA24475:'lower-limb', FMA24477:'lower-limb', FMA24478:'lower-limb',
-  FMA24473:'upper-limb', FMA24501:'lower-limb',
-  FMA37684:'upper-limb', FMA37685:'upper-limb', FMA37686:'upper-limb', FMA37687:'upper-limb',
-  FMA38479:'upper-limb', FMA38480:'upper-limb', FMA38928:'lower-limb', FMA38929:'lower-limb',
-  FMA22733:'upper-limb', FMA22734:'upper-limb', FMA22797:'upper-limb', FMA22798:'upper-limb',
-  FMA22948:'upper-limb', FMA22949:'upper-limb', FMA3815:'trunk',
-});
+export const MAX_GLB_BYTES = 256 * 1024 * 1024;
+// Raw SHA-256 of the committed combined inventory; intentionally reject stale
+// exports, subset manifests and reformatted/substituted data.
+export const CANDIDATE_INVENTORY_SHA256 = '1cf9dd5a0264fc477ea2c07a8f7bd000d000655c6b4b50c5d54ee91bae13e3bd';
 
 export const CANDIDATE_CONCEPTS = Object.freeze(inventory.candidates.map(row => Object.freeze({
   fma:row.fma, representation:row.representation, sourceLabel:row.sourceLabel,
   elementFileIds:Object.freeze([...row.elementFileIds]), system:row.proposedSystem,
-  region:CONCEPT_REGION[row.fma],
+  region:row.proposedRegion, draftDutchLabel:row.proposedDutchLabel,
 })));
 export const CANDIDATE_SOURCE = Object.freeze({...inventory.source});
 const EXPECTED_CONCEPTS = new Map(CANDIDATE_CONCEPTS.map(row => [row.fma,row]));
@@ -39,7 +19,8 @@ const EXPECTED_ELEMENTS = new Set(CANDIDATE_CONCEPTS.flatMap(row => row.elementF
 
 export function candidateLabel(concept, locale='nl') {
   if (!concept || !EXPECTED_CONCEPTS.has(concept.fma)) throw new Error('Unknown source concept.');
-  return locale==='nl' ? NL_CONCEPTS[concept.fma] : EXPECTED_CONCEPTS.get(concept.fma).sourceLabel;
+  const expected=EXPECTED_CONCEPTS.get(concept.fma);
+  return locale==='nl' ? expected.draftDutchLabel : expected.sourceLabel;
 }
 export function candidateElementIds(concept) {
   const row=EXPECTED_CONCEPTS.get(concept?.fma);
@@ -73,8 +54,8 @@ export function validateCandidateManifest(manifest) {
       manifest.clinicallyVerified!==false || manifest.registration!=='UNREGISTERED_SOURCE_COORDINATES') {
     fail('Candidate manifest has no supported geometry-export proof.');
   }
-  if (!record(manifest.source)||!Object.entries(CANDIDATE_SOURCE).every(([k,v])=>manifest.source[k]===v)) fail('Candidate source metadata differs from the pinned inventory.');
-  if(!sha256(manifest.manifestSha256)||typeof manifest.scope!=='string'||!manifest.scope.length)fail('Missing export manifest provenance.');
+  if (!record(manifest.source)||Object.keys(manifest.source).length!==Object.keys(CANDIDATE_SOURCE).length||!Object.entries(CANDIDATE_SOURCE).every(([k,v])=>manifest.source[k]===v)) fail('Candidate source metadata differs from the pinned inventory.');
+  if(manifest.manifestSha256!==CANDIDATE_INVENTORY_SHA256||typeof manifest.scope!=='string'||!manifest.scope.length)fail('Missing or stale pinned export manifest provenance.');
   if (typeof manifest.fixtureOnly!=='boolean') fail('Missing fixture-only provenance marker.');
   const archive=manifest.archive, officialArchive='isa_BP3D_4.0_obj_99.zip';
   if(!record(archive)||typeof archive.name!=='string'||!/^[A-Za-z0-9_.-]{1,200}\.zip$/i.test(archive.name)||

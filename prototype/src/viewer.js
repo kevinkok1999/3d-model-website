@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { getViewDirection, cameraOffsetForView } from './camera-presets.js';
+import { pinnedBaseLandmarkAsset, prepareLandmarkSources, captureNativeLandmark, uniqueLandmarkHit } from './landmark-capture.js';
 
 // Technical spike. Catalog keys identify source geometry, not proven clinical
 // accuracy. Joint anchors are explicitly synthetic annotations, never meshes of
@@ -273,7 +274,7 @@ function buildModel(gltf, json, entries, variant) {
  * the current direction without clearing selection, isolation or layer state.
  * reset() remains the explicit clear-selection/clear-isolation/front-body fit.
  */
-export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, onError = () => {} } = {}) {
+export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, onError = () => {}, onCapture = () => {} } = {}) {
   if (!host?.appendChild) throw new TypeError('Een geldig viewer-hostelement is vereist.');
   const notify = (callback, value) => {
     try { callback(value); } catch (error) { console.error('Viewer host callback:', error); }
@@ -327,6 +328,7 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
   let gesture = null;
   let phase = 'idle', revision = 0, pendingController = null, raf = 0;
   let model = null, variant = null, selectedKey = null, isolateKey = null;
+  let captureMode = false;
   let visibleSystems = new Set(INITIAL_SYSTEMS), visibleKeys = [];
   let disposed = false, contextLost = false, atBodyFit = false;
   let viewDirection = 'front', framedKey = null, applyingCamera = false;
@@ -335,6 +337,7 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
   function getMetrics() {
     return {
       variant, ready: !!model && phase === 'ready' && !contextLost && !disposed, phase,
+      captureAvailable: !!model?.landmarkSources?.size && phase === 'ready' && !contextLost && !disposed,
       mappedKeys: [...(model?.mappedKeys ?? [])], hotspotKeys: [...(model?.hotspotKeys ?? [])],
       availableKeys: [...(model?.map.keys() ?? [])].sort(), missingKeys: [...(model?.missingKeys ?? [])],
       unknownMeshNames: [...(model?.unknownMeshNames ?? [])], meshCount: model?.meshObjects.length ?? 0,
@@ -353,6 +356,7 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
 
   function status(nextPhase, message, extra = {}) {
     phase = nextPhase;
+    if (nextPhase !== 'ready') setCaptureMode(false);
     if (extra.metrics === true) extra = { ...extra, metrics: getMetrics() };
     notify(onStatus, { phase, message, variant, ...extra });
   }
@@ -633,6 +637,7 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
       const bytes = await response.arrayBuffer();
       if (disposed || currentRevision !== revision) throw new DOMException('Lading geannuleerd.', 'AbortError');
       const json = parseGlbHeader(bytes);
+      const landmarkAsset = await pinnedBaseLandmarkAsset(nextVariant, bytes).catch(() => null);
       status('loading', 'Model verwerken…', { variant: nextVariant });
       gltf = await loader.parseAsync(bytes, new URL('./', localUrl).href);
       if (disposed || currentRevision !== revision) throw new DOMException('Lading geannuleerd.', 'AbortError');
@@ -640,6 +645,8 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
       const parsed = gltf;
       gltf = null;
       candidate = buildModel(parsed, json, entries, nextVariant);
+      candidate.landmarkSources = await prepareLandmarkSources(parsed, json, landmarkAsset, candidate.meshObjects);
+      if (disposed || currentRevision !== revision) throw new DOMException('Lading geannuleerd.', 'AbortError');
       clearModel();
       model = candidate;
       candidate = null;
@@ -688,6 +695,12 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
     return true;
   }
 
+  function setCaptureMode(enabled) {
+    captureMode = Boolean(enabled && getMetrics().captureAvailable);
+    canvas.style.cursor = captureMode ? 'crosshair' : '';
+    return captureMode;
+  }
+
   function pick(clientX, clientY) {
     if (!model || disposed || contextLost || phase !== 'ready') return;
     const rect = canvas.getBoundingClientRect();
@@ -705,7 +718,17 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
       return depth >= camera.near && depth <= camera.far;
     };
     const markerHit = raycaster.intersectObjects(pickables, false).find(insideCameraDepth);
-    const hit = markerHit ?? raycaster.intersectObjects(model.meshObjects.filter(effectiveVisibility), false).find(insideCameraDepth);
+    const meshHits = markerHit ? [] : raycaster.intersectObjects(model.meshObjects.filter(effectiveVisibility), false).filter(insideCameraDepth);
+    const hit = markerHit ?? meshHits[0];
+    if (captureMode) {
+      // An overlay hotspot visually masks the mesh: do not invent a triangle
+      // behind the annotation or fall through to another ray intersection.
+      if (markerHit) { notify(onCapture, {error:'hotspot'}); return; }
+      if (!hit) { notify(onCapture, {error:'miss'}); return; }
+      try { const evidence=captureNativeLandmark(uniqueLandmarkHit(meshHits), model.landmarkSources);setCaptureMode(false);notify(onCapture,{evidence}); }
+      catch { notify(onCapture,{error:'unproven'}); }
+      return;
+    }
     const key = hit ? model.meshKeys.get(hit.object) : null;
     if (key && visibleKeys.includes(key)) select(key);
     // Empty space intentionally preserves the previous selection.
@@ -819,5 +842,5 @@ export function createViewer(host, { onSelect = () => {}, onStatus = () => {}, o
   resize();
   invalidate();
   status('idle', '3D-viewer gereed om een model te laden.');
-  return { load, setVisibleSystems, select, isolate, focus, fit, setView, reset, dispose, getMetrics };
+  return { load, setVisibleSystems, select, isolate, focus, fit, setView, reset, dispose, getMetrics, setCaptureMode };
 }

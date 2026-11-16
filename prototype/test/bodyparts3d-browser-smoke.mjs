@@ -16,13 +16,21 @@ const fixture = mode === '--fixture';
 const evidence = fixture ? 'SYNTHETIC_QA_FIXTURE_NOT_ANATOMY' : 'ACTUAL_CANDIDATE_NOT_CLINICALLY_VERIFIED';
 const screenshotPrefix = fixture ? 'synthetic-qa-not-anatomy' : 'actual-candidate-unreviewed';
 const require = createRequire(import.meta.url);
-const input = JSON.parse(readFileSync(new URL('../../model-audit/bodyparts3d-intake-candidates.json', import.meta.url), 'utf8'));
+const inputBytes = readFileSync(new URL('../../model-audit/bodyparts3d-combined-candidates.json', import.meta.url));
+const input = JSON.parse(inputBytes);
 const records = input.candidates;
+const upstream = ['bodyparts3d-intake-candidates.json','bodyparts3d-wave2-candidates.json']
+  .flatMap(name=>JSON.parse(readFileSync(new URL(`../../model-audit/${name}`,import.meta.url),'utf8')).candidates);
+assert.equal(upstream.length,71);
+for (const [i,row] of upstream.entries()) {
+  // Combined inventory adds provisional display/navigation fields only.
+  for (const [field,value] of Object.entries(row)) assert.deepEqual(records[i]?.[field],value,`${row.fma} source field ${field}`);
+}
 const sorted = xs => [...xs].sort();
 const keys = sorted(records.map(row => row.fma));
 const ids = sorted(new Set(records.flatMap(row => row.elementFileIds)));
-assert.equal(keys.length, 21);
-assert.equal(ids.length, 23);
+assert.equal(keys.length, 71);
+assert.equal(ids.length, 74);
 const target = new URL('/bodyparts3d-candidate.html', base);
 const manifestUrl = new URL('/bodyparts3d-candidate/model.json', base);
 const glbUrl = new URL('/bodyparts3d-candidate/model.glb', base);
@@ -45,7 +53,7 @@ try {
 }
 
 const checks = [], errors = [];
-const scope = 'All 21 source concept IDs, 23 element IDs, exact list/detail/visibility mapping, camera and responsive routes; not a ray-picking accuracy, clinical, or real-device performance test';
+const scope = 'All 71 source concept IDs, 74 element IDs, exact list/detail/visibility mapping, camera and responsive routes; not a ray-picking accuracy, clinical, or real-device performance test';
 const ready = page => page.locator('#bp-status[data-phase="ready"]').waitFor({ state: 'visible', timeout: 45000 });
 const listKeys = page => page.locator('#bp-list [data-key]').evaluateAll(nodes => nodes.map(n => n.dataset.key).sort());
 const viewport = page => page.locator('#bp-viewport');
@@ -55,7 +63,7 @@ const listButton = (page, fma) => page.locator(`#bp-list [data-key="${fma}"]`);
 const expectedElements = (suggestedIds) => sorted(suggestedIds);
 const assertCount = async (page, shown) => {
   const text = await page.locator('#bp-count').innerText();
-  assert.match(text, new RegExp(`\\b${shown}\\s*/\\s*21\\b`), 'Filtered and total concept counts distinguished');
+  assert.match(text, new RegExp(`\\b${shown}\\s*/\\s*71\\b`), 'Filtered and total concept counts distinguished');
 };
 const select = async (page, fma, keyboard = false) => {
   const button = listButton(page, fma);
@@ -67,7 +75,8 @@ const exactSelection = async (page, record) => {
   const pressed = await page.locator('#bp-list [data-key][aria-pressed="true"]').evaluateAll(nodes => nodes.map(n => n.dataset.key));
   assert.deepEqual(pressed, [record.fma], `${record.fma} exact unique selection`);
   assert.equal((await state(page)).selected, record.fma);
-  assert.ok((await page.locator('#bp-title').innerText()).trim().length > 0);
+  const language = await page.locator('#bp-locale').inputValue();
+  assert.equal((await page.locator('#bp-title').innerText()).trim(), language==='en'?record.sourceLabel:record.proposedDutchLabel);
   const text = (await page.locator('#bp-detail').innerText()).toLowerCase();
   for (const token of [record.fma, record.representation, record.sourceLabel, ...record.elementFileIds]) {
     assert.ok(text.includes(token.toLowerCase()), `${record.fma} missing exact detail token ${token}`);
@@ -88,6 +97,7 @@ try {
   assert.equal(manifest.status, 'GEOMETRY_EXPORT_PASSED');
   assert.equal(manifest.clinicallyVerified, false);
   assert.equal(manifest.registration, 'UNREGISTERED_SOURCE_COORDINATES');
+  assert.equal(manifest.manifestSha256, createHash('sha256').update(inputBytes).digest('hex'));
   assert.equal(manifest.fixtureOnly, fixture, 'Explicit provenance marker matches evidence mode');
   assert.equal(manifest.archive.name === 'isa_BP3D_4.0_obj_99.zip', !fixture, 'Provenance mode matches actual archive name');
   assert.match(manifest.archive.sha256, /^[a-f0-9]{64}$/);
@@ -122,17 +132,17 @@ try {
   if (fixture) assert.match(await page.locator('#bp-fixture-warning').innerText(), /synthetisch|synthetic/i);
   assert.equal(await viewport(page).isVisible(), true);
   assert.ok(await viewport(page).evaluate(canvas => canvas.width > 0 && canvas.height > 0), 'Positive canvas drawing buffer');
-  assert.deepEqual(await listKeys(page), keys, '21 unique candidate list entries');
-  await assertCount(page, 21);
+  assert.deepEqual(await listKeys(page), keys, '71 unique candidate list entries');
+  await assertCount(page, 71);
   const initial = await state(page);
-  assert.equal(Number(initial.mappedElements), 23);
-  assert.equal(Number(initial.visibleElements), 23);
+  assert.equal(Number(initial.mappedElements), 74);
+  assert.equal(Number(initial.visibleElements), 74);
   assert.deepEqual(visibleIds(initial), ids);
   assert.equal(await page.locator('#bp-search').inputValue(), '');
   assert.equal(await page.locator('#bp-system').inputValue(), 'all');
   assert.equal(await page.locator('#bp-region').inputValue(), 'all');
 
-  // All 21 mappings must be equally actionable: each concept gets exact
+  // All 71 mappings must be equally actionable: each concept gets exact
   // selection and detail checks plus per-element isolation (not visual proof).
   for (const [i, record] of records.entries()) {
     await select(page, record.fma, i === 0);
@@ -147,18 +157,25 @@ try {
     await page.locator('#bp-isolate').click();
     assert.equal(await page.locator('#bp-isolate').getAttribute('aria-pressed'), 'false');
     assert.equal((await state(page)).isolated, '');
-    assert.deepEqual(visibleIds(await state(page)), ids, `${record.fma} restore all 23 elements`);
+    assert.deepEqual(visibleIds(await state(page)), ids, `${record.fma} restore all 74 elements`);
   }
-  checks.push('All 21 concepts: exact selected FMA/BP/source label/element IDs; isolation and restoration for each, including 3-element FMA3815; first via keyboard');
+  checks.push('All 71 concepts: exact selected FMA/BP/source label/element IDs; isolation and restoration for each, including 3-element FMA3815 and 2-element FMA52749; first via keyboard');
 
   const search = page.locator('#bp-search'), region = page.locator('#bp-region'), system = page.locator('#bp-system');
-  for (const name of ['skeleton', 'muscles', 'vessels']) {
+  for (const name of ['skeleton', 'muscles', 'vessels', 'nerves']) {
     await system.selectOption(name);
     assert.deepEqual(await listKeys(page), sorted(records.filter(r => r.proposedSystem === name).map(r => r.fma)), `Exact ${name} filter`);
     await assertCount(page, records.filter(r => r.proposedSystem === name).length);
     assert.deepEqual(visibleIds(await state(page)), ids, 'Navigation-only system filter preserves geometry');
   }
   await system.selectOption('all');
+  for (const name of ['head','neck','back','trunk','torso','shoulder','upper-limb','hand','thigh-hip','lower-limb']) {
+    await region.selectOption(name);
+    const regionRows=records.filter(r=>r.proposedRegion===name);
+    assert.deepEqual(await listKeys(page), sorted(regionRows.map(r=>r.fma)), `Exact proposed ${name} region`);
+    await assertCount(page,regionRows.length);
+    assert.deepEqual(visibleIds(await state(page)), ids, 'Navigation-only region filter preserves geometry');
+  }
   await region.selectOption('upper-limb');
   const upper = ['FMA24473', 'FMA37684', 'FMA37685', 'FMA37686', 'FMA37687', 'FMA38479', 'FMA38480', 'FMA22733', 'FMA22734', 'FMA22797', 'FMA22798', 'FMA22948', 'FMA22949'];
   assert.deepEqual(await listKeys(page), sorted(upper), 'Exact proposed upper-limb navigation scope');
@@ -177,8 +194,21 @@ try {
   await region.selectOption('all');
   await system.selectOption('all');
   assert.deepEqual(await listKeys(page), keys);
-  await assertCount(page, 21);
-  checks.push('All three system filters exact, upper-limb region intersection, FMA/BP search, no-match and all-result restoration');
+  await assertCount(page, 71);
+  await system.selectOption('nerves');
+  await region.selectOption('head');
+  assert.deepEqual(await listKeys(page), ['FMA52676','FMA52677']);
+  await search.fill('ethmoidalis links');
+  assert.deepEqual(await listKeys(page), ['FMA52677']);
+  await page.locator('#bp-locale').selectOption('en');
+  assert.deepEqual(await listKeys(page), ['FMA52677']);
+  await search.fill('anterior ethmoidal nerve right');
+  assert.deepEqual(await listKeys(page), ['FMA52676']);
+  await page.locator('#bp-locale').selectOption('nl');
+  await search.fill('');
+  await region.selectOption('all');
+  await system.selectOption('all');
+  checks.push('All four system and ten region filters exact, upper-limb and head/nerves intersections, bilingual name/FMA/BP search, no-match and all-result restoration');
 
   await select(page, 'FMA3815');
   await page.locator('#bp-isolate').click();
@@ -206,7 +236,7 @@ try {
   assert.equal(reset.selected, '');
   assert.equal(reset.isolated, '');
   await ready(page);
-  checks.push('Four camera presets, focus and fit preserve multi-element isolate/selection; reset restores all 23 elements and clears selection');
+  checks.push('Four camera presets, focus and fit preserve multi-element isolate/selection; reset restores all 74 elements and clears selection');
   if (screenshots) await page.screenshot({ path: resolve(screenshots, `bodyparts3d-${screenshotPrefix}-desktop.png`), fullPage: true });
   await page.close();
 

@@ -1,13 +1,35 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import inventory from '../../model-audit/bodyparts3d-intake-candidates.json' with { type: 'json' };
+import { readFileSync } from 'node:fs';
+import original from '../../model-audit/bodyparts3d-intake-candidates.json' with { type: 'json' };
+import wave2 from '../../model-audit/bodyparts3d-wave2-candidates.json' with { type: 'json' };
+import inventory from '../../model-audit/bodyparts3d-combined-candidates.json' with { type: 'json' };
 import {
   validateCandidateManifest, validateCandidateGlb, candidateLabel, selectCandidateConcepts,
   CANDIDATE_CONCEPTS, candidateElementIds,
 } from '../src/bodyparts3d-candidate-data.js';
 
+test('Viewer exposes both untouched source inventories with exact names, identities and navigation taxonomy', () => {
+  const expected = [...original.candidates, ...wave2.candidates];
+  assert.equal(CANDIDATE_CONCEPTS.length, 71);
+  assert.equal(new Set(CANDIDATE_CONCEPTS.flatMap(c => c.elementFileIds)).size, 74);
+  for (const source of expected) {
+    const concept = CANDIDATE_CONCEPTS.find(c => c.fma === source.fma);
+    assert.ok(concept, source.fma);
+    assert.equal(concept.representation, source.representation);
+    assert.equal(candidateLabel(concept, 'en'), source.sourceLabel);
+    assert.equal(concept.system, source.proposedSystem);
+    if (source.proposedRegion) assert.equal(concept.region, source.proposedRegion);
+    assert.ok(candidateLabel(concept, 'nl')?.length, source.fma);
+    assert.deepEqual(candidateElementIds(concept), source.elementFileIds);
+  }
+  assert.deepEqual(selectCandidateConcepts(CANDIDATE_CONCEPTS, {region:'head',system:'nerves'}).map(c=>c.fma), ['FMA52676','FMA52677']);
+  assert.deepEqual(candidateElementIds(find('FMA52749')), ['FJ2772','FJ3201']);
+});
+
 const ZERO_HASH = '0'.repeat(64);
+const INVENTORY_HASH = createHash('sha256').update(readFileSync(new URL('../../model-audit/bodyparts3d-combined-candidates.json', import.meta.url))).digest('hex');
 const bounds = { min: [0, 0, 0], max: [1, 1, 1] };
 const elements = [...new Set(inventory.candidates.flatMap(row => row.elementFileIds))].sort();
 function manifestFixture() {
@@ -15,7 +37,7 @@ function manifestFixture() {
     schemaVersion: 1, status: 'GEOMETRY_EXPORT_PASSED', clinicallyVerified: false,
     registration: 'UNREGISTERED_SOURCE_COORDINATES', source: structuredClone(inventory.source),
     fixtureOnly:true, archive:{name:'SYNTHETIC-QA-ONLY.zip',sha256:ZERO_HASH,bytes:200},
-    manifestSha256:ZERO_HASH, scope:'Synthetic test-only provenance',
+    manifestSha256:INVENTORY_HASH, scope:'Synthetic test-only provenance',
     glb: { name: 'model.glb', sha256: ZERO_HASH, bytes: 24 }, bounds,
     files: elements.map((elementFileId, nodeIndex) => ({
       elementFileId, nodeIndex, bounds, sourceBounds: bounds,
@@ -57,11 +79,11 @@ function glbFixture(manifest, mutate = () => {}) {
   return output;
 }
 
-test('Manifest matches all 21 official draft concepts and 23 exact ELEMENT ids, including composite concept', () => {
+test('Manifest matches all 71 official draft concepts and 74 exact ELEMENT ids, including composite concepts', () => {
   const manifest = manifestFixture();
   const actual = validateCandidateManifest(manifest);
-  assert.equal(actual.conceptMappings.length, 21);
-  assert.equal(actual.files.length, 23);
+  assert.equal(actual.conceptMappings.length, 71);
+  assert.equal(actual.files.length, 74);
   assert.deepEqual(CANDIDATE_CONCEPTS.map(x => x.fma), inventory.candidates.map(x => x.fma));
   assert.deepEqual(candidateElementIds(find('FMA3815')), ['FJ2671','FJ2673','FJ2677']);
   assert.equal(candidateLabel(find('FMA24475'), 'en'), 'left femur');
@@ -80,6 +102,8 @@ test('Missing, altered, unverified or duplicate evidence fails closed', () => {
     m => { m.clinicallyVerified = true; },
     m => { m.registration = 'REGISTERED'; },
     m => { m.source.referenceVariant = 'female'; },
+    m => { m.source.unverifiedAdditionalField = true; },
+    m => { m.manifestSha256 = ZERO_HASH; },
     m => { delete m.fixtureOnly; },
     m => { m.fixtureOnly = false; },
     m => { m.archive.name='isa_BP3D_4.0_obj_99.zip'; },
@@ -112,9 +136,12 @@ test('GLB must match manifest exact byte length, SHA256, node names and all unre
 });
 
 test('Candidate bilingual search and regional/system filters preserve a concept once', () => {
-  assert.equal(selectCandidateConcepts(CANDIDATE_CONCEPTS).length, 21);
+  assert.equal(selectCandidateConcepts(CANDIDATE_CONCEPTS).length, 71);
   assert.equal(selectCandidateConcepts(CANDIDATE_CONCEPTS, {region:'lower-limb', system:'skeleton'}).length, 5);
   assert.deepEqual(selectCandidateConcepts(CANDIDATE_CONCEPTS, {query:'dijbeen links'}).map(x=>x.fma), ['FMA24475']);
   assert.deepEqual(selectCandidateConcepts(CANDIDATE_CONCEPTS, {query:'RAdial artery left',locale:'en'}).map(x=>x.fma), ['FMA22734']);
   assert.deepEqual(selectCandidateConcepts(CANDIDATE_CONCEPTS, {query:'FMA3815'}).map(x=>x.fma), ['FMA3815']);
+  assert.deepEqual(selectCandidateConcepts(CANDIDATE_CONCEPTS, {query:'tongbeen'}).map(x=>x.fma), ['FMA52749']);
+  assert.deepEqual(selectCandidateConcepts(CANDIDATE_CONCEPTS, {query:'Anterior ethmoidal nerve left',locale:'en'}).map(x=>x.fma), ['FMA52677']);
+  assert.deepEqual(selectCandidateConcepts(CANDIDATE_CONCEPTS, {query:'FJ3201'}).map(x=>x.fma), ['FMA52749']);
 });
