@@ -1,6 +1,6 @@
 # 3D Universe — technisch voorbereidingspakket
 
-**Status:** ontwerpvoorstel voor besluitvorming, geen gebouwde applicatie.  
+**Status:** technisch ontwerp plus geïsoleerde 3D-ontwikkelspike; geen vrijgegeven atlas.  
 **Datum:** 15 november 2026.  
 **Taal:** Nederlands. Productinterface vanaf v1: Nederlands en Engels.
 
@@ -47,3 +47,7 @@ Bekijk [het geïntegreerde UX-overzicht](docs/ux/UX-00-OVERZICHT.md), inclusief 
 - [Model-audit en dekkingsledger](model-audit/README.md) — reproduceerbare cataloguscontrole, 285 kandidaatrijen en 19 reviewpunten per rij, tests. Geen anatomische GLB of werkende viewer geverifieerd.
 
 - [Afmaakbacklog van de eerste kandidaat](docs/model/GAP-BACKLOG.md) — gegroepeerde/ontbrekende structuren krijgen bron-, detail- en reviewtaken.
+
+## Technische 3D-spike (fase 1)
+
+Zie [prototype/README.md](prototype/README.md) en [de meetresultaten](prototype/RESULTS.md). Start lokaal met `npm ci` en `npm run dev`. De oorspronkelijke Vercel-productie blijft de voorbereidingspagina. Geen vrijgave zonder onafhankelijke review en alle uniforme kwaliteitsgates.

@@ -1,6 +1,6 @@
 # Start hier — fase 0
 
-Status: technische voorbereiding vastgelegd; geen werkende 3D-engine of gevalideerde anatomische assets.
+Status: technische voorbereiding plus een geïsoleerde 3D-engine-spike; geen anatomische validatie of publieke release.
 
 1. Lees [masterplan](docs/01-MASTERPLAN.md) en [specialistenteam](docs/02-SPECIALISTENTEAM.md).
 2. Doorloop de [roadmap](planning/05-ROADMAP-EN-BACKLOG.md) en [risico- en testmatrix](planning/06-RISICOS-EN-TESTPLAN.md).
@@ -22,3 +22,7 @@ Lees vóór de technische spike [de UX-blauwdruk](docs/ux/UX-00-OVERZICHT.md). V
 
 ## 3D-modelwerk: hoogste prioriteit
 Lees [het 3D-masterdocument](docs/model/MASTER.md), [het uniforme kwaliteitscontract](docs/model/QUALITY-CONTRACT.md) en [de model-audit](model-audit/README.md). De eerste kandidaat omvat 147 cataloguslabels, die nog niet de definitieve anatomische doellijst vormen. Ontbrekende delen worden concrete afmaaktaken; geen gehele-lichaamclaim voordat de doelcatalogus en elke afzonderlijke structuur zijn beoordeeld.
+
+## Fase 1 — proefopstelling
+
+[Startinstructies en scope](prototype/README.md) · [Meetresultaten en openstaande blokkades](prototype/RESULTS.md). De echte binaries worden tijdens build uit de vastgepinde npm-package gehaald. De productieconfiguratie blijft ongewijzigd.

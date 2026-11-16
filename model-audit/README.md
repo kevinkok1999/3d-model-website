@@ -49,3 +49,7 @@ Bron: [vastgepinde repository](https://github.com/MervinR07/open-anatomy-3d/tree
 ## Niet afvinken vóór bewijs
 
 Khronos glTF Validator, werkelijke decode, mapping per mesh, juiste laag/oriëntatie/afmetingen, wetenschappelijke beoordeling, render- en pickingtests, echte mobiele en desktopmetingen, en NL/EN-vijfmodi-inhoud moeten afzonderlijk worden uitgevoerd. Hoogdetail-assets worden alleen toegevoegd na dezelfde tests. Geen productieclaims rond volledigheid of diagnose.
+
+## Update 15 november 2026 — geïsoleerde technische spike
+
+De oudere audit hierboven is de nulmeting. Inmiddels zijn beide GLB-bestanden via de vastgepinde npm-package verkregen en byte-identiek aan de upstream blobhashes. Beide zijn in Three.js met Meshopt gedecodeerd: 128 en 133 echte bronmeshes; alle geteste vertexattributen, indices en bounds voldoen. De metadata- en geometrieproeven veranderen de anatomische releasegate niet. De beperkte software-WebGL-browserproef in GitHub Actions run 43737778931 is geslaagd; volledige visuele, inhoudelijke en mobiele apparaatvalidatie is nog niet afgetekend. Zie [meetresultaten](../prototype/RESULTS.md) en [de tests](../prototype/test).
